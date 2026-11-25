@@ -219,6 +219,39 @@
       font-size: 12.5px;
       font-weight: 500;
     }
+    .map-zoom-controls {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: rgba(9, 13, 22, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 5px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      border-radius: 6px;
+    }
+    .zoom-btn:hover { background: var(--pea-purple); border-color: var(--pea-gold); }
+    .zoom-level-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #fde68a;
+      padding: 1px 0;
+    }
     .map-hint-bottom {
       position: absolute;
       bottom: 8px;
@@ -469,7 +502,7 @@
       <p>การไฟฟ้าส่วนภูมิภาค สาขาควนขนุน (PEA Khuan Khanun Survey & BOM Estimator)</p>
     </div>
   </div>
-  <div class="status-pill">● ระบบพร้อมใช้งาน (Dark Mode + Satellite & Pan)</div>
+  <div class="status-pill">● ระบบพร้อมใช้งาน (Dark Mode + Zoom & Satellite)</div>
 </header>
 
 <!-- แถบจัดการแยกโปรเจค -->
@@ -489,7 +522,7 @@
   <!-- ฝั่งซ้าย: แผนที่พิกัด GPS -->
   <div class="card map-card">
     <div class="card-header">
-      <h2>แผนที่พิกัดจุดสำรวจ (ลากเพื่อเลื่อนแผนที่ / คลิกเพื่อปักหมุด)</h2>
+      <h2>แผนที่พิกัดจุดสำรวจ (ลากเลื่อน / ซูมเข้า-ออก / คลิกปักหมุด)</h2>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
         <button class="btn-outline btn-sm" data-action="toggleMapMode" id="btnMapMode">โหมด: แผนที่ถนน (เข้ม)</button>
         <button class="btn-outline btn-sm" data-action="resetMapView">รีเซ็ตมุมมอง</button>
@@ -514,7 +547,15 @@
         <div class="coord-badge" id="cursorCoordBadge">พิกัดปักหมุด: 7.735800, 100.009200</div>
         <div class="coord-badge" id="poleCountBadge">จำนวนจุดสำรวจ: 0 จุด</div>
       </div>
-      <div class="map-hint-bottom">ลากเมาส์หรือนิ้วเพื่อเลื่อนแผนที่ • คลิก (ไม่ลาก) เพื่อย้ายหมุดพิกัด</div>
+
+      <!-- ปุ่มซูมเข้า-ออก -->
+      <div class="map-zoom-controls">
+        <button type="button" class="zoom-btn" data-action="zoomIn" title="ซูมเข้า (+)">+</button>
+        <span class="zoom-level-text" id="zoomLevelLabel">Z16</span>
+        <button type="button" class="zoom-btn" data-action="zoomOut" title="ซูมออก (-)">−</button>
+      </div>
+
+      <div class="map-hint-bottom">ลากเพื่อเลื่อน • หมุนลูกกลิ้งหรือกด +/- เพื่อซูม • คลิกเพื่อปักหมุด</div>
     </div>
 
     <div class="map-legend">
@@ -818,7 +859,7 @@
   }
 
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V4";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V5";
   let memoryFallback = null;
 
   function loadData() {
@@ -966,14 +1007,14 @@
   let appState = loadData();
   let selectedCoord = { lat: 7.735800, lng: 100.009200 };
   let mapCenter = { lat: 7.735800, lng: 100.009200 };
+  let currentZoom = 16;
+  const MIN_ZOOM = 12;
+  const MAX_ZOOM = 19;
   let isSatellite = false;
   let draftSpecs = { install: null, remove: null };
 
-  // Satellite Tile Cache (Web Mercator z=16)
-  const TILE_ZOOM = 16;
+  // Dynamic Web Mercator Projection with Zoom Support
   const tileCache = new Map();
-  let tileLoadCount = 0;
-  let tileErrorCount = 0;
 
   function lon2tile(lon, zoom) {
     return ((lon + 180) / 360) * Math.pow(2, zoom);
@@ -990,45 +1031,68 @@
     return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
   }
 
-  // Pixel per degree around lat ~7.73 at zoom 16 (~750,000 px/deg)
-  const PX_PER_DEG_LNG = 750000;
-  const PX_PER_DEG_LAT = 756000;
+  function getScaleFactors(zoom) {
+    const mult = Math.pow(2, zoom - 16);
+    return {
+      pxPerDegLng: 750000 * mult,
+      pxPerDegLat: 756000 * mult
+    };
+  }
 
-  function latLngToCanvas(lat, lng, width, height) {
-    const x = width / 2 + (lng - mapCenter.lng) * PX_PER_DEG_LNG;
-    const y = height / 2 - (lat - mapCenter.lat) * PX_PER_DEG_LAT;
+  function latLngToCanvas(lat, lng, width, height, zoom = currentZoom) {
+    const { pxPerDegLng, pxPerDegLat } = getScaleFactors(zoom);
+    const x = width / 2 + (lng - mapCenter.lng) * pxPerDegLng;
+    const y = height / 2 - (lat - mapCenter.lat) * pxPerDegLat;
     return { x, y };
   }
 
-  function canvasToLatLng(x, y, width, height) {
-    const lng = mapCenter.lng + (x - width / 2) / PX_PER_DEG_LNG;
-    const lat = mapCenter.lat - (y - height / 2) / PX_PER_DEG_LAT;
+  function canvasToLatLng(x, y, width, height, zoom = currentZoom) {
+    const { pxPerDegLng, pxPerDegLat } = getScaleFactors(zoom);
+    const lng = mapCenter.lng + (x - width / 2) / pxPerDegLng;
+    const lat = mapCenter.lat - (y - height / 2) / pxPerDegLat;
     return { lat, lng };
   }
 
-  function getSatelliteTile(tx, ty) {
-    const key = `${TILE_ZOOM}/${tx}/${ty}`;
+  function setZoom(newZoom, anchorPixel = null) {
+    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.round(newZoom)));
+    if (clamped === currentZoom) return;
+
+    const canvas = document.getElementById("surveyMap");
+    if (anchorPixel && canvas) {
+      const beforeCoord = canvasToLatLng(anchorPixel.x, anchorPixel.y, canvas.width, canvas.height, currentZoom);
+      currentZoom = clamped;
+      const { pxPerDegLng, pxPerDegLat } = getScaleFactors(currentZoom);
+      mapCenter.lng = beforeCoord.lng - (anchorPixel.x - canvas.width / 2) / pxPerDegLng;
+      mapCenter.lat = beforeCoord.lat + (anchorPixel.y - canvas.height / 2) / pxPerDegLat;
+    } else {
+      currentZoom = clamped;
+    }
+
+    const label = document.getElementById("zoomLevelLabel");
+    if (label) label.textContent = `Z${currentZoom}`;
+    drawMap();
+  }
+
+  function getSatelliteTile(tx, ty, z) {
+    const key = `${z}/${tx}/${ty}`;
     if (tileCache.has(key)) {
       return tileCache.get(key);
     }
     const entry = { img: new Image(), loaded: false, failed: false };
     entry.img.crossOrigin = "anonymous";
-    tileLoadCount++;
-    updateSatStatusLabel("กำลังโหลดภาพดาวเทียม...");
+    updateSatStatusLabel(`กำลังโหลดดาวเทียม (Z${z})...`);
 
     entry.img.onload = () => {
       entry.loaded = true;
-      updateSatStatusLabel("ดาวเทียม: Esri World Imagery");
+      updateSatStatusLabel(`ดาวเทียม: Esri World Imagery (Z${z})`);
       drawMap();
     };
     entry.img.onerror = () => {
       entry.failed = true;
-      tileErrorCount++;
       updateSatStatusLabel("ดาวเทียม: โหมดจำลองภูมิประเทศ (ออฟไลน์/บล็อก)");
       drawMap();
     };
-    // Esri World Imagery XYZ Tile
-    entry.img.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${TILE_ZOOM}/${ty}/${tx}`;
+    entry.img.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`;
     tileCache.set(key, entry);
     return entry;
   }
@@ -1060,37 +1124,38 @@
     const ctx = canvas.getContext("2d");
     const w = canvas.width;
     const h = canvas.height;
+    const { pxPerDegLng, pxPerDegLat } = getScaleFactors(currentZoom);
 
     // Dark base fill
     ctx.fillStyle = isSatellite ? "#0b1320" : "#0f172a";
     ctx.fillRect(0, 0, w, h);
 
     if (isSatellite) {
-      const topLeft = canvasToLatLng(0, 0, w, h);
-      const bottomRight = canvasToLatLng(w, h, w, h);
+      const tileZ = Math.min(18, currentZoom);
+      const topLeft = canvasToLatLng(0, 0, w, h, currentZoom);
+      const bottomRight = canvasToLatLng(w, h, w, h, currentZoom);
 
-      const minTx = Math.floor(lon2tile(topLeft.lng, TILE_ZOOM));
-      const maxTx = Math.floor(lon2tile(bottomRight.lng, TILE_ZOOM));
-      const minTy = Math.floor(lat2tile(topLeft.lat, TILE_ZOOM));
-      const maxTy = Math.floor(lat2tile(bottomRight.lat, TILE_ZOOM));
+      const minTx = Math.floor(lon2tile(topLeft.lng, tileZ));
+      const maxTx = Math.floor(lon2tile(bottomRight.lng, tileZ));
+      const minTy = Math.floor(lat2tile(topLeft.lat, tileZ));
+      const maxTy = Math.floor(lat2tile(bottomRight.lat, tileZ));
 
       for (let tx = minTx; tx <= maxTx; tx++) {
         for (let ty = minTy; ty <= maxTy; ty++) {
-          const tile = getSatelliteTile(tx, ty);
-          const tLat1 = tile2lat(ty, TILE_ZOOM);
-          const tLng1 = tile2lon(tx, TILE_ZOOM);
-          const tLat2 = tile2lat(ty + 1, TILE_ZOOM);
-          const tLng2 = tile2lon(tx + 1, TILE_ZOOM);
+          const tile = getSatelliteTile(tx, ty, tileZ);
+          const tLat1 = tile2lat(ty, tileZ);
+          const tLng1 = tile2lon(tx, tileZ);
+          const tLat2 = tile2lat(ty + 1, tileZ);
+          const tLng2 = tile2lon(tx + 1, tileZ);
 
-          const p1 = latLngToCanvas(tLat1, tLng1, w, h);
-          const p2 = latLngToCanvas(tLat2, tLng2, w, h);
+          const p1 = latLngToCanvas(tLat1, tLng1, w, h, currentZoom);
+          const p2 = latLngToCanvas(tLat2, tLng2, w, h, currentZoom);
           const tw = Math.ceil(p2.x - p1.x) + 1;
           const th = Math.ceil(p2.y - p1.y) + 1;
 
           if (tile.loaded) {
             ctx.drawImage(tile.img, p1.x, p1.y, tw, th);
           } else {
-            // Dark satellite fallback pattern while loading or if offline
             ctx.fillStyle = ((tx + ty) % 2 === 0) ? "#131c2e" : "#172238";
             ctx.fillRect(p1.x, p1.y, tw, th);
             ctx.strokeStyle = "rgba(148,163,184,0.12)";
@@ -1098,16 +1163,16 @@
           }
         }
       }
-      // Subtle dark tint so markers & labels pop clearly on satellite imagery
-      ctx.fillStyle = "rgba(2, 6, 23, 0.22)";
+      ctx.fillStyle = "rgba(2, 6, 23, 0.2)";
       ctx.fillRect(0, 0, w, h);
     } else {
-      // Dark street grid mode
+      // Dark street grid mode scaled by zoom
       ctx.strokeStyle = "rgba(148, 163, 184, 0.14)";
       ctx.lineWidth = 1;
-      const step = 48;
-      const offsetX = ((w / 2 - mapCenter.lng * PX_PER_DEG_LNG) % step + step) % step;
-      const offsetY = ((h / 2 + mapCenter.lat * PX_PER_DEG_LAT) % step + step) % step;
+      const baseStep = 48 * Math.pow(2, (currentZoom - 16) * 0.5);
+      const step = Math.max(24, Math.min(96, baseStep));
+      const offsetX = ((w / 2 - mapCenter.lng * pxPerDegLng) % step + step) % step;
+      const offsetY = ((h / 2 + mapCenter.lat * pxPerDegLat) % step + step) % step;
 
       for (let x = offsetX; x < w; x += step) {
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
@@ -1116,13 +1181,14 @@
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
       }
 
-      // Simulated road line anchored in lat/lng so it pans smoothly
-      const rStart = latLngToCanvas(7.7354, 100.0055, w, h);
-      const rMid = latLngToCanvas(7.7360, 100.0090, w, h);
-      const rEnd = latLngToCanvas(7.7364, 100.0130, w, h);
+      // Simulated local road anchored in lat/lng
+      const rStart = latLngToCanvas(7.7354, 100.0055, w, h, currentZoom);
+      const rMid = latLngToCanvas(7.7360, 100.0090, w, h, currentZoom);
+      const rEnd = latLngToCanvas(7.7364, 100.0130, w, h, currentZoom);
+      const roadW = Math.max(6, 14 * Math.pow(2, (currentZoom - 16) * 0.4));
 
       ctx.strokeStyle = "#263349";
-      ctx.lineWidth = 14;
+      ctx.lineWidth = roadW;
       ctx.beginPath();
       ctx.moveTo(rStart.x, rStart.y);
       ctx.quadraticCurveTo(rMid.x, rMid.y, rEnd.x, rEnd.y);
@@ -1147,7 +1213,7 @@
       ctx.lineWidth = 3;
       ctx.beginPath();
       poles.forEach((p, i) => {
-        const pt = latLngToCanvas(p.lat, p.lng, w, h);
+        const pt = latLngToCanvas(p.lat, p.lng, w, h, currentZoom);
         if (i === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       });
@@ -1156,7 +1222,7 @@
 
     // Pole markers
     poles.forEach(p => {
-      const pt = latLngToCanvas(p.lat, p.lng, w, h);
+      const pt = latLngToCanvas(p.lat, p.lng, w, h, currentZoom);
       let color = "#22c55e";
       if (p.workType === "REMOVE") color = "#ef4444";
       else if (p.workType === "SWAP") color = "#3b82f6";
@@ -1181,7 +1247,7 @@
     });
 
     // Selected pin crosshair
-    const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h);
+    const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h, currentZoom);
     ctx.strokeStyle = "#fbbf24";
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -1193,12 +1259,14 @@
     ctx.stroke();
   }
 
-  function initCanvasPanAndClick() {
+  function initCanvasPanZoomAndClick() {
     const canvas = document.getElementById("surveyMap");
     let isDragging = false;
     let movedDistance = 0;
     let lastX = 0;
     let lastY = 0;
+    let initialPinchDist = 0;
+    let initialPinchZoom = currentZoom;
 
     function onPointerDown(clientX, clientY) {
       isDragging = true;
@@ -1216,8 +1284,9 @@
       lastX = clientX;
       lastY = clientY;
 
-      mapCenter.lng -= dx / PX_PER_DEG_LNG;
-      mapCenter.lat += dy / PX_PER_DEG_LAT;
+      const { pxPerDegLng, pxPerDegLat } = getScaleFactors(currentZoom);
+      mapCenter.lng -= dx / pxPerDegLng;
+      mapCenter.lat += dy / pxPerDegLat;
       drawMap();
     }
 
@@ -1226,35 +1295,62 @@
       isDragging = false;
       canvas.classList.remove("dragging");
 
-      // Treat as click-to-pin if pointer barely moved
       if (movedDistance < 6) {
         const rect = canvas.getBoundingClientRect();
         const x = clientX - rect.left;
         const y = clientY - rect.top;
-        const pt = canvasToLatLng(x, y, canvas.width, canvas.height);
+        const pt = canvasToLatLng(x, y, canvas.width, canvas.height, currentZoom);
         setSelectedCoord(pt.lat, pt.lng, false);
       }
     }
 
+    // Mouse Pan & Click
     canvas.addEventListener("mousedown", (e) => onPointerDown(e.clientX, e.clientY));
     window.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
     window.addEventListener("mouseup", (e) => onPointerUp(e.clientX, e.clientY));
 
+    // Mouse Wheel Zoom
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const anchor = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      const delta = e.deltaY < 0 ? 1 : -1;
+      setZoom(currentZoom + delta, anchor);
+    }, { passive: false });
+
+    // Touch Pan & Pinch Zoom
     canvas.addEventListener("touchstart", (e) => {
       if (e.touches.length === 1) {
         onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        initialPinchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        initialPinchZoom = currentZoom;
       }
     }, { passive: true });
 
     window.addEventListener("touchmove", (e) => {
       if (isDragging && e.touches.length === 1) {
         onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      } else if (e.touches.length === 2 && initialPinchDist > 0) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const zoomOffset = Math.log2(dist / initialPinchDist);
+        setZoom(initialPinchZoom + zoomOffset);
       }
     }, { passive: true });
 
     window.addEventListener("touchend", (e) => {
       if (isDragging && e.changedTouches.length > 0) {
         onPointerUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      }
+      if (e.touches.length < 2) {
+        initialPinchDist = 0;
       }
     });
 
@@ -1745,6 +1841,14 @@
       document.getElementById("tab-bom").classList.toggle("hidden", tab !== "bom");
     }
 
+    else if (action === "zoomIn") {
+      setZoom(currentZoom + 1);
+    }
+
+    else if (action === "zoomOut") {
+      setZoom(currentZoom - 1);
+    }
+
     else if (action === "toggleMapMode") {
       isSatellite = !isSatellite;
       btn.textContent = isSatellite ? "โหมด: ภาพดาวเทียม" : "โหมด: แผนที่ถนน (เข้ม)";
@@ -1753,6 +1857,7 @@
 
     else if (action === "resetMapView") {
       mapCenter = { lat: selectedCoord.lat, lng: selectedCoord.lng };
+      setZoom(16);
       drawMap();
     }
 
@@ -2069,7 +2174,7 @@
   }
 
   function boot() {
-    initCanvasPanAndClick();
+    initCanvasPanZoomAndClick();
     renderProjectUI();
   }
 
