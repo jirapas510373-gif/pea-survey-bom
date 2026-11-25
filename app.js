@@ -1,26 +1,6 @@
 (function() {
   "use strict";
 
-  // 0. Helper ผูกไอคอนจาก PEA_ICONS
-  function iconHtml(name, size = 16, extraClass = "") {
-    if (window.PEA_ICONS && typeof window.PEA_ICONS[name] === "function") {
-      return window.PEA_ICONS[name](size, extraClass);
-    }
-    return "";
-  }
-
-  function hydrateIcons(root = document) {
-    if (!window.PEA_ICONS) return;
-    root.querySelectorAll("[data-icon]").forEach(el => {
-      const key = el.dataset.icon;
-      const size = parseInt(el.dataset.iconSize || "16", 10);
-      const extraClass = el.dataset.iconClass || "";
-      if (typeof window.PEA_ICONS[key] === "function") {
-        el.innerHTML = window.PEA_ICONS[key](size, extraClass);
-      }
-    });
-  }
-
   // 1. ฐานข้อมูลอุปกรณ์หัวเสาแรงสูง (ครบ 40 รายการ)
   const HV_TOP_HARDWARE = [
     { type: "SP", system: "1 Phase" },
@@ -920,13 +900,11 @@
 
     const activeSrc = MAP_SOURCES[mapSourceIndex] || MAP_SOURCES[0];
     const srcBtn = document.getElementById("btnMapSource");
-    if (srcBtn) srcBtn.innerHTML = `${iconHtml("satellite", 14)} แหล่งภาพ: ${activeSrc.name}`;
+    if (srcBtn) srcBtn.textContent = `แหล่งภาพ: ${activeSrc.name}`;
 
     const mapModeBtn = document.getElementById("btnMapMode");
     if (mapModeBtn) {
-      mapModeBtn.innerHTML = isSatellite
-        ? `${iconHtml("grid", 14)} โหมด: ดาวเทียม`
-        : `${iconHtml("grid", 14)} โหมด: ตารางเส้น`;
+      mapModeBtn.textContent = isSatellite ? "โหมด: ดาวเทียม" : "โหมด: ตารางเส้น";
     }
 
     updateZoomBadge();
@@ -968,26 +946,26 @@
     container.innerHTML = poles.map((p, idx) => {
       const isHeadOnly = p.workType === "SWAP_HEAD";
       let badgeHtml = "";
-      if (p.workType === "NEW") badgeHtml = `<span class="badge badge-new">${iconHtml("poleNew", 13, "icon-new")} ปักเสาใหม่ (${p.singleSystem})</span>`;
-      else if (p.workType === "REMOVE") badgeHtml = `<span class="badge badge-rem">${iconHtml("poleRemove", 13, "icon-rem")} รื้อถอนเสา (${p.singleSystem})</span>`;
-      else if (p.workType === "SWAP_HEAD") badgeHtml = `<span class="badge badge-head">${iconHtml("poleHead", 13, "icon-head")} สับเปลี่ยนเฉพาะหัวเสา (${p.singleSystem})</span>`;
-      else badgeHtml = `<span class="badge badge-swap">${iconHtml("poleSwap", 13, "icon-swap")} สับเปลี่ยนเสา (${p.swapMode.replace("_TO_", " → ")})</span>`;
+      if (p.workType === "NEW") badgeHtml = `<span class="badge badge-new">ปักเสาใหม่ (${p.singleSystem})</span>`;
+      else if (p.workType === "REMOVE") badgeHtml = `<span class="badge badge-rem">รื้อถอนเสา (${p.singleSystem})</span>`;
+      else if (p.workType === "SWAP_HEAD") badgeHtml = `<span class="badge badge-head">สับเปลี่ยนเฉพาะหัวเสา (${p.singleSystem})</span>`;
+      else badgeHtml = `<span class="badge badge-swap">สับเปลี่ยนเสา (${p.swapMode.replace("_TO_", " → ")})</span>`;
 
       const hasTr = p.installSpec && p.installSpec.hasTransformer;
-      const trBadge = hasTr ? `<span class="badge badge-tr">${iconHtml("transformer", 13, "icon-tr")} TR ${escapeHtml(p.installSpec.trSize)}</span>` : "";
+      const trBadge = hasTr ? `<span class="badge badge-tr">TR ${escapeHtml(p.installSpec.trSize)}</span>` : "";
 
       const mRem = Number(p.meterRemoveCount) || 0;
       const mIns = Number(p.meterInstallCount) || 0;
       const meterBadges = [
-        mRem > 0 ? `<span class="badge badge-mtr">${iconHtml("meter", 13, "icon-lv")} รื้อมิเตอร์ ${mRem} เครื่อง</span>` : "",
-        mIns > 0 ? `<span class="badge badge-mtr">${iconHtml("meter", 13, "icon-lv")} ติดมิเตอร์ ${mIns} เครื่อง</span>` : ""
+        mRem > 0 ? `<span class="badge badge-mtr">รื้อมิเตอร์ ${mRem} เครื่อง</span>` : "",
+        mIns > 0 ? `<span class="badge badge-mtr">ติดมิเตอร์ ${mIns} เครื่อง</span>` : ""
       ].filter(Boolean).join(" ");
 
       let distBadge = "";
       if (idx > 0) {
         const prev = poles[idx - 1];
         const dMeters = calcDistanceMeters(prev.lat, prev.lng, p.lat, p.lng);
-        distBadge = `<span class="badge badge-dist">${iconHtml("crosshair", 12)} ระยะห่างจาก ${escapeHtml(prev.code)}: ${formatDistance(dMeters)}</span>`;
+        distBadge = `<span class="badge badge-dist">ระยะห่างจาก ${escapeHtml(prev.code)}: ${formatDistance(dMeters)}</span>`;
       }
 
       let summaryHtml = "";
@@ -1006,8 +984,8 @@
               <div style="font-size:12px; color:var(--text-muted);">Lat: ${Number(p.lat).toFixed(6)}, Lng: ${Number(p.lng).toFixed(6)}</div>
             </div>
             <div style="display:flex; gap:5px;">
-              <button class="btn-outline btn-sm" data-action="editPole" data-id="${p.id}">${iconHtml("edit", 13)} แก้ไข</button>
-              <button class="btn-red btn-sm" data-action="deletePole" data-id="${p.id}">${iconHtml("trash", 13)} ลบ</button>
+              <button class="btn-outline btn-sm" data-action="editPole" data-id="${p.id}">แก้ไข</button>
+              <button class="btn-red btn-sm" data-action="deletePole" data-id="${p.id}">ลบ</button>
             </div>
           </div>
           <div class="pole-details">
@@ -1166,14 +1144,14 @@
     html += `
       <div class="bom-voltage-group hv-group">
         <div class="bom-voltage-title">
-          <span style="color:#fde047;">${iconHtml("boltHV", 16, "icon-hv")} หมวดอุปกรณ์แรงสูง (HV) — ติดตั้งใหม่</span>
+          <span style="color:#fde047;">⚡ หมวดอุปกรณ์แรงสูง (HV) — ติดตั้งใหม่</span>
           <span class="badge badge-hv">${bom.installHV.length} รายการ</span>
         </div>
         ${renderBomTable(bom.installHV, "ไม่มีรายการวัสดุแรงสูงติดตั้งใหม่")}
       </div>
       <div class="bom-voltage-group lv-group">
         <div class="bom-voltage-title">
-          <span style="color:#7dd3fc;">${iconHtml("plugLV", 16, "icon-lv")} หมวดอุปกรณ์แรงต่ำ (LV) — ติดตั้งใหม่</span>
+          <span style="color:#7dd3fc;">🔌 หมวดอุปกรณ์แรงต่ำ (LV) — ติดตั้งใหม่</span>
           <span class="badge badge-lv">${bom.installLV.length} รายการ</span>
         </div>
         ${renderBomTable(bom.installLV, "ไม่มีรายการวัสดุแรงต่ำติดตั้งใหม่")}
@@ -1184,14 +1162,14 @@
     html += `
       <div class="bom-voltage-group hv-group">
         <div class="bom-voltage-title">
-          <span style="color:#fde047;">${iconHtml("boltHV", 16, "icon-hv")} หมวดอุปกรณ์แรงสูง (HV) — รื้อถอนคืนคลัง</span>
+          <span style="color:#fde047;">⚡ หมวดอุปกรณ์แรงสูง (HV) — รื้อถอนคืนคลัง</span>
           <span class="badge badge-hv">${bom.removeHV.length} รายการ</span>
         </div>
         ${renderBomTable(bom.removeHV, "ไม่มีรายการวัสดุแรงสูงรื้อถอน")}
       </div>
       <div class="bom-voltage-group lv-group">
         <div class="bom-voltage-title">
-          <span style="color:#7dd3fc;">${iconHtml("plugLV", 16, "icon-lv")} หมวดอุปกรณ์แรงต่ำ (LV) — รื้อถอนคืนคลัง</span>
+          <span style="color:#7dd3fc;">🔌 หมวดอุปกรณ์แรงต่ำ (LV) — รื้อถอนคืนคลัง</span>
           <span class="badge badge-lv">${bom.removeLV.length} รายการ</span>
         </div>
         ${renderBomTable(bom.removeLV, "ไม่มีรายการวัสดุแรงต่ำรื้อถอน")}
@@ -1330,7 +1308,7 @@
 
     return `
       <div class="spec-section ${isInstall ? "install-box" : "remove-box"}">
-        <div class="spec-title">${iconHtml(isHV ? "boltHV" : "plugLV", 17, isHV ? "icon-hv" : "icon-lv")} ${title} [${isHV ? "ระบบแรงสูง HV" : "ระบบแรงต่ำ LV"}]</div>
+        <div class="spec-title">${title} [${isHV ? "ระบบแรงสูง HV" : "ระบบแรงต่ำ LV"}]</div>
         ${isHeadOnly && !isInstall ? `
         <div class="head-only-banner">
           ℹ️ โหมดสับเปลี่ยนเฉพาะหัวเสา: ระบบจะคำนวณเฉพาะอุปกรณ์หัวเสา RACK ยึดโยง และอุปกรณ์ประกอบ (ไม่รวมเสา คอร. ในบัญชีวัสดุ)
@@ -1365,7 +1343,7 @@
         ${isHV ? `
         <div style="margin-top:10px; padding:10px; background:#0f172a; border:1px solid var(--border); border-radius:8px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
-            <label style="margin:0;">${iconHtml("poleHead", 15, "icon-hv")} อุปกรณ์ประกอบหัวเสาแรงสูง (เลือกได้หลายรายการ)</label>
+            <label style="margin:0;">อุปกรณ์ประกอบหัวเสาแรงสูง (เลือกได้หลายรายการ)</label>
             <div style="display:flex; gap:4px;">
               <button type="button" class="btn-sm ${hvFilter === "ALL" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="ALL">ทั้งหมด (40)</button>
               <button type="button" class="btn-sm ${hvFilter === "1P" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="1P">1 Phase</button>
@@ -1393,7 +1371,7 @@
 
           ${showBLQuestions ? `
           <div class="bl-alert-box">
-            <h5>${iconHtml("boltHV", 16, "icon-hv")} พบหัวเสาชนิด BL / BL-AL — กรุณาระบุอุปกรณ์เพิ่มเติม:</h5>
+            <h5>⚡ พบหัวเสาชนิด BL / BL-AL — กรุณาระบุอุปกรณ์เพิ่มเติม:</h5>
             <div class="grid-2">
               <div>
                 <label>ติดตั้งชุดฟิวส์ตัดตอนแรงสูง (Dropout Fuse) จำนวน (ชุด)</label>
@@ -1411,7 +1389,7 @@
         <div class="tr-box">
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; font-size:13.5px; color:#f3e8ff;">
             <input type="checkbox" ${spec.hasTransformer ? "checked" : ""} data-spec-change="hasTransformer" data-role="${role}" style="width:16px; height:16px;" />
-            ${iconHtml("transformer", 18, "icon-tr")} ต้องการติดตั้งหม้อแปลงจำหน่ายบนเสาต้นนี้ด้วยหรือไม่?
+            ต้องการติดตั้งหม้อแปลงจำหน่ายบนเสาต้นนี้ด้วยหรือไม่?
           </label>
           ${spec.hasTransformer ? `
           <div style="margin-top:8px;">
@@ -1426,7 +1404,7 @@
         <div class="clamp-alert-box">
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; font-size:13.5px; color:#7dd3fc;">
             <input type="checkbox" ${spec.hasHotlineBailClamp ? "checked" : ""} data-spec-change="hasHotlineBailClamp" data-role="${role}" style="width:16px; height:16px;" />
-            ${iconHtml("clamp", 17, "icon-hv")} มีการติดตั้ง HOTLINE / BAIL CLAMP หรือไม่?
+            มีการติดตั้ง HOTLINE / BAIL CLAMP หรือไม่?
           </label>
           ${spec.hasHotlineBailClamp ? `
           <div class="grid-2" style="margin-top:10px;">
@@ -1470,7 +1448,7 @@
         ` : ""}
 
         <div style="margin-top:10px; padding:10px; background:#0f172a; border:1px solid var(--border); border-radius:8px;">
-          <label>${iconHtml("plugLV", 15, "icon-lv")} อุปกรณ์จับยึดสายแรงต่ำ (กรองตามเสา คอร. ขนาด ${spec.poleSize === "8" || spec.poleSize === "9" ? "8/9" : spec.poleSize} ม. อัตโนมัติ)</label>
+          <label>อุปกรณ์จับยึดสายแรงต่ำ (กรองตามเสา คอร. ขนาด ${spec.poleSize === "8" || spec.poleSize === "9" ? "8/9" : spec.poleSize} ม. อัตโนมัติ)</label>
           <div style="display:flex; gap:6px;">
             <select id="rackSelect_${role}" style="flex:1;">
               ${rackOptions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join("")}
@@ -1488,7 +1466,7 @@
 
           ${showConnectorBox ? `
           <div class="connector-box">
-            <label style="color:#86efac;">${iconHtml("clamp", 15, "icon-new")} ระบุรายการและจำนวน CONNECTOR สำหรับงานจับยึดสายแรงต่ำ</label>
+            <label style="color:#86efac;">🔌 ระบุรายการและจำนวน CONNECTOR สำหรับงานจับยึดสายแรงต่ำ</label>
             <div style="display:flex; gap:6px;">
               <select id="connectorSelect_${role}" style="flex:1;">
                 ${CONNECTOR_OPTIONS.map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join("")}
@@ -1632,16 +1610,14 @@
     else if (action === "cycleMapSource") {
       mapSourceIndex = (mapSourceIndex + 1) % MAP_SOURCES.length;
       const activeSrc = MAP_SOURCES[mapSourceIndex];
-      btn.innerHTML = `${iconHtml("satellite", 14)} แหล่งภาพ: ${activeSrc.name}`;
+      btn.textContent = `แหล่งภาพ: ${activeSrc.name}`;
       updateSatStatusLabel(`ดาวเทียม: ${activeSrc.label}`);
       drawMap();
     }
 
     else if (action === "toggleMapMode") {
       isSatellite = !isSatellite;
-      btn.innerHTML = isSatellite
-        ? `${iconHtml("grid", 14)} โหมด: ดาวเทียม`
-        : `${iconHtml("grid", 14)} โหมด: ตารางเส้น`;
+      btn.textContent = isSatellite ? "โหมด: ดาวเทียม" : "โหมด: ตารางเส้น";
       drawMap();
     }
 
@@ -2042,7 +2018,6 @@
   }
 
   function boot() {
-    hydrateIcons(document);
     initCanvasPanZoomAndClick();
     renderProjectUI();
     locateCurrentUser(false);

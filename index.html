@@ -20,9 +20,9 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn-gold" data-action="openNewProjectModal"><span data-icon="folderPlus" data-icon-size="16"></span> เปิดโปรเจคใหม่</button>
-        <button class="btn-outline" data-action="openEditProjectModal"><span data-icon="edit" data-icon-size="15"></span> แก้ไขข้อมูลโปรเจค</button>
-        <button class="btn-red" data-action="deleteCurrentProject"><span data-icon="trash" data-icon-size="15"></span> ลบโปรเจค</button>
+        <button class="btn-gold" data-action="openNewProjectModal">+ เปิดโปรเจคใหม่</button>
+        <button class="btn-outline" data-action="openEditProjectModal">แก้ไขข้อมูลโปรเจค</button>
+        <button class="btn-red" data-action="deleteCurrentProject">ลบโปรเจค</button>
       </div>
     </div>
   </header>
@@ -41,11 +41,11 @@
     <!-- Left: Interactive Map -->
     <section class="card map-card">
       <div class="card-header">
-        <h2><span data-icon="pinPlus" data-icon-size="18" data-icon-class="icon-hv"></span> 1. แผนที่สำรวจแนวสายและปักหมุดจุดสำรวจ</h2>
+        <h2>1. แผนที่สำรวจแนวสายและปักหมุดจุดสำรวจ</h2>
         <div class="map-controls">
-          <button class="btn-outline btn-sm" id="btnMapSource" data-action="cycleMapSource"><span data-icon="satellite" data-icon-size="14"></span> แหล่งภาพ: Google Sat</button>
-          <button class="btn-outline btn-sm" id="btnMapMode" data-action="toggleMapMode"><span data-icon="grid" data-icon-size="14"></span> โหมด: ดาวเทียม</button>
-          <button class="btn-outline btn-sm" data-action="resetMapView"><span data-icon="reset" data-icon-size="14"></span> รีเซ็ตมุมมอง</button>
+          <button class="btn-outline btn-sm" id="btnMapSource" data-action="cycleMapSource">แหล่งภาพ: Google Sat</button>
+          <button class="btn-outline btn-sm" id="btnMapMode" data-action="toggleMapMode">โหมด: ดาวเทียม</button>
+          <button class="btn-outline btn-sm" data-action="resetMapView">รีเซ็ตมุมมอง</button>
         </div>
       </div>
 
@@ -58,8 +58,8 @@
           <label for="manualLng">Lng:</label>
           <input type="number" step="0.000001" id="manualLng" value="100.009200" />
         </div>
-        <button class="btn-outline btn-sm" data-action="applyManualCoord"><span data-icon="crosshair" data-icon-size="14"></span> ไปที่พิกัด</button>
-        <button class="btn-blue btn-sm" data-action="getCurrentGPS"><span data-icon="gps" data-icon-size="15"></span> ตำแหน่งปัจจุบัน (GPS)</button>
+        <button class="btn-outline btn-sm" data-action="applyManualCoord">ไปที่พิกัด</button>
+        <button class="btn-blue btn-sm" data-action="getCurrentGPS">📍 ตำแหน่งปัจจุบัน (GPS)</button>
       </div>
 
       <div class="map-canvas-wrap" id="mapWrapper">
@@ -88,7 +88,7 @@
 
       <div class="map-footer-bar">
         <span class="hint-text">ลากเพื่อเลื่อนแผนที่ • ล้อเมาส์ / ปุ่ม + − / ถ่างสองนิ้วเพื่อซูม • แตะ/คลิกเพื่อปักหมุด • แสดงระยะห่างระหว่างจุด</span>
-        <button class="btn-primary" data-action="openAddPoleModal"><span data-icon="pinPlus" data-icon-size="16"></span> เพิ่มจุดสำรวจที่หมุดนี้</button>
+        <button class="btn-primary" data-action="openAddPoleModal">+ เพิ่มจุดสำรวจที่หมุดนี้</button>
       </div>
     </section>
 
@@ -96,25 +96,25 @@
     <section class="card">
       <div class="tabs">
         <button class="tab-btn active" data-action="switchTab" data-tab="poles">
-          <span data-icon="poleNew" data-icon-size="16" data-icon-class="icon-new"></span> 2. รายการจุดสำรวจ (<span id="tabPoleCount">0</span>)
+          2. รายการจุดสำรวจ (<span id="tabPoleCount">0</span>)
         </button>
         <button class="tab-btn" data-action="switchTab" data-tab="bom">
-          <span data-icon="boltHV" data-icon-size="16" data-icon-class="icon-hv"></span> 3. บัญชีวัสดุ (BOM แยก HV / LV)
+          3. บัญชีวัสดุ (BOM แยก HV / LV)
         </button>
       </div>
 
       <div id="tab-poles" class="tab-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
           <span id="poleCountBadge" style="font-size:13px; color:var(--text-muted);"></span>
-          <button class="btn-primary btn-sm" data-action="openAddPoleModal"><span data-icon="pinPlus" data-icon-size="15"></span> เพิ่มจุดสำรวจ</button>
+          <button class="btn-primary btn-sm" data-action="openAddPoleModal">+ เพิ่มจุดสำรวจ</button>
         </div>
         <div id="poleListContainer"></div>
       </div>
 
       <div id="tab-bom" class="tab-content hidden">
         <div class="bom-actions">
-          <button class="btn-green btn-sm" data-action="exportCSV"><span data-icon="csv" data-icon-size="15"></span> ส่งออก CSV (แยก HV / LV)</button>
-          <button class="btn-outline btn-sm" data-action="printReport"><span data-icon="print" data-icon-size="15"></span> พิมพ์ / บันทึก PDF</button>
+          <button class="btn-green btn-sm" data-action="exportCSV">⬇ ส่งออก CSV (แยก HV / LV)</button>
+          <button class="btn-outline btn-sm" data-action="printReport">🖨 พิมพ์ / บันทึก PDF</button>
         </div>
         <div id="bomContainer"></div>
       </div>
@@ -125,12 +125,12 @@
   <section class="bottom-summary">
     <div class="card">
       <div class="card-header">
-        <h2><span data-icon="plugLV" data-icon-size="18" data-icon-class="icon-lv"></span> สรุประบบสายและระยะทางเดินสาย (แรงต่ำ LV / แรงสูง HV)</h2>
+        <h2>สรุประบบสายและระยะทางเดินสาย (แรงต่ำ LV / แรงสูง HV)</h2>
         <span style="font-size:12.5px; color:var(--text-muted);">บันทึกอัตโนมัติลงในโปรเจคและแนบไปกับ BOM / CSV</span>
       </div>
       <div class="line-grid">
         <div class="line-box rem">
-          <h4><span data-icon="plugLV" data-icon-size="15" data-icon-class="icon-rem"></span> ระบบแรงต่ำที่รื้อถอน</h4>
+          <h4>ระบบแรงต่ำที่รื้อถอน</h4>
           <select id="lvRemSystem" data-change="updateLineSummary">
             <option value="">-- ไม่ได้ระบุ / ไม่มี --</option>
             <option value="1 เฟส 2 สาย">1 เฟส 2 สาย</option>
@@ -147,7 +147,7 @@
         </div>
 
         <div class="line-box ins">
-          <h4><span data-icon="plugLV" data-icon-size="15" data-icon-class="icon-lv"></span> ระบบแรงต่ำที่ติดตั้งใหม่</h4>
+          <h4>ระบบแรงต่ำที่ติดตั้งใหม่</h4>
           <select id="lvInsSystem" data-change="updateLineSummary">
             <option value="">-- ไม่ได้ระบุ / ไม่มี --</option>
             <option value="1 เฟส 2 สาย">1 เฟส 2 สาย</option>
@@ -164,7 +164,7 @@
         </div>
 
         <div class="line-box rem">
-          <h4><span data-icon="boltHV" data-icon-size="15" data-icon-class="icon-rem"></span> ระบบแรงสูงที่รื้อถอน</h4>
+          <h4>ระบบแรงสูงที่รื้อถอน</h4>
           <select id="hvRemSystem" data-change="updateLineSummary">
             <option value="">-- ไม่ได้ระบุ / ไม่มี --</option>
             <option value="1 เฟส 22 เควี.">1 เฟส 22 เควี.</option>
@@ -182,7 +182,7 @@
         </div>
 
         <div class="line-box ins">
-          <h4><span data-icon="boltHV" data-icon-size="15" data-icon-class="icon-hv"></span> ระบบแรงสูงที่ติดตั้งใหม่</h4>
+          <h4>ระบบแรงสูงที่ติดตั้งใหม่</h4>
           <select id="hvInsSystem" data-change="updateLineSummary">
             <option value="">-- ไม่ได้ระบุ / ไม่มี --</option>
             <option value="1 เฟส 22 เควี.">1 เฟส 22 เควี.</option>
@@ -207,7 +207,7 @@
     <div class="modal" style="max-width:520px;">
       <div class="modal-header">
         <div class="modal-header-left">
-          <span class="modal-header-pill"><span data-icon="folderPlus" data-icon-size="18" data-icon-class="icon-hv"></span></span>
+          <span class="modal-header-pill">📁</span>
           <h3 id="projectModalTitle">เปิดโปรเจคงานสำรวจใหม่</h3>
         </div>
         <button class="modal-close-btn" data-action="closeProjectModal">✕</button>
@@ -245,7 +245,7 @@
     <div class="modal">
       <div class="modal-header">
         <div class="modal-header-left">
-          <span class="modal-header-pill"><span data-icon="boltHV" data-icon-size="18" data-icon-class="icon-hv"></span></span>
+          <span class="modal-header-pill">⚡</span>
           <h3 id="poleModalTitle">บันทึกข้อมูลจุดสำรวจ</h3>
         </div>
         <button class="modal-close-btn" data-action="closePoleModal">✕</button>
@@ -275,22 +275,22 @@
           <input type="hidden" id="workType" value="NEW" />
           <div class="work-icon-grid" id="workIconGrid">
             <button type="button" class="icon-option-card active" data-action="selectWorkType" data-work="NEW">
-              <span class="icon-glyph" data-icon="poleNew" data-icon-size="24" data-icon-class="icon-new"></span>
+              <span class="icon-glyph">🟢</span>
               <span class="icon-title">ปักเสาใหม่</span>
               <span class="icon-desc">ติดตั้งเสาและอุปกรณ์ใหม่</span>
             </button>
             <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="REMOVE">
-              <span class="icon-glyph" data-icon="poleRemove" data-icon-size="24" data-icon-class="icon-rem"></span>
+              <span class="icon-glyph">🔴</span>
               <span class="icon-title">รื้อถอนเสา</span>
               <span class="icon-desc">รื้อเสาและอุปกรณ์คืนคลัง</span>
             </button>
             <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="SWAP">
-              <span class="icon-glyph" data-icon="poleSwap" data-icon-size="24" data-icon-class="icon-swap"></span>
+              <span class="icon-glyph">🔵</span>
               <span class="icon-title">สับเปลี่ยนเสา</span>
               <span class="icon-desc">รื้อต้นเดิม + ปักต้นใหม่</span>
             </button>
             <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="SWAP_HEAD">
-              <span class="icon-glyph" data-icon="poleHead" data-icon-size="24" data-icon-class="icon-head"></span>
+              <span class="icon-glyph">🟣</span>
               <span class="icon-title">เปลี่ยนเฉพาะหัวเสา</span>
               <span class="icon-desc">ไม่เปลี่ยนเสา คอร. เดิม</span>
             </button>
@@ -309,17 +309,17 @@
             <input type="hidden" id="swapMode" value="LV_TO_LV" />
             <div class="swap-icon-grid" id="swapIconGrid">
               <button type="button" class="icon-option-card active" data-action="selectSwapMode" data-mode="LV_TO_LV">
-                <span class="icon-glyph" data-icon="plugLV" data-icon-size="22" data-icon-class="icon-lv"></span>
+                <span class="icon-glyph">🔌→🔌</span>
                 <span class="icon-title">แรงต่ำ → แรงต่ำ</span>
                 <span class="icon-desc">LV เป็น LV</span>
               </button>
               <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="LV_TO_HV">
-                <span class="icon-glyph" data-icon="poleSwap" data-icon-size="22" data-icon-class="icon-hv"></span>
+                <span class="icon-glyph">🔌→⚡</span>
                 <span class="icon-title">แรงต่ำ → แรงสูง</span>
                 <span class="icon-desc">ยกระดับเป็น HV</span>
               </button>
               <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="HV_TO_HV">
-                <span class="icon-glyph" data-icon="boltHV" data-icon-size="22" data-icon-class="icon-hv"></span>
+                <span class="icon-glyph">⚡→⚡</span>
                 <span class="icon-title">แรงสูง → แรงสูง</span>
                 <span class="icon-desc">HV เป็น HV</span>
               </button>
@@ -331,7 +331,7 @@
 
         <!-- Meter Work Section -->
         <div class="spec-section meter-box">
-          <div class="spec-title"><span data-icon="meter" data-icon-size="17" data-icon-class="icon-lv"></span> งานมิเตอร์ ณ จุดสำรวจนี้ (รื้อถอน / ติดตั้งใหม่)</div>
+          <div class="spec-title">งานมิเตอร์ ณ จุดสำรวจนี้ (รื้อถอน / ติดตั้งใหม่)</div>
           <div class="grid-2">
             <div>
               <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#fca5a5;">
@@ -387,7 +387,6 @@
     </div>
   </div>
 
-  <script src="icons.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
