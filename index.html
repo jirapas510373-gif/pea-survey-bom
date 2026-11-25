@@ -3,887 +3,195 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PEA Survey & BOM Estimator - กฟภ.สาขาควนขนุน</title>
+  <title>PEA Khuan Khanun - ระบบสำรวจและประมาณการ BOM งานก่อสร้างระบบจำหน่าย</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --pea-purple: #8b2fc9;
-      --pea-purple-dark: #4a148c;
-      --pea-purple-glow: rgba(139, 47, 201, 0.28);
-      --pea-gold: #fbbf24;
-      --pea-gold-dim: rgba(251, 191, 36, 0.16);
-      --bg-page: #0b0f19;
-      --bg-card: #111827;
-      --bg-elevated: #1e293b;
-      --bg-input: #0f172a;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --border: #334155;
-      --green: #22c55e;
-      --green-bg: rgba(34, 197, 94, 0.16);
-      --red: #ef4444;
-      --red-bg: rgba(239, 68, 68, 0.16);
-      --blue: #3b82f6;
-      --blue-bg: rgba(59, 130, 246, 0.18);
-      --violet: #c084fc;
-      --violet-bg: rgba(192, 132, 252, 0.18);
-    }
-
-    * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
-    body {
-      margin: 0;
-      background: var(--bg-page);
-      color: var(--text-main);
-      font-size: 15px;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* Top Header */
-    header {
-      background: linear-gradient(135deg, #2e0854 0%, #581c87 55%, #6b21a8 100%);
-      color: #fff;
-      padding: 13px 20px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      border-bottom: 1px solid rgba(251, 191, 36, 0.3);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.45);
-    }
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand-badge {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: linear-gradient(160deg, rgba(251, 191, 36, 0.22), rgba(15, 23, 42, 0.72));
-      border: 1.5px solid var(--pea-gold);
-      box-shadow: 0 0 14px rgba(251, 191, 36, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .brand h1 { margin: 0; font-size: 18px; font-weight: 700; color: #fff; }
-    .brand p { margin: 2px 0 0; font-size: 13px; color: #e9d5ff; font-weight: 400; }
-    .status-pill {
-      background: rgba(34, 197, 94, 0.18);
-      border: 1px solid #4ade80;
-      color: #86efac;
-      padding: 5px 12px;
-      border-radius: 999px;
-      font-size: 12.5px;
-      font-weight: 600;
-    }
-
-    /* Project Bar */
-    .project-bar {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      padding: 11px 20px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .project-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1; }
-    .project-controls select {
-      min-width: 290px;
-      max-width: 100%;
-      padding: 7px 11px;
-      border: 1.5px solid var(--pea-purple);
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 14px;
-      color: #f3e8ff;
-      background: #2e1065;
-    }
-    .project-meta {
-      font-size: 13px;
-      color: var(--text-muted);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-    .project-meta strong { color: var(--text-main); font-weight: 600; }
-
-    /* Buttons */
-    button {
-      cursor: pointer;
-      border: none;
-      border-radius: 6px;
-      padding: 7px 13px;
-      font-size: 13.5px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: 0.15s;
-    }
-    button:hover { filter: brightness(1.08); }
-    .btn-primary { background: linear-gradient(135deg, #9333ea, #7e22ce); color: #fff; box-shadow: 0 2px 10px rgba(147, 51, 234, 0.35); }
-    .btn-gold { background: linear-gradient(135deg, #facc15, #eab308); color: #0f172a; box-shadow: 0 2px 10px rgba(250, 204, 21, 0.25); }
-    .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; }
-    .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
-    .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
-    .btn-outline {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      color: var(--text-main);
-    }
-    .btn-sm { padding: 5px 9px; font-size: 12.5px; }
-
-    /* Main Workspace */
-    .workspace {
-      display: grid;
-      grid-template-columns: 1.18fr 1fr;
-      gap: 14px;
-      padding: 14px 20px;
-      max-width: 1580px;
-      margin: 0 auto;
-    }
-    @media (max-width: 1080px) {
-      .workspace { grid-template-columns: 1fr; }
-    }
-
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .card-header {
-      background: #162032;
-      border-bottom: 1px solid var(--border);
-      padding: 11px 15px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .card-header h2 { margin: 0; font-size: 15.5px; font-weight: 700; color: #e9d5ff; }
-
-    /* Manual LatLng Bar above Map */
-    .manual-coord-bar {
-      background: #0f172a;
-      border-bottom: 1px solid var(--border);
-      padding: 8px 14px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      font-size: 12.5px;
-    }
-    .manual-coord-bar label { margin: 0; color: var(--text-muted); font-size: 12.5px; }
-    .manual-coord-bar input[type="number"] {
-      width: 126px;
-      padding: 5px 8px;
-      font-size: 12.5px;
-      background: var(--bg-input);
-      color: #fde68a;
-      border: 1px solid #475569;
-    }
-
-    /* Map Canvas */
-    .map-wrapper {
-      position: relative;
-      width: 100%;
-      height: 450px;
-      background: #090d16;
-      touch-action: none;
-      user-select: none;
-    }
-    canvas#surveyMap { width: 100%; height: 100%; display: block; cursor: grab; }
-    canvas#surveyMap.dragging { cursor: grabbing; }
-    .map-overlay-top {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      right: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 6px;
-      pointer-events: none;
-    }
-    .map-overlay-top > * { pointer-events: auto; }
-    .coord-badge {
-      background: rgba(9, 13, 22, 0.88);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      color: #f8fafc;
-      padding: 5px 11px;
-      border-radius: 6px;
-      font-size: 12.5px;
-      font-weight: 500;
-    }
-    .dist-highlight {
-      color: #fde047;
-      font-weight: 700;
-    }
-    .map-zoom-controls {
-      position: absolute;
-      bottom: 14px;
-      right: 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      background: rgba(9, 13, 22, 0.92);
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      padding: 6px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.55);
-      z-index: 5;
-    }
-    .zoom-btn {
-      width: 34px;
-      height: 34px;
-      padding: 0;
-      justify-content: center;
-      font-size: 19px;
-      font-weight: 800;
-      background: #1e293b;
-      color: #f8fafc;
-      border: 1px solid #475569;
-      border-radius: 6px;
-    }
-    .zoom-btn:hover { background: var(--pea-purple); border-color: var(--pea-gold); }
-    .zoom-level-text {
-      font-size: 11px;
-      font-weight: 700;
-      color: #fde68a;
-      padding: 1px 0;
-    }
-    .map-hint-bottom {
-      position: absolute;
-      bottom: 8px;
-      left: 10px;
-      background: rgba(9, 13, 22, 0.82);
-      color: #cbd5e1;
-      padding: 3px 9px;
-      border-radius: 5px;
-      font-size: 11.5px;
-      pointer-events: none;
-    }
-    .map-legend {
-      padding: 9px 15px;
-      background: #162032;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-    .legend-item { display: flex; align-items: center; gap: 6px; }
-    .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
-
-    /* Work Type & Swap Mode Icon Grid */
-    .work-icon-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-top: 4px;
-    }
-    .swap-icon-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-top: 4px;
-    }
-    .icon-option-card {
-      background: var(--bg-input);
-      border: 1.5px solid var(--border);
-      border-radius: 9px;
-      padding: 10px 11px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-align: left;
-      color: var(--text-main);
-      transition: all 0.16s ease;
-    }
-    .icon-option-card:hover {
-      border-color: var(--pea-purple);
-      background: #172033;
-      transform: translateY(-1px);
-    }
-    .icon-option-card.active {
-      background: linear-gradient(135deg, rgba(139, 47, 201, 0.28), rgba(88, 28, 135, 0.22));
-      border-color: var(--pea-gold);
-      box-shadow: 0 0 0 1px var(--pea-gold), 0 6px 14px rgba(0, 0, 0, 0.28);
-    }
-    .icon-option-badge {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: #1e293b;
-      border: 1px solid #475569;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .icon-option-card.active .icon-option-badge {
-      background: rgba(251, 191, 36, 0.18);
-      border-color: var(--pea-gold);
-    }
-    .icon-option-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #f8fafc;
-      line-height: 1.25;
-    }
-    .icon-option-sub {
-      font-size: 11px;
-      color: #94a3b8;
-      margin-top: 2px;
-    }
-
-    /* Tabs */
-    .tabs { display: flex; border-bottom: 1px solid var(--border); background: #162032; }
-    .tab-btn {
-      flex: 1;
-      padding: 11px;
-      border-radius: 0;
-      background: transparent;
-      color: var(--text-muted);
-      border-bottom: 3px solid transparent;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .tab-btn.active {
-      color: #fff;
-      border-bottom-color: var(--pea-gold);
-      background: var(--bg-card);
-      font-weight: 700;
-    }
-    .tab-content { padding: 14px; max-height: 492px; overflow-y: auto; }
-    .hidden { display: none !important; }
-
-    /* Pole List Items */
-    .pole-item {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 11px 13px;
-      margin-bottom: 10px;
-      background: #172033;
-      transition: 0.15s;
-    }
-    .pole-item:hover { border-color: var(--pea-purple); }
-    .pole-item-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-    .badge {
-      padding: 2px 9px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .badge-new { background: var(--green-bg); color: #86efac; border: 1px solid rgba(34,197,94,0.4); }
-    .badge-rem { background: var(--red-bg); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
-    .badge-swap { background: var(--blue-bg); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
-    .badge-head { background: var(--violet-bg); color: #e9d5ff; border: 1px solid rgba(192,132,252,0.5); }
-    .badge-tr { background: var(--pea-gold-dim); color: #fde047; border: 1px solid var(--pea-gold); }
-    .badge-mtr { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.45); }
-    .badge-dist { background: rgba(251, 191, 36, 0.14); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.4); }
-    .badge-hv { background: rgba(251, 191, 36, 0.16); color: #fde047; border: 1px solid rgba(251, 191, 36, 0.45); }
-    .badge-lv { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.45); }
-    .pole-details { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
-
-    /* BOM Tables & Voltage Group Boxes */
-    .bom-voltage-group {
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-      background: #141c2c;
-    }
-    .bom-voltage-group.hv-group {
-      border-left: 4px solid var(--pea-gold);
-    }
-    .bom-voltage-group.lv-group {
-      border-left: 4px solid #38bdf8;
-    }
-    .bom-voltage-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin: 0 0 8px;
-      font-size: 13.5px;
-      font-weight: 700;
-    }
-    table.bom-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 13px; }
-    table.bom-table th, table.bom-table td {
-      border: 1px solid var(--border);
-      padding: 6px 9px;
-      text-align: left;
-    }
-    table.bom-table th { background: #1e293b; color: #e2e8f0; font-weight: 700; }
-    table.bom-table td { background: #0f172a; color: #e2e8f0; }
-    table.bom-table td.num, table.bom-table th.num { text-align: right; }
-
-    /* Bottom Line Summary Section */
-    .bottom-summary {
-      max-width: 1580px;
-      margin: 0 auto 24px;
-      padding: 0 20px;
-    }
-    .line-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 12px;
-      padding: 14px;
-    }
-    .line-box {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-      background: #172033;
-    }
-    .line-box.rem { border-left: 4px solid var(--red); }
-    .line-box.ins { border-left: 4px solid var(--green); }
-    .line-box h4 { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: #f8fafc; }
-    .dist-row { display: flex; gap: 6px; margin-top: 8px; }
-    .dist-row input { flex: 1; }
-    .dist-row select { width: 85px; }
-
-    /* Form Controls */
-    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1; }
-    input[type="text"], input[type="number"], select, textarea {
-      width: 100%;
-      padding: 8px 11px;
-      border: 1px solid #3b4b63;
-      border-radius: 7px;
-      font-size: 13.5px;
-      background: var(--bg-input);
-      color: var(--text-main);
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--pea-gold);
-      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.14);
-    }
-
-    /* Styled Modal Popups */
-    @keyframes modalFadeIn {
-      from { opacity: 0; transform: translateY(10px) scale(0.985); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(2, 6, 23, 0.82);
-      backdrop-filter: blur(5px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 1000;
-    }
-    .modal {
-      background: linear-gradient(180deg, #131c2e 0%, #0f172a 100%);
-      border: 1px solid rgba(192, 132, 252, 0.36);
-      border-radius: 14px;
-      width: 100%;
-      max-width: 840px;
-      max-height: 92vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 28px 54px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(251, 191, 36, 0.12);
-      animation: modalFadeIn 0.18s ease-out;
-    }
-    .modal-header {
-      padding: 14px 18px;
-      background: linear-gradient(135deg, #2e0854 0%, #581c87 55%, #6b21a8 100%);
-      color: #fff;
-      border-radius: 14px 14px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(251, 191, 36, 0.32);
-    }
-    .modal-header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .modal-header-pill {
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      background: rgba(251, 191, 36, 0.18);
-      border: 1px solid rgba(251, 191, 36, 0.5);
-      color: #fde047;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-    }
-    .modal-header h3 { margin: 0; font-size: 16.5px; font-weight: 700; letter-spacing: 0.2px; }
-    .modal-close-btn {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      justify-content: center;
-      border-radius: 8px;
-      background: rgba(15, 23, 42, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #f8fafc;
-      font-size: 15px;
-    }
-    .modal-close-btn:hover {
-      background: rgba(239, 68, 68, 0.75);
-      border-color: #fca5a5;
-    }
-    .modal-body {
-      padding: 18px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .modal-card-panel {
-      background: rgba(23, 32, 51, 0.72);
-      border: 1px solid rgba(148, 163, 184, 0.22);
-      border-radius: 10px;
-      padding: 13px 14px;
-    }
-    .modal-footer {
-      padding: 13px 18px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      background: #131c2e;
-      border-radius: 0 0 14px 14px;
-    }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-    @media (max-width: 640px) {
-      .grid-2, .grid-3, .work-icon-grid, .swap-icon-grid { grid-template-columns: 1fr; }
-    }
-
-    .spec-section {
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      background: #172033;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    }
-    .spec-section.install-box {
-      border-color: rgba(34, 197, 94, 0.55);
-      background: linear-gradient(180deg, rgba(20, 83, 45, 0.2), rgba(23, 32, 51, 0.92));
-    }
-    .spec-section.remove-box {
-      border-color: rgba(239, 68, 68, 0.55);
-      background: linear-gradient(180deg, rgba(127, 29, 29, 0.2), rgba(23, 32, 51, 0.92));
-    }
-    .spec-section.meter-box {
-      border-color: rgba(56, 189, 248, 0.5);
-      background: linear-gradient(180deg, rgba(14, 116, 144, 0.16), rgba(23, 32, 51, 0.92));
-    }
-    .spec-title {
-      font-weight: 700;
-      font-size: 14.5px;
-      margin: 0 0 11px;
-      padding-bottom: 7px;
-      border-bottom: 1px dashed rgba(148, 163, 184, 0.35);
-      color: #f8fafc;
-    }
-
-    .head-only-banner {
-      background: rgba(192, 132, 252, 0.15);
-      border: 1px solid rgba(192, 132, 252, 0.45);
-      color: #f3e8ff;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      margin-bottom: 11px;
-    }
-
-    .concrete-check-row {
-      margin-top: 10px;
-      padding: 9px 12px;
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 8px;
-    }
-
-    .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .chip {
-      background: #2e1065;
-      border: 1px solid var(--pea-purple);
-      color: #f3e8ff;
-      padding: 4px 10px;
-      border-radius: 7px;
-      font-size: 12.5px;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .chip button {
-      background: var(--red);
-      color: #fff;
-      padding: 0 5px;
-      border-radius: 4px;
-      font-size: 11px;
-    }
-
-    .bl-alert-box {
-      margin-top: 10px;
-      padding: 11px;
-      background: rgba(245, 158, 11, 0.12);
-      border: 1.5px solid var(--pea-gold);
-      border-radius: 8px;
-    }
-    .bl-alert-box h5 { margin: 0 0 8px; color: #fde047; font-size: 13.5px; font-weight: 700; }
-
-    .clamp-alert-box {
-      margin-top: 10px;
-      padding: 11px;
-      background: rgba(56, 189, 248, 0.11);
-      border: 1.5px solid #38bdf8;
-      border-radius: 8px;
-    }
-    .clamp-alert-box h5 { margin: 0 0 8px; color: #7dd3fc; font-size: 13.5px; font-weight: 700; }
-
-    .tr-box {
-      margin-top: 10px;
-      padding: 11px;
-      background: rgba(139, 47, 201, 0.16);
-      border: 1.5px solid var(--pea-purple);
-      border-radius: 8px;
-    }
-
-    @media print {
-      header, .project-bar, .map-card, .tabs, button, .no-print { display: none !important; }
-      body { background: #fff; color: #000; }
-      .workspace { display: block; padding: 0; }
-      .card { border: none; box-shadow: none; background: #fff; color: #000; }
-      .tab-content { max-height: none; overflow: visible; }
-      #tab-bom { display: block !important; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-<header>
-  <div class="brand">
-    <div class="brand-badge" aria-label="โลโก้การออกแบบและปักเสาไฟ">
-      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="16" cy="16" r="12.5" stroke="rgba(253, 224, 71, 0.35)" stroke-width="1.2" stroke-dasharray="2.5 2.5"/>
-        <path d="M16 6V26" stroke="#fde047" stroke-width="2.6" stroke-linecap="round"/>
-        <path d="M8.5 11.5H23.5" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round"/>
-        <circle cx="10.5" cy="9.5" r="1.8" fill="#fbbf24"/>
-        <circle cx="21.5" cy="9.5" r="1.8" fill="#fbbf24"/>
-        <path d="M10.5 11.5C12.5 14 14.2 14 16 11.5C17.8 14 19.5 14 21.5 11.5" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round"/>
-        <path d="M11.5 26H20.5" stroke="#86efac" stroke-width="2.4" stroke-linecap="round"/>
-        <circle cx="16" cy="26" r="2.3" fill="#22c55e" stroke="#ffffff" stroke-width="1.2"/>
-      </svg>
-    </div>
-    <div>
-      <h1>ระบบสำรวจประมาณการงานก่อสร้างและปรับปรุงระบบจำหน่าย</h1>
-      <p>การไฟฟ้าส่วนภูมิภาค สาขาควนขนุน (PEA Khuan Khanun Survey & BOM Estimator)</p>
-    </div>
-  </div>
-  <div class="status-pill">● ระบบพร้อมใช้งาน (Multi-HD Satellite + Live GPS Pin)</div>
-</header>
-
-<!-- แถบจัดการแยกโปรเจค -->
-<div class="project-bar">
-  <div class="project-controls">
-    <label for="projectSelect" style="margin:0; white-space:nowrap;">โปรเจคงาน:</label>
-    <select id="projectSelect" data-change="switchProject"></select>
-    <button class="btn-primary" data-action="openNewProjectModal">+ เปิดโปรเจคใหม่</button>
-    <button class="btn-outline" data-action="openEditProjectModal">แก้ไขโปรเจค</button>
-    <button class="btn-red btn-sm" data-action="deleteCurrentProject">ลบโปรเจค</button>
-  </div>
-  <div class="project-meta" id="projectMetaBar"></div>
-</div>
-
-<!-- พื้นที่ทำงานหลัก -->
-<div class="workspace">
-  <!-- ฝั่งซ้าย: แผนที่พิกัด GPS -->
-  <div class="card map-card">
-    <div class="card-header">
-      <h2>แผนที่พิกัดจุดสำรวจ (ลากเลื่อน / ซูมเข้า-ออก / คลิกปักหมุด)</h2>
-      <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button class="btn-outline btn-sm" data-action="cycleMapSource" id="btnMapSource">แหล่งภาพ: Google Sat</button>
-        <button class="btn-outline btn-sm" data-action="toggleMapMode" id="btnMapMode">โหมด: ดาวเทียม</button>
-        <button class="btn-outline btn-sm" data-action="resetMapView">รีเซ็ตมุมมอง</button>
-        <button class="btn-blue btn-sm" data-action="getCurrentGPS">📍 ตำแหน่งปัจจุบัน</button>
-        <button class="btn-gold btn-sm" data-action="openAddPoleModal">+ เพิ่มจุดสำรวจ</button>
-      </div>
-    </div>
-
-    <!-- ช่องระบุพิกัด Lat/Long ด้วยตนเอง -->
-    <div class="manual-coord-bar">
-      <label for="manualLat">Lat:</label>
-      <input type="number" id="manualLat" step="0.000001" value="7.735800" />
-      <label for="manualLng">Lng:</label>
-      <input type="number" id="manualLng" step="0.000001" value="100.009200" />
-      <button type="button" class="btn-primary btn-sm" data-action="applyManualCoord">ไปที่พิกัด & ปักหมุด</button>
-      <span id="satStatusLabel" style="margin-left:auto; font-size:11.5px; color:var(--text-muted);">ดาวเทียม: Google Satellite</span>
-    </div>
-
-    <div class="map-wrapper" id="mapWrapper">
-      <canvas id="surveyMap"></canvas>
-      <div class="map-overlay-top">
-        <div class="coord-badge" id="cursorCoordBadge">พิกัดปักหมุด: 7.735800, 100.009200</div>
-        <div class="coord-badge" id="poleCountBadge">จำนวนจุดสำรวจ: 0 จุด</div>
-      </div>
-
-      <!-- ปุ่มซูมเข้า-ออก -->
-      <div class="map-zoom-controls">
-        <button type="button" class="zoom-btn" id="btnZoomIn" title="ซูมเข้า (+)">+</button>
-        <span class="zoom-level-text" id="zoomLevelLabel">Z18 (100%)</span>
-        <button type="button" class="zoom-btn" id="btnZoomOut" title="ซูมออก (-)">−</button>
-      </div>
-
-      <div class="map-hint-bottom">ลากเพื่อเลื่อน • หมุนลูกกลิ้งหรือกด +/- เพื่อซูม • คลิกเพื่อปักหมุด</div>
-    </div>
-
-    <div class="map-legend">
-      <div class="legend-item"><span class="dot" style="background:#38bdf8; box-shadow:0 0 0 3px rgba(56,189,248,0.3);"></span> ตำแหน่งปัจจุบัน</div>
-      <div class="legend-item"><span class="dot" style="background:#22c55e;"></span> ปักเสาใหม่</div>
-      <div class="legend-item"><span class="dot" style="background:#ef4444;"></span> รื้อถอนเสา</div>
-      <div class="legend-item"><span class="dot" style="background:#3b82f6;"></span> สับเปลี่ยนเสา</div>
-      <div class="legend-item"><span class="dot" style="background:#c084fc;"></span> สับเปลี่ยนเฉพาะหัวเสา</div>
-      <div class="legend-item"><span class="dot" style="background:#fbbf24;"></span> จุดติดตั้งหม้อแปลง (TR)</div>
-    </div>
-  </div>
-
-  <!-- ฝั่งขวา: รายการจุดสำรวจ และ บัญชีวัสดุ Auto BOM -->
-  <div class="card">
-    <div class="tabs">
-      <button class="tab-btn active" data-action="switchTab" data-tab="poles">รายการจุดสำรวจ (<span id="tabPoleCount">0</span>)</button>
-      <button class="tab-btn" data-action="switchTab" data-tab="bom">บัญชีวัสดุ (Auto BOM)</button>
-    </div>
-
-    <!-- แท็บ 1: รายการจุดสำรวจ -->
-    <div id="tab-poles" class="tab-content">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <span style="font-size:13px; color:var(--text-muted);">เรียงตามลำดับจุดสำรวจในโปรเจค</span>
-        <button class="btn-primary btn-sm" data-action="openAddPoleModal">+ บันทึกจุดใหม่</button>
-      </div>
-      <div id="poleListContainer"></div>
-    </div>
-
-    <!-- แท็บ 2: บัญชีวัสดุ -->
-    <div id="tab-bom" class="tab-content hidden">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
-        <strong style="color:#e9d5ff;">สรุปบัญชีวัสดุแยก HV / LV ตามประเภทงาน</strong>
-        <div style="display:flex; gap:6px;">
-          <button class="btn-green btn-sm" data-action="exportCSV">ส่งออก CSV (แยก HV / LV)</button>
-          <button class="btn-outline btn-sm" data-action="printReport">พิมพ์รายงาน</button>
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="pea-logo-badge">PEA</div>
+        <div>
+          <h1>PEA Khuan Khanun — ระบบสำรวจและประมาณการวัสดุ (BOM)</h1>
+          <div class="brand-sub">การไฟฟ้าส่วนภูมิภาคสาขาควนขนุน • แผนที่ดาวเทียม ซูมลื่น ปักหมุดเสา แยก HV / LV และส่งออก CSV</div>
         </div>
       </div>
-      <div id="bomContainer"></div>
+      <div class="header-actions">
+        <button class="btn-gold" data-action="openNewProjectModal">+ เปิดโปรเจคใหม่</button>
+        <button class="btn-outline" data-action="openEditProjectModal">แก้ไขข้อมูลโปรเจค</button>
+        <button class="btn-red" data-action="deleteCurrentProject">ลบโปรเจค</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="project-bar">
+    <div class="project-bar-inner">
+      <div class="project-select-group">
+        <label for="projectSelect">โปรเจคที่กำลังทำงาน:</label>
+        <select id="projectSelect" data-change="switchProject"></select>
+      </div>
+      <div class="project-meta" id="projectMetaBar"></div>
     </div>
   </div>
-</div>
 
-<!-- ส่วนท้าย: สรุประบบสายและระยะทางของโครงการ -->
-<div class="bottom-summary">
-  <div class="card">
-    <div class="card-header">
-      <h2>สรุประบบสายไฟฟ้าและระยะทางของโครงการ (แยกตามโปรเจค)</h2>
-      <span style="font-size:12.5px; color:#86efac; font-weight:600;">✓ บันทึกข้อมูลอัตโนมัติ</span>
-    </div>
-    <div class="line-grid">
-      <!-- 1. แรงต่ำรื้อถอน -->
-      <div class="line-box rem">
-        <h4>1. ระบบแรงต่ำที่รื้อถอน</h4>
-        <select id="lvRemSystem" data-change="updateLineSummary">
-          <option value="">-- ไม่มีการรื้อถอนสายแรงต่ำ --</option>
-          <option value="1 เฟส 2 สาย">1 เฟส 2 สาย</option>
-          <option value="1 เฟส 3 สาย">1 เฟส 3 สาย</option>
-          <option value="3 เฟส 4 สาย">3 เฟส 4 สาย</option>
-        </select>
-        <div id="lvRemDistWrap" class="hidden">
-          <label style="margin-top:8px;">ระยะทางที่รื้อถอน</label>
-          <div class="dist-row">
-            <input type="number" id="lvRemDist" min="0" step="any" placeholder="ระบุระยะทาง" data-input="updateLineSummary" />
+  <main class="workspace">
+    <!-- Left: Interactive Map -->
+    <section class="card map-card">
+      <div class="card-header">
+        <h2>1. แผนที่สำรวจแนวสายและปักหมุดจุดสำรวจ</h2>
+        <div class="map-controls">
+          <button class="btn-outline btn-sm" id="btnMapSource" data-action="cycleMapSource">แหล่งภาพ: Google Sat</button>
+          <button class="btn-outline btn-sm" id="btnMapMode" data-action="toggleMapMode">โหมด: ดาวเทียม</button>
+          <button class="btn-outline btn-sm" data-action="resetMapView">รีเซ็ตมุมมอง</button>
+        </div>
+      </div>
+
+      <div class="coord-toolbar">
+        <div class="coord-input-item">
+          <label for="manualLat">Lat:</label>
+          <input type="number" step="0.000001" id="manualLat" value="7.735800" />
+        </div>
+        <div class="coord-input-item">
+          <label for="manualLng">Lng:</label>
+          <input type="number" step="0.000001" id="manualLng" value="100.009200" />
+        </div>
+        <button class="btn-outline btn-sm" data-action="applyManualCoord">ไปที่พิกัด</button>
+        <button class="btn-blue btn-sm" data-action="getCurrentGPS">📍 ตำแหน่งปัจจุบัน (GPS)</button>
+      </div>
+
+      <div class="map-canvas-wrap" id="mapWrapper">
+        <canvas id="surveyMap"></canvas>
+
+        <div class="zoom-floating-controls" aria-label="ปุ่มซูมแผนที่">
+          <button type="button" class="zoom-btn" id="btnZoomIn" title="ซูมเข้า (+)">+</button>
+          <div class="zoom-badge" id="zoomLevelLabel">Z18 (100%)</div>
+          <button type="button" class="zoom-btn" id="btnZoomOut" title="ซูมออก (-)">−</button>
+        </div>
+
+        <div class="map-overlay-top">
+          <span class="coord-pill" id="cursorCoordBadge">พิกัดปักหมุด: 7.735800, 100.009200</span>
+          <span class="sat-status-pill" id="satStatusLabel">ดาวเทียม: Google Satellite</span>
+        </div>
+
+        <div class="map-overlay-bottom">
+          <div class="legend-item"><span class="dot dot-new"></span> ปักเสาใหม่</div>
+          <div class="legend-item"><span class="dot dot-rem"></span> รื้อถอนเสา</div>
+          <div class="legend-item"><span class="dot dot-swap"></span> สับเปลี่ยนเสา</div>
+          <div class="legend-item"><span class="dot dot-head"></span> เปลี่ยนเฉพาะหัวเสา</div>
+          <div class="legend-item"><span class="dot dot-tr"></span> ติดหม้อแปลง (TR)</div>
+          <div class="legend-item"><span class="dot dot-gps"></span> ตำแหน่งปัจจุบัน</div>
+        </div>
+      </div>
+
+      <div class="map-footer-bar">
+        <span class="hint-text">ลากเพื่อเลื่อนแผนที่ • ล้อเมาส์ / ปุ่ม + − / ถ่างสองนิ้วเพื่อซูม • แตะ/คลิกเพื่อปักหมุด • แสดงระยะห่างระหว่างจุด</span>
+        <button class="btn-primary" data-action="openAddPoleModal">+ เพิ่มจุดสำรวจที่หมุดนี้</button>
+      </div>
+    </section>
+
+    <!-- Right: Poles List & BOM -->
+    <section class="card">
+      <div class="tabs">
+        <button class="tab-btn active" data-action="switchTab" data-tab="poles">
+          2. รายการจุดสำรวจ (<span id="tabPoleCount">0</span>)
+        </button>
+        <button class="tab-btn" data-action="switchTab" data-tab="bom">
+          3. บัญชีวัสดุ (BOM แยก HV / LV)
+        </button>
+      </div>
+
+      <div id="tab-poles" class="tab-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
+          <span id="poleCountBadge" style="font-size:13px; color:var(--text-muted);"></span>
+          <button class="btn-primary btn-sm" data-action="openAddPoleModal">+ เพิ่มจุดสำรวจ</button>
+        </div>
+        <div id="poleListContainer"></div>
+      </div>
+
+      <div id="tab-bom" class="tab-content hidden">
+        <div class="bom-actions">
+          <button class="btn-green btn-sm" data-action="exportCSV">⬇ ส่งออก CSV (แยก HV / LV)</button>
+          <button class="btn-outline btn-sm" data-action="printReport">🖨 พิมพ์ / บันทึก PDF</button>
+        </div>
+        <div id="bomContainer"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Summary Section -->
+  <section class="bottom-summary">
+    <div class="card">
+      <div class="card-header">
+        <h2>สรุประบบสายและระยะทางเดินสาย (แรงต่ำ LV / แรงสูง HV)</h2>
+        <span style="font-size:12.5px; color:var(--text-muted);">บันทึกอัตโนมัติลงในโปรเจคและแนบไปกับ BOM / CSV</span>
+      </div>
+      <div class="line-grid">
+        <div class="line-box rem">
+          <h4>ระบบแรงต่ำที่รื้อถอน</h4>
+          <select id="lvRemSystem" data-change="updateLineSummary">
+            <option value="">-- ไม่ได้ระบุ / ไม่มี --</option>
+            <option value="1 เฟส 2 สาย">1 เฟส 2 สาย</option>
+            <option value="1 เฟส 3 สาย">1 เฟส 3 สาย</option>
+            <option value="3 เฟส 4 สาย">3 เฟส 4 สาย</option>
+          </select>
+          <div class="dist-row hidden" id="lvRemDistWrap">
+            <input type="number" id="lvRemDist" min="0" step="any" placeholder="ระยะทาง" data-input="updateLineSummary" />
             <select id="lvRemUnit" data-change="updateLineSummary">
               <option value="เมตร">เมตร</option>
               <option value="กม.">กม.</option>
             </select>
           </div>
         </div>
-      </div>
 
-      <!-- 2. แรงต่ำติดตั้งใหม่ -->
-      <div class="line-box ins">
-        <h4>2. ระบบแรงต่ำที่ติดตั้งใหม่</h4>
-        <select id="lvInsSystem" data-change="updateLineSummary">
-          <option value="">-- ไม่มีการติดตั้งสายแรงต่ำ --</option>
-          <option value="1 เฟส 2 สาย">1 เฟส 2 สาย</option>
-          <option value="1 เฟส 3 สาย">1 เฟส 3 สาย</option>
-          <option value="3 เฟส 4 สาย">3 เฟส 4 สาย</option>
-        </select>
-        <div id="lvInsDistWrap" class="hidden">
-          <label style="margin-top:8px;">ระยะทางที่ติดตั้ง</label>
-          <div class="dist-row">
-            <input type="number" id="lvInsDist" min="0" step="any" placeholder="ระบุระยะทาง" data-input="updateLineSummary" />
+        <div class="line-box ins">
+          <h4>ระบบแรงต่ำที่ติดตั้งใหม่</h4>
+          <select id="lvInsSystem" data-change="updateLineSummary">
+            <option value="">-- ไม่ได้ระบุ / ไม่มี --</option>
+            <option value="1 เฟส 2 สาย">1 เฟส 2 สาย</option>
+            <option value="1 เฟส 3 สาย">1 เฟส 3 สาย</option>
+            <option value="3 เฟส 4 สาย">3 เฟส 4 สาย</option>
+          </select>
+          <div class="dist-row hidden" id="lvInsDistWrap">
+            <input type="number" id="lvInsDist" min="0" step="any" placeholder="ระยะทาง" data-input="updateLineSummary" />
             <select id="lvInsUnit" data-change="updateLineSummary">
               <option value="เมตร">เมตร</option>
               <option value="กม.">กม.</option>
             </select>
           </div>
         </div>
-      </div>
 
-      <!-- 3. แรงสูงรื้อถอน -->
-      <div class="line-box rem">
-        <h4>3. ระบบแรงสูงที่รื้อถอน</h4>
-        <select id="hvRemSystem" data-change="updateLineSummary">
-          <option value="">-- ไม่มีการรื้อถอนสายแรงสูง --</option>
-          <option value="1 เฟส 19 เควี.">1 เฟส 19 เควี.</option>
-          <option value="3 เฟส 33 เควี.">3 เฟส 33 เควี.</option>
-        </select>
-        <div id="hvRemDistWrap" class="hidden">
-          <label style="margin-top:8px;">ระยะทางที่รื้อถอน</label>
-          <div class="dist-row">
-            <input type="number" id="hvRemDist" min="0" step="any" placeholder="ระบุระยะทาง" data-input="updateLineSummary" />
+        <div class="line-box rem">
+          <h4>ระบบแรงสูงที่รื้อถอน</h4>
+          <select id="hvRemSystem" data-change="updateLineSummary">
+            <option value="">-- ไม่ได้ระบุ / ไม่มี --</option>
+            <option value="1 เฟส 22 เควี.">1 เฟส 22 เควี.</option>
+            <option value="3 เฟส 22 เควี.">3 เฟส 22 เควี.</option>
+            <option value="1 เฟส 33 เควี.">1 เฟส 33 เควี.</option>
+            <option value="3 เฟส 33 เควี.">3 เฟส 33 เควี.</option>
+          </select>
+          <div class="dist-row hidden" id="hvRemDistWrap">
+            <input type="number" id="hvRemDist" min="0" step="any" placeholder="ระยะทาง" data-input="updateLineSummary" />
             <select id="hvRemUnit" data-change="updateLineSummary">
               <option value="เมตร">เมตร</option>
               <option value="กม.">กม.</option>
             </select>
           </div>
         </div>
-      </div>
 
-      <!-- 4. แรงสูงติดตั้งใหม่ -->
-      <div class="line-box ins">
-        <h4>4. ระบบแรงสูงที่ติดตั้งใหม่</h4>
-        <select id="hvInsSystem" data-change="updateLineSummary">
-          <option value="">-- ไม่มีการติดตั้งสายแรงสูง --</option>
-          <option value="1 เฟส 19 เควี.">1 เฟส 19 เควี.</option>
-          <option value="3 เฟส 33 เควี.">3 เฟส 33 เควี.</option>
-        </select>
-        <div id="hvInsDistWrap" class="hidden">
-          <label style="margin-top:8px;">ระยะทางที่ติดตั้ง</label>
-          <div class="dist-row">
-            <input type="number" id="hvInsDist" min="0" step="any" placeholder="ระบุระยะทาง" data-input="updateLineSummary" />
+        <div class="line-box ins">
+          <h4>ระบบแรงสูงที่ติดตั้งใหม่</h4>
+          <select id="hvInsSystem" data-change="updateLineSummary">
+            <option value="">-- ไม่ได้ระบุ / ไม่มี --</option>
+            <option value="1 เฟส 22 เควี.">1 เฟส 22 เควี.</option>
+            <option value="3 เฟส 22 เควี.">3 เฟส 22 เควี.</option>
+            <option value="1 เฟส 33 เควี.">1 เฟส 33 เควี.</option>
+            <option value="3 เฟส 33 เควี.">3 เฟส 33 เควี.</option>
+          </select>
+          <div class="dist-row hidden" id="hvInsDistWrap">
+            <input type="number" id="hvInsDist" min="0" step="any" placeholder="ระยะทาง" data-input="updateLineSummary" />
             <select id="hvInsUnit" data-change="updateLineSummary">
               <option value="เมตร">เมตร</option>
               <option value="กม.">กม.</option>
@@ -892,2269 +200,193 @@
         </div>
       </div>
     </div>
-  </div>
-</div>
+  </section>
 
-<!-- MODAL: เปิด/แก้ไขโปรเจค -->
-<div id="projectModal" class="modal-backdrop hidden">
-  <div class="modal" style="max-width:540px;">
-    <div class="modal-header">
-      <div class="modal-header-left">
-        <span class="modal-header-pill">📁</span>
-        <h3 id="projectModalTitle">เปิดโปรเจคงานสำรวจใหม่</h3>
+  <!-- Modal 1: Project Create / Edit -->
+  <div class="modal-backdrop hidden" id="projectModal">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-header-pill">📁</span>
+          <h3 id="projectModalTitle">เปิดโปรเจคงานสำรวจใหม่</h3>
+        </div>
+        <button class="modal-close-btn" data-action="closeProjectModal">✕</button>
       </div>
-      <button type="button" class="modal-close-btn" data-action="closeProjectModal">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="editProjectId" />
-      <div class="modal-card-panel" style="display:flex; flex-direction:column; gap:12px;">
+      <div class="modal-body">
+        <input type="hidden" id="editProjectId" />
         <div>
-          <label>ชื่อโปรเจค / ชื่องาน *</label>
-          <input type="text" id="projName" placeholder="เช่น ขยายเขตระบบจำหน่าย บ้านควนขนุน ม.3" />
+          <label for="projName">ชื่อโปรเจค / ชื่องานก่อสร้าง *</label>
+          <input type="text" id="projName" placeholder="เช่น ขยายเขตระบบจำหน่ายแรงสูง บ้านควนขนุน" />
         </div>
         <div class="grid-2">
           <div>
-            <label>เลขที่ใบสั่งงาน / WBS</label>
-            <input type="text" id="projWbs" placeholder="เช่น C-69-KWN-0142" />
+            <label for="projWbs">เลขที่ใบสั่งงาน / WBS</label>
+            <input type="text" id="projWbs" placeholder="เช่น C-69-KWN-0102" />
           </div>
           <div>
-            <label>พื้นที่ / สายป้อน (Feeder)</label>
-            <input type="text" id="projArea" placeholder="เช่น อ.ควนขนุน / KWN-04" />
+            <label for="projArea">พื้นที่ / สายป้อน</label>
+            <input type="text" id="projArea" placeholder="เช่น อ.ควนขนุน จ.พัทลุง" />
           </div>
         </div>
         <div>
-          <label>ผู้สำรวจประมาณการ</label>
-          <input type="text" id="projSurveyor" placeholder="ระบุชื่อ-ตำแหน่งผู้สำรวจ" />
+          <label for="projSurveyor">ผู้สำรวจ / ผู้รับผิดชอบ</label>
+          <input type="text" id="projSurveyor" placeholder="ระบุชื่อผู้สำรวจหรือแผนก" />
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn-outline" data-action="closeProjectModal">ยกเลิก</button>
-      <button type="button" class="btn-primary" data-action="saveProject">✓ บันทึกโปรเจค</button>
+      <div class="modal-footer">
+        <button class="btn-outline" data-action="closeProjectModal">ยกเลิก</button>
+        <button class="btn-primary" data-action="saveProject">บันทึกโปรเจค</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- MODAL: บันทึก/แก้ไขจุดสำรวจ -->
-<div id="poleModal" class="modal-backdrop hidden">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-header-left">
-        <span class="modal-header-pill">⚡</span>
-        <h3 id="poleModalTitle">บันทึกข้อมูลจุดสำรวจ</h3>
+  <!-- Modal 2: Pole Survey Create / Edit -->
+  <div class="modal-backdrop hidden" id="poleModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-header-pill">⚡</span>
+          <h3 id="poleModalTitle">บันทึกข้อมูลจุดสำรวจ</h3>
+        </div>
+        <button class="modal-close-btn" data-action="closePoleModal">✕</button>
       </div>
-      <button type="button" class="modal-close-btn" data-action="closePoleModal">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="editPoleId" />
+      <div class="modal-body">
+        <input type="hidden" id="editPoleId" />
 
-      <div class="modal-card-panel">
-        <div class="grid-3">
-          <div>
-            <label>รหัสจุด / เบอร์เสา *</label>
-            <input type="text" id="poleCode" placeholder="เช่น P-01" />
-          </div>
-          <div>
-            <label>ละติจูด (Latitude) *</label>
-            <input type="number" id="poleLat" step="0.000001" />
-          </div>
-          <div>
-            <label>ลองจิจูด (Longitude) *</label>
-            <input type="number" id="poleLng" step="0.000001" />
+        <div class="modal-card-panel">
+          <div class="grid-3">
+            <div>
+              <label for="poleCode">รหัสจุด / เบอร์เสา *</label>
+              <input type="text" id="poleCode" placeholder="เช่น P-01" />
+            </div>
+            <div>
+              <label for="poleLat">ละติจูด (Latitude)</label>
+              <input type="number" step="0.000001" id="poleLat" />
+            </div>
+            <div>
+              <label for="poleLng">ลองจิจูด (Longitude)</label>
+              <input type="number" step="0.000001" id="poleLng" />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="modal-card-panel">
-        <label>รูปแบบงานที่จุดนี้ *</label>
-        <input type="hidden" id="workType" value="NEW" />
-        <div class="work-icon-grid" id="workIconGrid">
-          <button type="button" class="icon-option-card active" data-action="selectWorkType" data-work="NEW">
-            <span class="icon-option-badge">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 5v14"/>
-                <path d="M5 12h14"/>
-                <circle cx="12" cy="12" r="9" stroke-dasharray="3 2"/>
-              </svg>
-            </span>
-            <span>
-              <div class="icon-option-title">1. ปักเสาใหม่</div>
-              <div class="icon-option-sub">งานปักเสาใหม่เพียงอย่างเดียว</div>
-            </span>
-          </button>
+        <div class="modal-card-panel">
+          <label style="margin-bottom:8px;">ประเภทงานจุดสำรวจ *</label>
+          <input type="hidden" id="workType" value="NEW" />
+          <div class="work-icon-grid" id="workIconGrid">
+            <button type="button" class="icon-option-card active" data-action="selectWorkType" data-work="NEW">
+              <span class="icon-glyph">🟢</span>
+              <span class="icon-title">ปักเสาใหม่</span>
+              <span class="icon-desc">ติดตั้งเสาและอุปกรณ์ใหม่</span>
+            </button>
+            <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="REMOVE">
+              <span class="icon-glyph">🔴</span>
+              <span class="icon-title">รื้อถอนเสา</span>
+              <span class="icon-desc">รื้อเสาและอุปกรณ์คืนคลัง</span>
+            </button>
+            <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="SWAP">
+              <span class="icon-glyph">🔵</span>
+              <span class="icon-title">สับเปลี่ยนเสา</span>
+              <span class="icon-desc">รื้อต้นเดิม + ปักต้นใหม่</span>
+            </button>
+            <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="SWAP_HEAD">
+              <span class="icon-glyph">🟣</span>
+              <span class="icon-title">เปลี่ยนเฉพาะหัวเสา</span>
+              <span class="icon-desc">ไม่เปลี่ยนเสา คอร. เดิม</span>
+            </button>
+          </div>
 
-          <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="REMOVE">
-            <span class="icon-option-badge">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 6 6 18"/>
-                <path d="m6 6 12 12"/>
-              </svg>
-            </span>
-            <span>
-              <div class="icon-option-title">2. รื้อถอนเสา</div>
-              <div class="icon-option-sub">งานรื้อถอนเสาอย่างเดียว</div>
-            </span>
-          </button>
-
-          <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="SWAP">
-            <span class="icon-option-badge">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M7 16V4m0 0L3 8m4-4 4 4"/>
-                <path d="M17 8v12m0 0 4-4m-4 4-4-4"/>
-              </svg>
-            </span>
-            <span>
-              <div class="icon-option-title">3. สับเปลี่ยนเสา</div>
-              <div class="icon-option-sub">สับเปลี่ยนทั้งเสาและอุปกรณ์</div>
-            </span>
-          </button>
-
-          <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="SWAP_HEAD">
-            <span class="icon-option-badge">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e9d5ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 10v11"/>
-                <path d="M5 10h14"/>
-                <path d="M8 6h8"/>
-                <path d="m16 4 2 2-2 2"/>
-                <path d="m8 4-2 2 2 2"/>
-              </svg>
-            </span>
-            <span>
-              <div class="icon-option-title">4. สับเปลี่ยนเฉพาะหัวเสา</div>
-              <div class="icon-option-sub">ใช้เสาเดิม เปลี่ยนเฉพาะอุปกรณ์ประกอบ</div>
-            </span>
-          </button>
-        </div>
-
-        <div class="grid-2" style="margin-top:12px;">
-          <div id="singleSystemWrap">
-            <label>ระบบจำหน่าย *</label>
+          <div id="singleSystemWrap" style="margin-top:12px;">
+            <label for="singleSystem">ระบบแรงดัน *</label>
             <select id="singleSystem" data-change="renderSpecForms">
-              <option value="LV">งานแรงต่ำ (LV)</option>
-              <option value="HV">งานแรงสูง (HV)</option>
+              <option value="LV">ระบบแรงต่ำ (LV)</option>
+              <option value="HV">ระบบแรงสูง (HV)</option>
             </select>
           </div>
 
-          <!-- เงื่อนไขรูปแบบการสับเปลี่ยนเสาในรูปแบบไอคอน -->
-          <div id="swapSystemWrap" class="hidden" style="grid-column: span 2;">
-            <label>รูปแบบการสับเปลี่ยนเสา *</label>
+          <div id="swapSystemWrap" class="hidden" style="margin-top:12px;">
+            <label style="margin-bottom:8px;">รูปแบบการสับเปลี่ยนระบบ *</label>
             <input type="hidden" id="swapMode" value="LV_TO_LV" />
             <div class="swap-icon-grid" id="swapIconGrid">
               <button type="button" class="icon-option-card active" data-action="selectSwapMode" data-mode="LV_TO_LV">
-                <span class="icon-option-badge">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"/>
-                    <path d="m13 6 6 6-6 6"/>
-                  </svg>
-                </span>
-                <span>
-                  <div class="icon-option-title">เสาแรงต่ำ ➔ เสาแรงต่ำ</div>
-                  <div class="icon-option-sub">LV → LV (เปลี่ยนขนาด/ย้ายตำแหน่งแรงต่ำ)</div>
-                </span>
+                <span class="icon-glyph">🔌→🔌</span>
+                <span class="icon-title">แรงต่ำ → แรงต่ำ</span>
+                <span class="icon-desc">LV เป็น LV</span>
               </button>
-
-              <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="HV_TO_HV">
-                <span class="icon-option-badge">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fde047" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
-                  </svg>
-                </span>
-                <span>
-                  <div class="icon-option-title">เสาแรงสูง ➔ เสาแรงสูง</div>
-                  <div class="icon-option-sub">HV → HV (สับเปลี่ยนเสาแรงสูง)</div>
-                </span>
-              </button>
-
               <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="LV_TO_HV">
-                <span class="icon-option-badge">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 17h7l3-10h6"/>
-                    <path d="m17 4 3 3-3 3"/>
-                  </svg>
-                </span>
-                <span>
-                  <div class="icon-option-title">เสาแรงต่ำ ➔ เสาแรงสูง</div>
-                  <div class="icon-option-sub">LV → HV (ยกระดับเสาแรงต่ำเป็นแรงสูง)</div>
-                </span>
+                <span class="icon-glyph">🔌→⚡</span>
+                <span class="icon-title">แรงต่ำ → แรงสูง</span>
+                <span class="icon-desc">ยกระดับเป็น HV</span>
               </button>
-
-              <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="HV_TO_LV">
-                <span class="icon-option-badge">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 7h7l3 10h6"/>
-                    <path d="m17 14 3 3-3 3"/>
-                  </svg>
-                </span>
-                <span>
-                  <div class="icon-option-title">เสาแรงสูง ➔ เสาแรงต่ำ</div>
-                  <div class="icon-option-sub">HV → LV (ปรับลดเป็นเสาแรงต่ำ)</div>
-                </span>
+              <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="HV_TO_HV">
+                <span class="icon-glyph">⚡→⚡</span>
+                <span class="icon-title">แรงสูง → แรงสูง</span>
+                <span class="icon-desc">HV เป็น HV</span>
               </button>
             </div>
           </div>
         </div>
-      </div>
 
-      <div id="dynamicSpecsContainer" style="display:flex; flex-direction:column; gap:12px;"></div>
+        <div id="dynamicSpecsContainer"></div>
 
-      <!-- ส่วนสอบถามงานรื้อถอนและติดตั้งมิเตอร์ที่เสาที่ดำเนินการ (1 - 8 เครื่อง) -->
-      <div class="spec-section meter-box" id="meterSectionBox">
-        <div class="spec-title">งานรื้อถอนและติดตั้งมิเตอร์ที่เสาที่ดำเนินการ</div>
-        <div class="grid-2">
-          <div>
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#f8fafc;">
-              <input type="checkbox" id="hasMeterRemove" data-change="onMeterToggle" style="width:16px; height:16px;" />
-              มีการรื้อถอนมิเตอร์ที่เสานี้หรือไม่?
-            </label>
-            <div id="meterRemoveCountWrap" class="hidden" style="margin-top:8px;">
-              <label for="meterRemoveCount">จำนวนมิเตอร์ที่รื้อถอน (1 - 8 เครื่อง) *</label>
-              <select id="meterRemoveCount">
-                <option value="1">1 เครื่อง</option>
-                <option value="2">2 เครื่อง</option>
-                <option value="3">3 เครื่อง</option>
-                <option value="4">4 เครื่อง</option>
-                <option value="5">5 เครื่อง</option>
-                <option value="6">6 เครื่อง</option>
-                <option value="7">7 เครื่อง</option>
-                <option value="8">8 เครื่อง</option>
-              </select>
+        <!-- Meter Work Section -->
+        <div class="spec-section meter-box">
+          <div class="spec-title">งานมิเตอร์ ณ จุดสำรวจนี้ (รื้อถอน / ติดตั้งใหม่)</div>
+          <div class="grid-2">
+            <div>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#fca5a5;">
+                <input type="checkbox" id="hasMeterRemove" data-change="onMeterToggle" style="width:16px; height:16px;" />
+                มีการรื้อมิเตอร์หรือไม่
+              </label>
+              <div id="meterRemoveCountWrap" class="hidden" style="margin-top:8px;">
+                <label for="meterRemoveCount">จำนวนมิเตอร์ที่รื้อถอน (เครื่อง)</label>
+                <select id="meterRemoveCount">
+                  <option value="1">1 เครื่อง</option>
+                  <option value="2">2 เครื่อง</option>
+                  <option value="3">3 เครื่อง</option>
+                  <option value="4">4 เครื่อง</option>
+                  <option value="5">5 เครื่อง</option>
+                  <option value="6">6 เครื่อง</option>
+                  <option value="7">7 เครื่อง</option>
+                  <option value="8">8 เครื่อง</option>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#f8fafc;">
-              <input type="checkbox" id="hasMeterInstall" data-change="onMeterToggle" style="width:16px; height:16px;" />
-              มีการติดตั้งมิเตอร์ที่เสานี้หรือไม่?
-            </label>
-            <div id="meterInstallCountWrap" class="hidden" style="margin-top:8px;">
-              <label for="meterInstallCount">จำนวนมิเตอร์ที่ติดตั้ง (1 - 8 เครื่อง) *</label>
-              <select id="meterInstallCount">
-                <option value="1">1 เครื่อง</option>
-                <option value="2">2 เครื่อง</option>
-                <option value="3">3 เครื่อง</option>
-                <option value="4">4 เครื่อง</option>
-                <option value="5">5 เครื่อง</option>
-                <option value="6">6 เครื่อง</option>
-                <option value="7">7 เครื่อง</option>
-                <option value="8">8 เครื่อง</option>
-              </select>
+            <div>
+              <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#86efac;">
+                <input type="checkbox" id="hasMeterInstall" data-change="onMeterToggle" style="width:16px; height:16px;" />
+                มีการติดตั้งมิเตอร์ใหม่หรือไม่
+              </label>
+              <div id="meterInstallCountWrap" class="hidden" style="margin-top:8px;">
+                <label for="meterInstallCount">จำนวนมิเตอร์ที่ติดตั้งใหม่ (เครื่อง)</label>
+                <select id="meterInstallCount">
+                  <option value="1">1 เครื่อง</option>
+                  <option value="2">2 เครื่อง</option>
+                  <option value="3">3 เครื่อง</option>
+                  <option value="4">4 เครื่อง</option>
+                  <option value="5">5 เครื่อง</option>
+                  <option value="6">6 เครื่อง</option>
+                  <option value="7">7 เครื่อง</option>
+                  <option value="8">8 เครื่อง</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="modal-card-panel">
-        <label>หมายเหตุเพิ่มเติมหน้างาน</label>
-        <input type="text" id="poleNote" placeholder="เช่น ริมทางหลวง, ข้ามถนน, จุดติดตั้งมิเตอร์..." />
+        <div class="modal-card-panel">
+          <label for="poleNote">หมายเหตุเพิ่มเติม</label>
+          <textarea id="poleNote" rows="2" placeholder="เช่น ใกล้ทางแยก ติดต้นไม้ หรือจุดวางหม้อแปลง"></textarea>
+        </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn-outline" data-action="closePoleModal">ยกเลิก</button>
-      <button type="button" class="btn-primary" data-action="savePole">✓ บันทึกจุดสำรวจ</button>
+      <div class="modal-footer">
+        <button class="btn-outline" data-action="closePoleModal">ยกเลิก</button>
+        <button class="btn-primary" data-action="savePole">บันทึกจุดสำรวจ</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-(function() {
-  "use strict";
-
-  // 1. ฐานข้อมูลอุปกรณ์หัวเสาแรงสูง (ครบ 40 รายการ)
-  const HV_TOP_HARDWARE = [
-    { type: "SP", system: "1 Phase" },
-    { type: "SP", system: "3 Phase" },
-    { type: "SP-AL", system: "1 Phase" },
-    { type: "SP-AL", system: "3 Phase" },
-    { type: "DP", system: "1 Phase" },
-    { type: "DP", system: "3 Phase" },
-    { type: "DP-AL", system: "1 Phase" },
-    { type: "DP-AL", system: "3 Phase" },
-    { type: "SP 1.5 M", system: "1 Phase" },
-    { type: "SP 1.5 M", system: "3 Phase" },
-    { type: "DP 1.5 M", system: "1 Phase" },
-    { type: "DP 1.5 M", system: "3 Phase" },
-    { type: "CCB(ทางตรง)", system: "1 Phase" },
-    { type: "CCB(ทางโค้ง)", system: "3 Phase" },
-    { type: "CCB(ทางตรง) 2 CIRCUIT", system: "1 Phase" },
-    { type: "CCB(ทางโค้ง) 2 CIRCUIT", system: "3 Phase" },
-    { type: "DDE", system: "1 Phase" },
-    { type: "DDE", system: "3 Phase" },
-    { type: "DDE-AL", system: "1 Phase" },
-    { type: "DDE-AL", system: "3 Phase" },
-    { type: "DE", system: "1 Phase" },
-    { type: "DE", system: "3 Phase" },
-    { type: "DE-AL", system: "1 Phase" },
-    { type: "DE-AL", system: "3 Phase" },
-    { type: "BA", system: "1 Phase" },
-    { type: "BA", system: "3 Phase" },
-    { type: "BA-AL", system: "1 Phase" },
-    { type: "BA-AL", system: "3 Phase" },
-    { type: "CSC", system: "1 Phase" },
-    { type: "CSC", system: "3 Phase" },
-    { type: "CTB", system: "1 Phase" },
-    { type: "CTB", system: "3 Phase" },
-    { type: "CSC 2 CIRCUIT", system: "1 Phase" },
-    { type: "CTB 2 CIRCUIT", system: "3 Phase" },
-    { type: "BL", system: "1 Phase" },
-    { type: "BL", system: "3 Phase" },
-    { type: "BL-AL", system: "1 Phase" },
-    { type: "BL-AL", system: "3 Phase" },
-    { type: "INSULATOR 57-3", system: "" },
-    { type: "INSULATOR SUPPENSION", system: "" }
-  ];
-
-  const HOTLINE_CLAMP_OPTIONS = [
-    "HOTLINE CLAMP 50 ต.มม.",
-    "HOTLINE CLAMP 95 ต.มม.",
-    "HOTLINE CLAMP 185 ต.มม."
-  ];
-
-  const BAIL_CLAMP_OPTIONS = [
-    "BAIL CLAMP 50 ต.มม.",
-    "BAIL CLAMP 95 ต.มม.",
-    "BAIL CLAMP 185 ต.มม."
-  ];
-
-  const POLE_SIZES_LV = ["8", "9"];
-  const POLE_SIZES_HV = ["12", "12.2", "14", "14.3"];
-  const TR_SIZES = ["30 kVA", "50 kVA", "100 kVA", "160 kVA", "250 kVA", "315 kVA", "400 kVA", "500 kVA", "800 kVA", "1000 kVA"];
-
-  function getRackOptionsForPole(poleSize) {
-    const rackPoleKey = (poleSize === "8" || poleSize === "9") ? "8/9" : poleSize;
-    const list = [];
-    for (let r = 1; r <= 4; r++) {
-      list.push(`RACK ${r} | ทางตรง | เสา ${rackPoleKey} ม.`);
-      ["DE", "DDE"].forEach(kind => {
-        ["25 ต.มม.", "50 ต.มม.", "95 ต.มม."].forEach(wire => {
-          list.push(`RACK ${r} ${kind} | ${wire} | เสา ${rackPoleKey} ม.`);
-        });
-      });
-    }
-    return list;
-  }
-
-  function calcDistanceMeters(lat1, lng1, lat2, lng2) {
-    const R = 6371000;
-    const toRad = deg => (deg * Math.PI) / 180;
-    const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lng2 - lng1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  }
-
-  function formatDistance(meters) {
-    if (!Number.isFinite(meters) || meters < 0) return "-";
-    if (meters >= 1000) {
-      return `${(meters / 1000).toFixed(2)} กม. (${meters.toFixed(1)} ม.)`;
-    }
-    return `${meters.toFixed(1)} ม.`;
-  }
-
-  function getReferencePoleForPin(poles, coord) {
-    if (!poles || !poles.length) return null;
-    let nearest = poles[0];
-    let minDist = calcDistanceMeters(coord.lat, coord.lng, nearest.lat, nearest.lng);
-    for (let i = 1; i < poles.length; i++) {
-      const d = calcDistanceMeters(coord.lat, coord.lng, poles[i].lat, poles[i].lng);
-      if (d < minDist) {
-        minDist = d;
-        nearest = poles[i];
-      }
-    }
-    return { pole: nearest, distanceMeters: minDist };
-  }
-
-  // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V16";
-  let memoryFallback = null;
-
-  function loadData() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch (e) {}
-    if (memoryFallback) return memoryFallback;
-    return createDefaultData();
-  }
-
-  function saveData(data) {
-    memoryFallback = data;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch (e) {}
-  }
-
-  function createDefaultData() {
-    return {
-      activeProjectId: "proj-1",
-      projects: [
-        {
-          id: "proj-1",
-          name: "ขยายเขตระบบจำหน่ายแรงสูง+หม้อแปลง 160 kVA บ้านควนขนุน",
-          wbs: "C-69-KWN-0101",
-          area: "อ.ควนขนุน จ.พัทลุง (KWN-02)",
-          surveyor: "แผนกสำรวจประมาณการ กฟภ.สาขาควนขนุน",
-          lineSummary: {
-            lvRemSystem: "", lvRemDist: "", lvRemUnit: "เมตร",
-            lvInsSystem: "3 เฟส 4 สาย", lvInsDist: "240", lvInsUnit: "เมตร",
-            hvRemSystem: "", hvRemDist: "", hvRemUnit: "เมตร",
-            hvInsSystem: "3 เฟส 33 เควี.", hvInsDist: "180", hvInsUnit: "เมตร"
-          },
-          poles: [
-            {
-              id: "p-101",
-              code: "P-01",
-              lat: 7.736200,
-              lng: 100.008500,
-              workType: "NEW",
-              singleSystem: "HV",
-              swapMode: "LV_TO_LV",
-              meterRemoveCount: 0,
-              meterInstallCount: 0,
-              note: "จุดรับไฟแรงสูงต้นทาง",
-              installSpec: {
-                system: "HV",
-                poleSize: "12.2",
-                concreteBase: true,
-                hvTopList: [{ name: "DE-AL (3 Phase)", qty: 1 }],
-                hasHotlineBailClamp: false,
-                hotlineClampList: [],
-                bailClampList: [],
-                dropoutQty: 0,
-                tr202Qty: 0,
-                hasTransformer: false,
-                trSize: "160 kVA",
-                rackList: [{ name: "RACK 4 DE | 95 ต.มม. | เสา 12.2 ม.", qty: 1 }],
-                gy33Qty: 2,
-                gy02Qty: 1,
-                lvArresterQty: 0,
-                lvGroundQty: 1
-              },
-              removeSpec: null
-            },
-            {
-              id: "p-102",
-              code: "P-02",
-              lat: 7.735650,
-              lng: 100.009450,
-              workType: "NEW",
-              singleSystem: "HV",
-              swapMode: "LV_TO_LV",
-              meterRemoveCount: 0,
-              meterInstallCount: 2,
-              note: "จุดแยกสายและติดตั้งหม้อแปลง 160 kVA",
-              installSpec: {
-                system: "HV",
-                poleSize: "12.2",
-                concreteBase: false,
-                hvTopList: [{ name: "BL-AL (3 Phase)", qty: 1 }],
-                hasHotlineBailClamp: true,
-                hotlineClampList: [{ name: "HOTLINE CLAMP 50 ต.มม.", qty: 3 }],
-                bailClampList: [{ name: "BAIL CLAMP 50 ต.มม.", qty: 3 }],
-                dropoutQty: 3,
-                tr202Qty: 3,
-                hasTransformer: true,
-                trSize: "160 kVA",
-                rackList: [{ name: "RACK 4 DDE | 95 ต.มม. | เสา 12.2 ม.", qty: 1 }],
-                gy33Qty: 1,
-                gy02Qty: 1,
-                lvArresterQty: 3,
-                lvGroundQty: 1
-              },
-              removeSpec: null
-            }
-          ]
-        },
-        {
-          id: "proj-2",
-          name: "ปรับปรุงสับเปลี่ยนเสาแรงต่ำชำรุด ต.ป่าพะยอม",
-          wbs: "M-69-KWN-0045",
-          area: "อ.ป่าพะยอม จ.พัทลุง (KWN-05)",
-          surveyor: "ทีมสำรวจ กฟภ.สาขาควนขนุน",
-          lineSummary: {
-            lvRemSystem: "1 เฟส 2 สาย", lvRemDist: "120", lvRemUnit: "เมตร",
-            lvInsSystem: "1 เฟส 3 สาย", lvInsDist: "120", lvInsUnit: "เมตร",
-            hvRemSystem: "", hvRemDist: "", hvRemUnit: "เมตร",
-            hvInsSystem: "", hvInsDist: "", hvInsUnit: "เมตร"
-          },
-          poles: [
-            {
-              id: "p-201",
-              code: "S-01",
-              lat: 7.734900,
-              lng: 100.007900,
-              workType: "SWAP",
-              singleSystem: "LV",
-              swapMode: "LV_TO_LV",
-              meterRemoveCount: 1,
-              meterInstallCount: 1,
-              note: "สับเปลี่ยนเสา 8 ม. เดิมเป็น 9 ม.",
-              removeSpec: {
-                system: "LV",
-                poleSize: "8",
-                concreteBase: false,
-                hvTopList: [],
-                hasHotlineBailClamp: false,
-                hotlineClampList: [],
-                bailClampList: [],
-                dropoutQty: 0,
-                tr202Qty: 0,
-                hasTransformer: false,
-                trSize: "",
-                rackList: [{ name: "RACK 2 | ทางตรง | เสา 8/9 ม.", qty: 1 }],
-                gy33Qty: 0,
-                gy02Qty: 0,
-                lvArresterQty: 0,
-                lvGroundQty: 0
-              },
-              installSpec: {
-                system: "LV",
-                poleSize: "9",
-                concreteBase: false,
-                hvTopList: [],
-                hasHotlineBailClamp: false,
-                hotlineClampList: [],
-                bailClampList: [],
-                dropoutQty: 0,
-                tr202Qty: 0,
-                hasTransformer: false,
-                trSize: "",
-                rackList: [{ name: "RACK 3 | ทางตรง | เสา 8/9 ม.", qty: 1 }],
-                gy33Qty: 0,
-                gy02Qty: 1,
-                lvArresterQty: 1,
-                lvGroundQty: 1
-              }
-            }
-          ]
-        }
-      ]
-    };
-  }
-
-  let appState = loadData();
-  let selectedCoord = { lat: 7.735800, lng: 100.009200 };
-  let mapCenter = { lat: 7.735800, lng: 100.009200 };
-  let currentUserLocation = null;
-
-  const BASE_Z18_PX_PER_DEG_LNG = (256 * Math.pow(2, 18)) / 360;
-  function getPxPerDegLatForZoom(z) {
-    const latRad = (mapCenter.lat * Math.PI) / 180;
-    const pxPerDegLng = BASE_Z18_PX_PER_DEG_LNG * Math.pow(2, z - 18);
-    return {
-      pxPerDegLng,
-      pxPerDegLat: pxPerDegLng / Math.cos(latRad)
-    };
-  }
-
-  let zoomFloat = 18.0;
-  const MIN_ZOOM = 13.0;
-  const MAX_ZOOM = 20.0;
-  let isSatellite = true;
-
-  const MAP_SOURCES = [
-    { id: "google_sat", name: "Google Sat", label: "Google Satellite" },
-    { id: "google_hybrid", name: "Google Hybrid", label: "Google Hybrid (ดาวเทียม+ถนน)" },
-    { id: "esri_hd", name: "Esri HD", label: "Esri World Imagery" }
-  ];
-  let mapSourceIndex = 0;
-
-  let draftSpecs = { install: null, remove: null };
-  const tileCache = new Map();
-
-  function lon2tile(lon, zoom) {
-    return ((lon + 180) / 360) * Math.pow(2, zoom);
-  }
-  function lat2tile(lat, zoom) {
-    const rad = (lat * Math.PI) / 180;
-    return ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * Math.pow(2, zoom);
-  }
-  function tile2lon(x, zoom) {
-    return (x / Math.pow(2, zoom)) * 360 - 180;
-  }
-  function tile2lat(y, zoom) {
-    const n = Math.PI - (2 * Math.PI * y) / Math.pow(2, zoom);
-    return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
-  }
-
-  function latLngToCanvas(lat, lng, width, height, z = zoomFloat) {
-    const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(z);
-    const x = width / 2 + (lng - mapCenter.lng) * pxPerDegLng;
-    const y = height / 2 - (lat - mapCenter.lat) * pxPerDegLat;
-    return { x, y };
-  }
-
-  function canvasToLatLng(x, y, width, height, z = zoomFloat) {
-    const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(z);
-    const lng = mapCenter.lng + (x - width / 2) / pxPerDegLng;
-    const lat = mapCenter.lat - (y - height / 2) / pxPerDegLat;
-    return { lat, lng };
-  }
-
-  function applyZoomDelta(delta, anchorPixel = null) {
-    const nextZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoomFloat + delta));
-    if (Math.abs(nextZoom - zoomFloat) < 0.0001) return;
-
-    const canvas = document.getElementById("surveyMap");
-    if (anchorPixel && canvas) {
-      const beforeCoord = canvasToLatLng(anchorPixel.x, anchorPixel.y, canvas.width, canvas.height, zoomFloat);
-      zoomFloat = nextZoom;
-      const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(zoomFloat);
-      mapCenter.lng = beforeCoord.lng - (anchorPixel.x - canvas.width / 2) / pxPerDegLng;
-      mapCenter.lat = beforeCoord.lat + (anchorPixel.y - canvas.height / 2) / pxPerDegLat;
-    } else {
-      zoomFloat = nextZoom;
-    }
-
-    updateZoomBadge();
-    drawMap();
-  }
-
-  function setZoomAbsolute(targetZoom, anchorPixel = null) {
-    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, targetZoom));
-    applyZoomDelta(clamped - zoomFloat, anchorPixel);
-  }
-
-  function updateZoomBadge() {
-    const label = document.getElementById("zoomLevelLabel");
-    if (label) {
-      const pct = Math.round(Math.pow(2, zoomFloat - 18) * 100);
-      label.textContent = `Z${Math.round(zoomFloat)} (${pct}%)`;
-    }
-  }
-
-  function getTileUrl(sourceId, tx, ty, z) {
-    if (sourceId === "google_sat") {
-      const srv = (tx + ty) % 4;
-      return `https://mt${srv}.google.com/vt/lyrs=s&x=${tx}&y=${ty}&z=${z}`;
-    }
-    if (sourceId === "google_hybrid") {
-      const srv = (tx + ty) % 4;
-      return `https://mt${srv}.google.com/vt/lyrs=y&x=${tx}&y=${ty}&z=${z}`;
-    }
-    return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`;
-  }
-
-  function requestSatelliteTile(sourceId, tx, ty, z) {
-    const key = `${sourceId}/${z}/${tx}/${ty}`;
-    if (tileCache.has(key)) {
-      return tileCache.get(key);
-    }
-    const entry = { img: new Image(), loaded: false, failed: false };
-    entry.img.crossOrigin = "anonymous";
-
-    entry.img.onload = () => {
-      entry.loaded = true;
-      const srcObj = MAP_SOURCES.find(s => s.id === sourceId);
-      updateSatStatusLabel(`ดาวเทียม: ${srcObj ? srcObj.label : sourceId} (Z${z})`);
-      drawMap();
-    };
-    entry.img.onerror = () => {
-      entry.failed = true;
-      if (sourceId !== "esri_hd") {
-        requestSatelliteTile("esri_hd", tx, ty, z);
-      }
-    };
-    entry.img.src = getTileUrl(sourceId, tx, ty, z);
-    tileCache.set(key, entry);
-    return entry;
-  }
-
-  function drawTileWithFallback(ctx, sourceId, tx, ty, tileZ, p1, p2) {
-    const tw = Math.ceil(p2.x - p1.x) + 1;
-    const th = Math.ceil(p2.y - p1.y) + 1;
-
-    const primary = requestSatelliteTile(sourceId, tx, ty, tileZ);
-    if (primary.loaded) {
-      ctx.drawImage(primary.img, p1.x, p1.y, tw, th);
-      return;
-    }
-
-    const esriFallback = (sourceId !== "esri_hd") ? requestSatelliteTile("esri_hd", tx, ty, tileZ) : null;
-    if (esriFallback && esriFallback.loaded) {
-      ctx.drawImage(esriFallback.img, p1.x, p1.y, tw, th);
-      return;
-    }
-
-    if (tileZ > 13) {
-      const parentZ = tileZ - 1;
-      const ptx = Math.floor(tx / 2);
-      const pty = Math.floor(ty / 2);
-      const parentEntry = tileCache.get(`${sourceId}/${parentZ}/${ptx}/${pty}`) || tileCache.get(`esri_hd/${parentZ}/${ptx}/${pty}`);
-      if (parentEntry && parentEntry.loaded) {
-        const subX = (tx % 2) * 128;
-        const subY = (ty % 2) * 128;
-        ctx.drawImage(parentEntry.img, subX, subY, 128, 128, p1.x, p1.y, tw, th);
-        return;
-      }
-    }
-
-    ctx.fillStyle = ((tx + ty) % 2 === 0) ? "#131c2e" : "#172238";
-    ctx.fillRect(p1.x, p1.y, tw, th);
-  }
-
-  function updateSatStatusLabel(text) {
-    const el = document.getElementById("satStatusLabel");
-    if (el) el.textContent = text;
-  }
-
-  function updateCursorCoordBadge() {
-    const proj = getActiveProject();
-    const poles = proj ? proj.poles : [];
-    const ref = getReferencePoleForPin(poles, selectedCoord);
-    const distPart = ref
-      ? ` • <span class="dist-highlight">ห่างจาก ${escapeHtml(ref.pole.code)}: ${formatDistance(ref.distanceMeters)}</span>`
-      : "";
-    document.getElementById("cursorCoordBadge").innerHTML =
-      `พิกัดปักหมุด: ${selectedCoord.lat.toFixed(6)}, ${selectedCoord.lng.toFixed(6)}${distPart}`;
-  }
-
-  function setSelectedCoord(lat, lng, recenter = false) {
-    if (Number.isNaN(lat) || Number.isNaN(lng)) return;
-    selectedCoord = { lat, lng };
-    if (recenter) {
-      mapCenter = { lat, lng };
-    }
-    updateCursorCoordBadge();
-    document.getElementById("manualLat").value = selectedCoord.lat.toFixed(6);
-    document.getElementById("manualLng").value = selectedCoord.lng.toFixed(6);
-    drawMap();
-  }
-
-  function locateCurrentUser(centerOnFound = true) {
-    if (!navigator.geolocation) {
-      alert("อุปกรณ์นี้ไม่รองรับ GPS");
-      return;
-    }
-    updateSatStatusLabel("กำลังค้นหาตำแหน่งปัจจุบัน...");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        currentUserLocation = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy || 15
-        };
-        if (centerOnFound) {
-          setSelectedCoord(currentUserLocation.lat, currentUserLocation.lng, true);
-        } else {
-          drawMap();
-        }
-        updateSatStatusLabel(`GPS แม่นยำ ±${Math.round(currentUserLocation.accuracy)} ม.`);
-      },
-      () => {
-        updateSatStatusLabel("ไม่ได้รับสิทธิ์ GPS • คลิกหรือกรอกพิกัดได้เอง");
-        if (centerOnFound) {
-          alert("ไม่สามารถเข้าถึง GPS ปัจจุบันได้ กรุณาอนุญาต Location หรือคลิกปักหมุดบนแผนที่ได้เลยครับ");
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
-    );
-  }
-
-  function drawDistanceLabelOnCanvas(ctx, midX, midY, text, bgColor = "rgba(15, 23, 42, 0.9)", borderColor = "#fbbf24", textColor = "#fde047") {
-    ctx.save();
-    ctx.font = "700 12px 'Sarabun', sans-serif";
-    const padX = 7;
-    const textW = ctx.measureText(text).width;
-    const boxW = textW + padX * 2;
-    const boxH = 20;
-    const x = midX - boxW / 2;
-    const y = midY - boxH / 2;
-
-    ctx.fillStyle = bgColor;
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 1.4;
-    ctx.beginPath();
-    ctx.roundRect(x, y, boxW, boxH, 5);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = textColor;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(text, midX, midY + 0.5);
-    ctx.restore();
-  }
-
-  function drawMap() {
-    const canvas = document.getElementById("surveyMap");
-    if (!canvas) return;
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width || 600;
-    canvas.height = rect.height || 450;
-    const ctx = canvas.getContext("2d");
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-
-    const w = canvas.width;
-    const h = canvas.height;
-    const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(zoomFloat);
-
-    ctx.fillStyle = "#0b1320";
-    ctx.fillRect(0, 0, w, h);
-
-    const activeSrc = MAP_SOURCES[mapSourceIndex] || MAP_SOURCES[0];
-
-    if (isSatellite) {
-      const tileZ = Math.max(13, Math.min(19, Math.round(zoomFloat)));
-      const topLeft = canvasToLatLng(0, 0, w, h, zoomFloat);
-      const bottomRight = canvasToLatLng(w, h, w, h, zoomFloat);
-
-      const minTx = Math.floor(lon2tile(topLeft.lng, tileZ));
-      const maxTx = Math.floor(lon2tile(bottomRight.lng, tileZ));
-      const minTy = Math.floor(lat2tile(topLeft.lat, tileZ));
-      const maxTy = Math.floor(lat2tile(bottomRight.lat, tileZ));
-
-      for (let tx = minTx; tx <= maxTx; tx++) {
-        for (let ty = minTy; ty <= maxTy; ty++) {
-          const tLat1 = tile2lat(ty, tileZ);
-          const tLng1 = tile2lon(tx, tileZ);
-          const tLat2 = tile2lat(ty + 1, tileZ);
-          const tLng2 = tile2lon(tx + 1, tileZ);
-
-          const p1 = latLngToCanvas(tLat1, tLng1, w, h, zoomFloat);
-          const p2 = latLngToCanvas(tLat2, tLng2, w, h, zoomFloat);
-          drawTileWithFallback(ctx, activeSrc.id, tx, ty, tileZ, p1, p2);
-        }
-      }
-    } else {
-      ctx.strokeStyle = "rgba(148, 163, 184, 0.16)";
-      ctx.lineWidth = 1;
-      const step = Math.max(24, Math.min(140, 64 * Math.pow(2, zoomFloat - 18)));
-      const offsetX = ((w / 2 - mapCenter.lng * pxPerDegLng) % step + step) % step;
-      const offsetY = ((h / 2 + mapCenter.lat * pxPerDegLat) % step + step) % step;
-
-      for (let x = offsetX; x < w; x += step) {
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-      }
-      for (let y = offsetY; y < h; y += step) {
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-      }
-
-      const rStart = latLngToCanvas(7.7354, 100.0055, w, h, zoomFloat);
-      const rMid = latLngToCanvas(7.7360, 100.0090, w, h, zoomFloat);
-      const rEnd = latLngToCanvas(7.7364, 100.0130, w, h, zoomFloat);
-      const roadW = Math.max(6, 18 * Math.pow(2, zoomFloat - 18));
-
-      ctx.strokeStyle = "#263349";
-      ctx.lineWidth = roadW;
-      ctx.beginPath();
-      ctx.moveTo(rStart.x, rStart.y);
-      ctx.quadraticCurveTo(rMid.x, rMid.y, rEnd.x, rEnd.y);
-      ctx.stroke();
-
-      ctx.strokeStyle = "#64748b";
-      ctx.lineWidth = Math.max(1.5, 2.5);
-      ctx.setLineDash([10, 8]);
-      ctx.beginPath();
-      ctx.moveTo(rStart.x, rStart.y);
-      ctx.quadraticCurveTo(rMid.x, rMid.y, rEnd.x, rEnd.y);
-      ctx.stroke();
-      ctx.setLineDash([]);
-    }
-
-    const proj = getActiveProject();
-    const poles = proj ? proj.poles : [];
-
-    if (poles.length > 1) {
-      ctx.strokeStyle = "#c084fc";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      poles.forEach((p, i) => {
-        const pt = latLngToCanvas(p.lat, p.lng, w, h, zoomFloat);
-        if (i === 0) ctx.moveTo(pt.x, pt.y);
-        else ctx.lineTo(pt.x, pt.y);
-      });
-      ctx.stroke();
-
-      for (let i = 1; i < poles.length; i++) {
-        const prev = poles[i - 1];
-        const curr = poles[i];
-        const p1 = latLngToCanvas(prev.lat, prev.lng, w, h, zoomFloat);
-        const p2 = latLngToCanvas(curr.lat, curr.lng, w, h, zoomFloat);
-        const dMeters = calcDistanceMeters(prev.lat, prev.lng, curr.lat, curr.lng);
-        drawDistanceLabelOnCanvas(
-          ctx,
-          (p1.x + p2.x) / 2,
-          (p1.y + p2.y) / 2,
-          `${dMeters.toFixed(1)} ม.`,
-          "rgba(46, 16, 101, 0.92)",
-          "#c084fc",
-          "#f3e8ff"
-        );
-      }
-    }
-
-    const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h, zoomFloat);
-
-    const ref = getReferencePoleForPin(poles, selectedCoord);
-    if (ref) {
-      const refPt = latLngToCanvas(ref.pole.lat, ref.pole.lng, w, h, zoomFloat);
-      ctx.save();
-      ctx.strokeStyle = "#fbbf24";
-      ctx.lineWidth = 2.2;
-      ctx.setLineDash([6, 5]);
-      ctx.beginPath();
-      ctx.moveTo(refPt.x, refPt.y);
-      ctx.lineTo(selPt.x, selPt.y);
-      ctx.stroke();
-      ctx.restore();
-
-      const midX = (refPt.x + selPt.x) / 2;
-      const midY = (refPt.y + selPt.y) / 2 - 14;
-      drawDistanceLabelOnCanvas(
-        ctx,
-        midX,
-        midY,
-        `${ref.pole.code} → หมุด: ${formatDistance(ref.distanceMeters)}`,
-        "rgba(9, 13, 22, 0.94)",
-        "#fbbf24",
-        "#fde047"
-      );
-    }
-
-    poles.forEach(p => {
-      const pt = latLngToCanvas(p.lat, p.lng, w, h, zoomFloat);
-      let color = "#22c55e";
-      if (p.workType === "REMOVE") color = "#ef4444";
-      else if (p.workType === "SWAP") color = "#3b82f6";
-      else if (p.workType === "SWAP_HEAD") color = "#c084fc";
-
-      const hasTr = p.installSpec && p.installSpec.hasTransformer;
-
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, hasTr ? 11 : 8, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = hasTr ? "#fbbf24" : "#ffffff";
-      ctx.stroke();
-
-      ctx.font = "700 13px 'Sarabun', sans-serif";
-      const label = hasTr ? `${p.code} [TR ${p.installSpec.trSize}]` : p.code;
-      const textW = ctx.measureText(label).width;
-      ctx.fillStyle = "rgba(9, 13, 22, 0.82)";
-      ctx.fillRect(pt.x + 11, pt.y - 10, textW + 8, 18);
-      ctx.fillStyle = "#f8fafc";
-      ctx.fillText(label, pt.x + 15, pt.y + 4);
-    });
-
-    if (currentUserLocation) {
-      const uPt = latLngToCanvas(currentUserLocation.lat, currentUserLocation.lng, w, h, zoomFloat);
-      const degPerMeterLat = 1 / 111320;
-      const haloRadiusPx = Math.max(16, Math.min(75, (currentUserLocation.accuracy || 15) * degPerMeterLat * pxPerDegLat));
-
-      ctx.beginPath();
-      ctx.arc(uPt.x, uPt.y, haloRadiusPx, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(56, 189, 248, 0.22)";
-      ctx.fill();
-      ctx.lineWidth = 1.2;
-      ctx.strokeStyle = "rgba(56, 189, 248, 0.55)";
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(uPt.x, uPt.y, 7.5, 0, Math.PI * 2);
-      ctx.fillStyle = "#2563eb";
-      ctx.fill();
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = "#ffffff";
-      ctx.stroke();
-
-      ctx.font = "700 12px 'Sarabun', sans-serif";
-      ctx.fillStyle = "#bae6fd";
-      ctx.fillText("ตำแหน่งปัจจุบัน", uPt.x + 12, uPt.y + 4);
-    }
-
-    ctx.strokeStyle = "#fbbf24";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(selPt.x, selPt.y, 13, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(selPt.x - 18, selPt.y); ctx.lineTo(selPt.x + 18, selPt.y);
-    ctx.moveTo(selPt.x, selPt.y - 18); ctx.lineTo(selPt.x, selPt.y + 18);
-    ctx.stroke();
-  }
-
-  function initCanvasPanZoomAndClick() {
-    const wrapper = document.getElementById("mapWrapper");
-    const canvas = document.getElementById("surveyMap");
-    const btnZoomIn = document.getElementById("btnZoomIn");
-    const btnZoomOut = document.getElementById("btnZoomOut");
-
-    let isDragging = false;
-    let movedDistance = 0;
-    let lastX = 0;
-    let lastY = 0;
-    let initialPinchDist = 0;
-    let initialPinchZoom = zoomFloat;
-
-    btnZoomIn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      applyZoomDelta(0.5);
-    });
-
-    btnZoomOut.addEventListener("click", (e) => {
-      e.stopPropagation();
-      applyZoomDelta(-0.5);
-    });
-
-    function onPointerDown(clientX, clientY) {
-      isDragging = true;
-      movedDistance = 0;
-      lastX = clientX;
-      lastY = clientY;
-      canvas.classList.add("dragging");
-    }
-
-    function onPointerMove(clientX, clientY) {
-      if (!isDragging) return;
-      const dx = clientX - lastX;
-      const dy = clientY - lastY;
-      movedDistance += Math.hypot(dx, dy);
-      lastX = clientX;
-      lastY = clientY;
-
-      const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(zoomFloat);
-      mapCenter.lng -= dx / pxPerDegLng;
-      mapCenter.lat += dy / pxPerDegLat;
-      drawMap();
-    }
-
-    function onPointerUp(clientX, clientY) {
-      if (!isDragging) return;
-      isDragging = false;
-      canvas.classList.remove("dragging");
-
-      if (movedDistance < 6) {
-        const rect = canvas.getBoundingClientRect();
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
-        const pt = canvasToLatLng(x, y, canvas.width, canvas.height, zoomFloat);
-        setSelectedCoord(pt.lat, pt.lng, false);
-      }
-    }
-
-    canvas.addEventListener("mousedown", (e) => onPointerDown(e.clientX, e.clientY));
-    window.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
-    window.addEventListener("mouseup", (e) => onPointerUp(e.clientX, e.clientY));
-
-    wrapper.addEventListener("wheel", (e) => {
-      e.preventDefault();
-      const rect = canvas.getBoundingClientRect();
-      const anchor = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-      const step = e.deltaY < 0 ? 0.5 : -0.5;
-      applyZoomDelta(step, anchor);
-    }, { passive: false });
-
-    canvas.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 1) {
-        onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
-      } else if (e.touches.length === 2) {
-        isDragging = false;
-        initialPinchDist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        initialPinchZoom = zoomFloat;
-      }
-    }, { passive: true });
-
-    window.addEventListener("touchmove", (e) => {
-      if (isDragging && e.touches.length === 1) {
-        onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
-      } else if (e.touches.length === 2 && initialPinchDist > 0) {
-        const dist = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-        const zoomOffset = Math.log2(dist / initialPinchDist) * 1.4;
-        setZoomAbsolute(initialPinchZoom + zoomOffset);
-      }
-    }, { passive: true });
-
-    window.addEventListener("touchend", (e) => {
-      if (isDragging && e.changedTouches.length > 0) {
-        onPointerUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-      }
-      if (e.touches.length < 2) {
-        initialPinchDist = 0;
-      }
-    });
-
-    window.addEventListener("resize", drawMap);
-  }
-
-  // 3. Project, Pole, BOM & CSV Logic
-  function getActiveProject() {
-    let proj = appState.projects.find(p => p.id === appState.activeProjectId);
-    if (!proj && appState.projects.length > 0) {
-      proj = appState.projects[0];
-      appState.activeProjectId = proj.id;
-    }
-    return proj;
-  }
-
-  function renderProjectUI() {
-    const select = document.getElementById("projectSelect");
-    select.innerHTML = appState.projects.map(p =>
-      `<option value="${p.id}" ${p.id === appState.activeProjectId ? "selected" : ""}>${escapeHtml(p.name)}</option>`
-    ).join("");
-
-    const proj = getActiveProject();
-    const metaBar = document.getElementById("projectMetaBar");
-    if (!proj) {
-      metaBar.innerHTML = "<span>ยังไม่มีโปรเจค กรุณากดเปิดโปรเจคใหม่</span>";
-      return;
-    }
-
-    metaBar.innerHTML = `
-      <span>WBS: <strong>${escapeHtml(proj.wbs || "-")}</strong></span>
-      <span>พื้นที่: <strong>${escapeHtml(proj.area || "-")}</strong></span>
-      <span>ผู้สำรวจ: <strong>${escapeHtml(proj.surveyor || "-")}</strong></span>
-    `;
-
-    const ls = proj.lineSummary || {
-      lvRemSystem: "", lvRemDist: "", lvRemUnit: "เมตร",
-      lvInsSystem: "", lvInsDist: "", lvInsUnit: "เมตร",
-      hvRemSystem: "", hvRemDist: "", hvRemUnit: "เมตร",
-      hvInsSystem: "", hvInsDist: "", hvInsUnit: "เมตร"
-    };
-
-    document.getElementById("lvRemSystem").value = ls.lvRemSystem || "";
-    document.getElementById("lvRemDist").value = ls.lvRemDist || "";
-    document.getElementById("lvRemUnit").value = ls.lvRemUnit || "เมตร";
-    document.getElementById("lvRemDistWrap").classList.toggle("hidden", !ls.lvRemSystem);
-
-    document.getElementById("lvInsSystem").value = ls.lvInsSystem || "";
-    document.getElementById("lvInsDist").value = ls.lvInsDist || "";
-    document.getElementById("lvInsUnit").value = ls.lvInsUnit || "เมตร";
-    document.getElementById("lvInsDistWrap").classList.toggle("hidden", !ls.lvInsSystem);
-
-    document.getElementById("hvRemSystem").value = ls.hvRemSystem || "";
-    document.getElementById("hvRemDist").value = ls.hvRemDist || "";
-    document.getElementById("hvRemUnit").value = ls.hvRemUnit || "เมตร";
-    document.getElementById("hvRemDistWrap").classList.toggle("hidden", !ls.hvRemSystem);
-
-    document.getElementById("hvInsSystem").value = ls.hvInsSystem || "";
-    document.getElementById("hvInsDist").value = ls.hvInsDist || "";
-    document.getElementById("hvInsUnit").value = ls.hvInsUnit || "เมตร";
-    document.getElementById("hvInsDistWrap").classList.toggle("hidden", !ls.hvInsSystem);
-
-    const activeSrc = MAP_SOURCES[mapSourceIndex] || MAP_SOURCES[0];
-    const srcBtn = document.getElementById("btnMapSource");
-    if (srcBtn) srcBtn.textContent = `แหล่งภาพ: ${activeSrc.name}`;
-
-    const mapModeBtn = document.getElementById("btnMapMode");
-    if (mapModeBtn) {
-      mapModeBtn.textContent = isSatellite ? "โหมด: ดาวเทียม" : "โหมด: ตารางเส้น";
-    }
-
-    updateZoomBadge();
-    updateCursorCoordBadge();
-    renderPoleList();
-    renderBOM();
-    drawMap();
-  }
-
-  function syncWorkIconUI(workType) {
-    document.getElementById("workType").value = workType;
-    document.querySelectorAll("#workIconGrid .icon-option-card").forEach(card => {
-      card.classList.toggle("active", card.dataset.work === workType);
-    });
-    const isSwapPole = workType === "SWAP";
-    document.getElementById("singleSystemWrap").classList.toggle("hidden", isSwapPole);
-    document.getElementById("swapSystemWrap").classList.toggle("hidden", !isSwapPole);
-  }
-
-  function syncSwapIconUI(mode) {
-    document.getElementById("swapMode").value = mode;
-    document.querySelectorAll("#swapIconGrid .icon-option-card").forEach(card => {
-      card.classList.toggle("active", card.dataset.mode === mode);
-    });
-  }
-
-  function renderPoleList() {
-    const proj = getActiveProject();
-    const container = document.getElementById("poleListContainer");
-    const poles = proj ? proj.poles : [];
-    document.getElementById("tabPoleCount").textContent = poles.length;
-    document.getElementById("poleCountBadge").textContent = `จำนวนจุดสำรวจ: ${poles.length} จุด`;
-
-    if (poles.length === 0) {
-      container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted);">ยังไม่มีจุดสำรวจในโปรเจคนี้<br>แตะบนแผนที่หรือกด "+ เพิ่มจุดสำรวจ" เพื่อเริ่มต้น</div>`;
-      return;
-    }
-
-    container.innerHTML = poles.map((p, idx) => {
-      const isHeadOnly = p.workType === "SWAP_HEAD";
-      let badgeHtml = "";
-      if (p.workType === "NEW") badgeHtml = `<span class="badge badge-new">ปักเสาใหม่ (${p.singleSystem})</span>`;
-      else if (p.workType === "REMOVE") badgeHtml = `<span class="badge badge-rem">รื้อถอนเสา (${p.singleSystem})</span>`;
-      else if (p.workType === "SWAP_HEAD") badgeHtml = `<span class="badge badge-head">สับเปลี่ยนเฉพาะหัวเสา (${p.singleSystem})</span>`;
-      else badgeHtml = `<span class="badge badge-swap">สับเปลี่ยนเสา (${p.swapMode.replace("_TO_", " → ")})</span>`;
-
-      const hasTr = p.installSpec && p.installSpec.hasTransformer;
-      const trBadge = hasTr ? `<span class="badge badge-tr">TR ${escapeHtml(p.installSpec.trSize)}</span>` : "";
-
-      const mRem = Number(p.meterRemoveCount) || 0;
-      const mIns = Number(p.meterInstallCount) || 0;
-      const meterBadges = [
-        mRem > 0 ? `<span class="badge badge-mtr">รื้อมิเตอร์ ${mRem} เครื่อง</span>` : "",
-        mIns > 0 ? `<span class="badge badge-mtr">ติดมิเตอร์ ${mIns} เครื่อง</span>` : ""
-      ].filter(Boolean).join(" ");
-
-      let distBadge = "";
-      if (idx > 0) {
-        const prev = poles[idx - 1];
-        const dMeters = calcDistanceMeters(prev.lat, prev.lng, p.lat, p.lng);
-        distBadge = `<span class="badge badge-dist">ระยะห่างจาก ${escapeHtml(prev.code)}: ${formatDistance(dMeters)}</span>`;
-      }
-
-      let summaryHtml = "";
-      if (p.removeSpec) {
-        summaryHtml += `<div style="color:#fca5a5;"><strong>[รื้อถอน]</strong> ${formatSpecText(p.removeSpec, false, isHeadOnly)}</div>`;
-      }
-      if (p.installSpec) {
-        summaryHtml += `<div style="color:#86efac;"><strong>[ติดตั้งใหม่]</strong> ${formatSpecText(p.installSpec, true, isHeadOnly)}</div>`;
-      }
-
-      return `
-        <div class="pole-item">
-          <div class="pole-item-top">
-            <div>
-              <strong>#${idx + 1} ${escapeHtml(p.code)}</strong> ${badgeHtml} ${trBadge} ${meterBadges} ${distBadge}
-              <div style="font-size:12px; color:var(--text-muted);">Lat: ${Number(p.lat).toFixed(6)}, Lng: ${Number(p.lng).toFixed(6)}</div>
-            </div>
-            <div style="display:flex; gap:5px;">
-              <button class="btn-outline btn-sm" data-action="editPole" data-id="${p.id}">แก้ไข</button>
-              <button class="btn-red btn-sm" data-action="deletePole" data-id="${p.id}">ลบ</button>
-            </div>
-          </div>
-          <div class="pole-details">
-            ${summaryHtml}
-            ${p.note ? `<div style="color:#94a3b8; margin-top:3px;">หมายเหตุ: ${escapeHtml(p.note)}</div>` : ""}
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function formatSpecText(spec, isInstall = false, isHeadOnly = false) {
-    const poleLabel = isHeadOnly
-      ? `เสาเดิม คอร. ${spec.poleSize} ม. (${spec.system}) [ไม่เปลี่ยนเสา]`
-      : `เสา คอร. ${spec.poleSize} ม. (${spec.system})`;
-    const parts = [poleLabel];
-
-    if (isInstall && spec.concreteBase) {
-      parts.push("เทคอนกรีตหุ้มโคนเสา");
-    }
-    if (spec.hvTopList && spec.hvTopList.length) {
-      parts.push("หัวเสา: " + spec.hvTopList.map(h => `${h.name} x${h.qty}`).join(", "));
-    }
-    if (spec.hasHotlineBailClamp) {
-      if (spec.hotlineClampList && spec.hotlineClampList.length) {
-        parts.push("Hotline Clamp: " + spec.hotlineClampList.map(c => `${c.name} x${c.qty}`).join(", "));
-      }
-      if (spec.bailClampList && spec.bailClampList.length) {
-        parts.push("Bail Clamp: " + spec.bailClampList.map(c => `${c.name} x${c.qty}`).join(", "));
-      }
-    }
-    if (spec.dropoutQty > 0) parts.push(`Dropout Fuse x${spec.dropoutQty}`);
-    if (spec.tr202Qty > 0) parts.push(`TR-202 x${spec.tr202Qty}`);
-    if (spec.hasTransformer) parts.push(`หม้อแปลง ${spec.trSize}`);
-    if (spec.rackList && spec.rackList.length) {
-      parts.push("RACK: " + spec.rackList.map(r => `${r.name} x${r.qty}`).join(", "));
-    }
-    if (spec.gy33Qty > 0) parts.push(`GY-33 x${spec.gy33Qty}`);
-    if (spec.gy02Qty > 0) parts.push(`GY-02 x${spec.gy02Qty}`);
-    if (spec.lvArresterQty > 0) parts.push(`ล่อฟ้าแรงต่ำ x${spec.lvArresterQty}`);
-    if (spec.lvGroundQty > 0) parts.push(`กราวด์แรงต่ำ x${spec.lvGroundQty}`);
-    return parts.join(" | ");
-  }
-
-  function calculateBOM(proj) {
-    const installMap = {};
-    const removeMap = {};
-
-    function addItem(targetMap, voltageLevel, category, name, unit, qty) {
-      if (!qty || qty <= 0) return;
-      const key = `${voltageLevel}||${category}||${name}||${unit}`;
-      if (!targetMap[key]) targetMap[key] = { voltageLevel, category, name, unit, qty: 0 };
-      targetMap[key].qty += Number(qty);
-    }
-
-    function processSpec(spec, targetMap, isInstall, includePole = true) {
-      if (!spec) return;
-      const vLevel = spec.system === "HV" ? "HV" : "LV";
-
-      if (includePole) {
-        addItem(targetMap, vLevel, "1. เสาไฟฟ้า คอร.", `เสาไฟฟ้า คอร. ขนาด ${spec.poleSize} เมตร (${spec.system})`, "ต้น", 1);
-      }
-      if (isInstall && spec.concreteBase) {
-        addItem(targetMap, vLevel, "1. เสาไฟฟ้า คอร.", `งานเทคอนกรีตหุ้มโคนเสา (${spec.system})`, "หลุม", 1);
-      }
-      // อุปกรณ์หัวเสาแรงสูง / HOTLINE & BAIL CLAMP / Dropout / TR-202 / หม้อแปลง / GY-33 จัดเป็นหมวด HV
-      (spec.hvTopList || []).forEach(h => {
-        addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", h.name, "ชุด", h.qty);
-      });
-      if (spec.hasHotlineBailClamp) {
-        (spec.hotlineClampList || []).forEach(c => {
-          addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", c.name, "ชุด", c.qty);
-        });
-        (spec.bailClampList || []).forEach(c => {
-          addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", c.name, "ชุด", c.qty);
-        });
-      }
-      if (spec.dropoutQty > 0) {
-        addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", "ชุดฟิวส์ตัดตอนแรงสูง (Dropout Fuse)", "ชุด", spec.dropoutQty);
-      }
-      if (spec.tr202Qty > 0) {
-        addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", "อุปกรณ์ป้องกันสัตว์ (TR-202)", "ชุด", spec.tr202Qty);
-      }
-      if (spec.hasTransformer && spec.trSize) {
-        addItem(targetMap, "HV", "3. หม้อแปลงจำหน่าย", `หม้อแปลงจำหน่าย ขนาด ${spec.trSize}`, "เครื่อง", 1);
-      }
-      if (spec.gy33Qty > 0) {
-        addItem(targetMap, "HV", "4. ชุดยึดโยงและระบบป้องกัน (HV)", "ชุดยึดโยงแรงสูง (GY-33)", "ชุด", spec.gy33Qty);
-      }
-
-      // อุปกรณ์จับยึดสายแรงต่ำ (RACK) / GY-02 / ล่อฟ้าแรงต่ำ / กราวด์แรงต่ำ จัดเป็นหมวด LV
-      (spec.rackList || []).forEach(r => {
-        addItem(targetMap, "LV", "5. อุปกรณ์จับยึดสายแรงต่ำ", r.name, "ชุด", r.qty);
-      });
-      if (spec.gy02Qty > 0) {
-        addItem(targetMap, "LV", "6. ชุดยึดโยงและระบบป้องกัน (LV)", "ชุดยึดโยงแรงต่ำ (GY-02)", "ชุด", spec.gy02Qty);
-      }
-      if (spec.lvArresterQty > 0) {
-        addItem(targetMap, "LV", "6. ชุดยึดโยงและระบบป้องกัน (LV)", "ล่อฟ้าแรงต่ำ", "ชุด", spec.lvArresterQty);
-      }
-      if (spec.lvGroundQty > 0) {
-        addItem(targetMap, "LV", "6. ชุดยึดโยงและระบบป้องกัน (LV)", "กราวด์แรงต่ำ", "ชุด", spec.lvGroundQty);
-      }
-    }
-
-    (proj.poles || []).forEach(p => {
-      const includePole = p.workType !== "SWAP_HEAD";
-      processSpec(p.installSpec, installMap, true, includePole);
-      processSpec(p.removeSpec, removeMap, false, includePole);
-
-      const mIns = Number(p.meterInstallCount) || 0;
-      const mRem = Number(p.meterRemoveCount) || 0;
-      if (mIns > 0) addItem(installMap, "LV", "7. งานมิเตอร์ (LV)", "ติดตั้งมิเตอร์", "เครื่อง", mIns);
-      if (mRem > 0) addItem(removeMap, "LV", "7. งานมิเตอร์ (LV)", "รื้อถอนมิเตอร์", "เครื่อง", mRem);
-    });
-
-    const sortFn = (a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name);
-    const allInstall = Object.values(installMap).sort(sortFn);
-    const allRemove = Object.values(removeMap).sort(sortFn);
-
-    return {
-      installItems: allInstall,
-      installHV: allInstall.filter(i => i.voltageLevel === "HV"),
-      installLV: allInstall.filter(i => i.voltageLevel === "LV"),
-      removeItems: allRemove,
-      removeHV: allRemove.filter(i => i.voltageLevel === "HV"),
-      removeLV: allRemove.filter(i => i.voltageLevel === "LV")
-    };
-  }
-
-  function renderBOM() {
-    const proj = getActiveProject();
-    const container = document.getElementById("bomContainer");
-    if (!proj) {
-      container.innerHTML = "";
-      return;
-    }
-    const bom = calculateBOM(proj);
-    const ls = proj.lineSummary || {};
-
-    let html = `
-      <div style="background:#172033; border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:12px; font-size:13px; color:#e2e8f0;">
-        <strong>สรุประบบสายและระยะทาง:</strong><br>
-        • แรงต่ำรื้อถอน: ${ls.lvRemSystem ? `${ls.lvRemSystem} (${ls.lvRemDist || 0} ${ls.lvRemUnit})` : "-"} |
-        • แรงต่ำติดตั้งใหม่: ${ls.lvInsSystem ? `${ls.lvInsSystem} (${ls.lvInsDist || 0} ${ls.lvInsUnit})` : "-"}<br>
-        • แรงสูงรื้อถอน: ${ls.hvRemSystem ? `${ls.hvRemSystem} (${ls.hvRemDist || 0} ${ls.hvRemUnit})` : "-"} |
-        • แรงสูงติดตั้งใหม่: ${ls.hvInsSystem ? `${ls.hvInsSystem} (${ls.hvInsDist || 0} ${ls.hvInsUnit})` : "-"}
-      </div>
-    `;
-
-    html += `<h4 style="margin:0 0 8px; color:#86efac;">ก. บัญชีวัสดุติดตั้งใหม่ (New Installation)</h4>`;
-    html += `
-      <div class="bom-voltage-group hv-group">
-        <div class="bom-voltage-title">
-          <span style="color:#fde047;">⚡ หมวดอุปกรณ์แรงสูง (HV) — ติดตั้งใหม่</span>
-          <span class="badge badge-hv">${bom.installHV.length} รายการ</span>
-        </div>
-        ${renderBomTable(bom.installHV, "ไม่มีรายการวัสดุแรงสูงติดตั้งใหม่")}
-      </div>
-      <div class="bom-voltage-group lv-group">
-        <div class="bom-voltage-title">
-          <span style="color:#7dd3fc;">🔌 หมวดอุปกรณ์แรงต่ำ (LV) — ติดตั้งใหม่</span>
-          <span class="badge badge-lv">${bom.installLV.length} รายการ</span>
-        </div>
-        ${renderBomTable(bom.installLV, "ไม่มีรายการวัสดุแรงต่ำติดตั้งใหม่")}
-      </div>
-    `;
-
-    html += `<h4 style="margin:14px 0 8px; color:#fca5a5;">ข. บัญชีวัสดุรื้อถอนคืนคลัง (Dismantle / Return)</h4>`;
-    html += `
-      <div class="bom-voltage-group hv-group">
-        <div class="bom-voltage-title">
-          <span style="color:#fde047;">⚡ หมวดอุปกรณ์แรงสูง (HV) — รื้อถอนคืนคลัง</span>
-          <span class="badge badge-hv">${bom.removeHV.length} รายการ</span>
-        </div>
-        ${renderBomTable(bom.removeHV, "ไม่มีรายการวัสดุแรงสูงรื้อถอน")}
-      </div>
-      <div class="bom-voltage-group lv-group">
-        <div class="bom-voltage-title">
-          <span style="color:#7dd3fc;">🔌 หมวดอุปกรณ์แรงต่ำ (LV) — รื้อถอนคืนคลัง</span>
-          <span class="badge badge-lv">${bom.removeLV.length} รายการ</span>
-        </div>
-        ${renderBomTable(bom.removeLV, "ไม่มีรายการวัสดุแรงต่ำรื้อถอน")}
-      </div>
-    `;
-
-    container.innerHTML = html;
-  }
-
-  function renderBomTable(items, emptyText) {
-    if (!items.length) {
-      return `<div style="padding:8px 10px; border:1px dashed var(--border); border-radius:6px; color:var(--text-muted); font-size:12.5px;">${emptyText}</div>`;
-    }
-    return `
-      <table class="bom-table">
-        <thead>
-          <tr>
-            <th style="width:38px;">ที่</th>
-            <th>หมวดหมู่</th>
-            <th>รายการวัสดุ / อุปกรณ์</th>
-            <th class="num" style="width:68px;">จำนวน</th>
-            <th style="width:62px;">หน่วย</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map((it, i) => `
-            <tr>
-              <td>${i + 1}</td>
-              <td>${escapeHtml(it.category)}</td>
-              <td>${escapeHtml(it.name)}</td>
-              <td class="num"><strong>${it.qty}</strong></td>
-              <td>${escapeHtml(it.unit)}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
-  }
-
-  function createDefaultSpec(system) {
-    return {
-      system: system,
-      poleSize: system === "HV" ? "12.2" : "8",
-      concreteBase: false,
-      hvTopList: [],
-      hasHotlineBailClamp: false,
-      hotlineClampList: [],
-      bailClampList: [],
-      dropoutQty: 0,
-      tr202Qty: 0,
-      hasTransformer: false,
-      trSize: "160 kVA",
-      rackList: [],
-      gy33Qty: 0,
-      gy02Qty: 0,
-      lvArresterQty: 0,
-      lvGroundQty: 0
-    };
-  }
-
-  function syncDraftSpecsWithMode() {
-    const workType = document.getElementById("workType").value;
-    if (workType === "NEW") {
-      const sys = document.getElementById("singleSystem").value;
-      if (!draftSpecs.install || draftSpecs.install.system !== sys) draftSpecs.install = createDefaultSpec(sys);
-      draftSpecs.remove = null;
-    } else if (workType === "REMOVE") {
-      const sys = document.getElementById("singleSystem").value;
-      if (!draftSpecs.remove || draftSpecs.remove.system !== sys) draftSpecs.remove = createDefaultSpec(sys);
-      draftSpecs.install = null;
-    } else if (workType === "SWAP_HEAD") {
-      const sys = document.getElementById("singleSystem").value;
-      if (!draftSpecs.remove || draftSpecs.remove.system !== sys) draftSpecs.remove = createDefaultSpec(sys);
-      if (!draftSpecs.install || draftSpecs.install.system !== sys) draftSpecs.install = createDefaultSpec(sys);
-      draftSpecs.install.poleSize = draftSpecs.remove.poleSize;
-    } else {
-      const mode = document.getElementById("swapMode").value;
-      syncSwapIconUI(mode);
-      const [fromSys, toSys] = mode.split("_TO_");
-      if (!draftSpecs.remove || draftSpecs.remove.system !== fromSys) draftSpecs.remove = createDefaultSpec(fromSys);
-      if (!draftSpecs.install || draftSpecs.install.system !== toSys) draftSpecs.install = createDefaultSpec(toSys);
-    }
-  }
-
-  function hasBLHardware(spec) {
-    return (spec.hvTopList || []).some(h =>
-      h.name === "BL (1 Phase)" ||
-      h.name === "BL (3 Phase)" ||
-      h.name === "BL-AL (1 Phase)" ||
-      h.name === "BL-AL (3 Phase)"
-    );
-  }
-
-  function hasBAHardware(spec) {
-    return (spec.hvTopList || []).some(h =>
-      h.name === "BA (1 Phase)" ||
-      h.name === "BA (3 Phase)" ||
-      h.name === "BA-AL (1 Phase)" ||
-      h.name === "BA-AL (3 Phase)"
-    );
-  }
-
-  function shouldAskHotlineBailClamp(spec, isInstall) {
-    if (!spec || spec.system !== "HV") return false;
-    return hasBAHardware(spec) || (isInstall && Boolean(spec.hasTransformer));
-  }
-
-  function renderSpecForms(keepDraft = false) {
-    if (!keepDraft) syncDraftSpecsWithMode();
-    const workType = document.getElementById("workType").value;
-    const isHeadOnly = workType === "SWAP_HEAD";
-    const container = document.getElementById("dynamicSpecsContainer");
-    let html = "";
-
-    if (draftSpecs.remove) {
-      const remTitle = isHeadOnly
-        ? "รายละเอียดอุปกรณ์หัวเสาและอุปกรณ์ประกอบเดิมที่รื้อถอน"
-        : "รายละเอียดเสาและอุปกรณ์เดิมที่รื้อถอน";
-      html += buildSpecBlock("remove", remTitle, draftSpecs.remove, false, isHeadOnly);
-    }
-    if (draftSpecs.install) {
-      const insTitle = isHeadOnly
-        ? "รายละเอียดอุปกรณ์หัวเสาและอุปกรณ์ประกอบใหม่ที่ติดตั้ง"
-        : "รายละเอียดเสาและอุปกรณ์ใหม่ที่ปักติดตั้ง";
-      html += buildSpecBlock("install", insTitle, draftSpecs.install, true, isHeadOnly);
-    }
-    container.innerHTML = html;
-  }
-
-  function buildSpecBlock(role, title, spec, isInstall, isHeadOnly = false) {
-    const isHV = spec.system === "HV";
-    const poleSizes = isHV ? POLE_SIZES_HV : POLE_SIZES_LV;
-    const rackOptions = getRackOptionsForPole(spec.poleSize);
-    const showBLQuestions = isHV && hasBLHardware(spec);
-    const showClampQuestions = shouldAskHotlineBailClamp(spec, isInstall);
-
-    const hvFilter = spec._hvFilter || "ALL";
-    const filteredHv = HV_TOP_HARDWARE.filter(item => {
-      if (hvFilter === "1P") return item.system === "1 Phase";
-      if (hvFilter === "3P") return item.system === "3 Phase";
-      if (hvFilter === "INS") return item.system === "";
-      return true;
-    });
-
-    const poleSelectLabel = isHeadOnly
-      ? `ขนาดเสาเดิมที่ปฏิบัติงาน (ใช้อ้างอิงชนิด RACK - ไม่นับเสาในบัญชีวัสดุ)`
-      : `ขนาดเสา คอร. (${isHV ? "แรงสูง" : "แรงต่ำ"}) *`;
-
-    return `
-      <div class="spec-section ${isInstall ? "install-box" : "remove-box"}">
-        <div class="spec-title">${title} [${isHV ? "ระบบแรงสูง HV" : "ระบบแรงต่ำ LV"}]</div>
-        ${isHeadOnly && !isInstall ? `
-        <div class="head-only-banner">
-          ℹ️ โหมดสับเปลี่ยนเฉพาะหัวเสา: ระบบจะคำนวณเฉพาะอุปกรณ์หัวเสา RACK ยึดโยง และอุปกรณ์ประกอบ (ไม่รวมเสา คอร. ในบัญชีวัสดุ)
-        </div>` : ""}
-
-        <div class="grid-2">
-          <div>
-            <label>${poleSelectLabel}</label>
-            <select data-spec-change="poleSize" data-role="${role}">
-              ${poleSizes.map(sz => `<option value="${sz}" ${spec.poleSize === sz ? "selected" : ""}>เสา คอร. ขนาด ${sz} เมตร</option>`).join("")}
-            </select>
-          </div>
-          ${isHV ? `
-          <div>
-            <label>ชุดยึดโยงแรงสูง (GY-33) จำนวนชุด</label>
-            <input type="number" min="0" value="${spec.gy33Qty || 0}" data-spec-input="gy33Qty" data-role="${role}" />
-          </div>` : `
-          <div>
-            <label>ชุดยึดโยงแรงต่ำ (GY-02) จำนวนชุด</label>
-            <input type="number" min="0" value="${spec.gy02Qty || 0}" data-spec-input="gy02Qty" data-role="${role}" />
-          </div>`}
-        </div>
-
-        ${isInstall ? `
-        <div class="concrete-check-row">
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#fde68a;">
-            <input type="checkbox" ${spec.concreteBase ? "checked" : ""} data-spec-change="concreteBase" data-role="${role}" style="width:16px; height:16px;" />
-            มีการเทคอนกรีตหุ้มโคนเสาหรือไม่ (ติ๊กหากมี / ปล่อยว่างหากไม่มี)
-          </label>
-        </div>` : ""}
-
-        ${isHV ? `
-        <div style="margin-top:10px; padding:10px; background:#0f172a; border:1px solid var(--border); border-radius:8px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
-            <label style="margin:0;">อุปกรณ์ประกอบหัวเสาแรงสูง (เลือกได้หลายรายการ)</label>
-            <div style="display:flex; gap:4px;">
-              <button type="button" class="btn-sm ${hvFilter === "ALL" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="ALL">ทั้งหมด (40)</button>
-              <button type="button" class="btn-sm ${hvFilter === "1P" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="1P">1 Phase</button>
-              <button type="button" class="btn-sm ${hvFilter === "3P" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="3P">3 Phase</button>
-              <button type="button" class="btn-sm ${hvFilter === "INS" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="INS">Insulator</button>
-            </div>
-          </div>
-          <div style="display:flex; gap:6px;">
-            <select id="hvSelect_${role}" style="flex:1;">
-              ${filteredHv.map(h => {
-                const label = h.system ? `${h.type} (${h.system})` : h.type;
-                return `<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`;
-              }).join("")}
-            </select>
-            <input type="number" id="hvQty_${role}" min="1" value="1" style="width:70px;" />
-            <button type="button" class="btn-primary btn-sm" data-action="addHvTop" data-role="${role}">+ เพิ่ม</button>
-          </div>
-          <div class="chip-list">
-            ${(spec.hvTopList || []).map((h, i) => `
-              <span class="chip">${escapeHtml(h.name)} × <strong>${h.qty} ชุด</strong>
-                <button type="button" data-action="removeHvTop" data-role="${role}" data-idx="${i}">✕</button>
-              </span>
-            `).join("")}
-          </div>
-
-          ${showBLQuestions ? `
-          <div class="bl-alert-box">
-            <h5>⚡ พบหัวเสาชนิด BL / BL-AL — กรุณาระบุอุปกรณ์เพิ่มเติม:</h5>
-            <div class="grid-2">
-              <div>
-                <label>ติดตั้งชุดฟิวส์ตัดตอนแรงสูง (Dropout Fuse) จำนวน (ชุด)</label>
-                <input type="number" min="0" value="${spec.dropoutQty || 0}" data-spec-input="dropoutQty" data-role="${role}" />
-              </div>
-              <div>
-                <label>ติดตั้งอุปกรณ์ป้องกันสัตว์ (TR-202) จำนวน (ชุด)</label>
-                <input type="number" min="0" value="${spec.tr202Qty || 0}" data-spec-input="tr202Qty" data-role="${role}" />
-              </div>
-            </div>
-          </div>` : ""}
-        </div>
-
-        ${isInstall ? `
-        <div class="tr-box">
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; font-size:13.5px; color:#f3e8ff;">
-            <input type="checkbox" ${spec.hasTransformer ? "checked" : ""} data-spec-change="hasTransformer" data-role="${role}" style="width:16px; height:16px;" />
-            ต้องการติดตั้งหม้อแปลงจำหน่ายบนเสาต้นนี้ด้วยหรือไม่?
-          </label>
-          ${spec.hasTransformer ? `
-          <div style="margin-top:8px;">
-            <label>เลือกขนาดหม้อแปลง (TR.size)</label>
-            <select data-spec-change="trSize" data-role="${role}">
-              ${TR_SIZES.map(sz => `<option value="${sz}" ${spec.trSize === sz ? "selected" : ""}>${sz}</option>`).join("")}
-            </select>
-          </div>` : ""}
-        </div>` : ""}
-
-        ${showClampQuestions ? `
-        <div class="clamp-alert-box">
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; font-size:13.5px; color:#7dd3fc;">
-            <input type="checkbox" ${spec.hasHotlineBailClamp ? "checked" : ""} data-spec-change="hasHotlineBailClamp" data-role="${role}" style="width:16px; height:16px;" />
-            มีการติดตั้ง HOTLINE / BAIL CLAMP หรือไม่?
-          </label>
-          ${spec.hasHotlineBailClamp ? `
-          <div class="grid-2" style="margin-top:10px;">
-            <div style="padding:9px; background:#0f172a; border:1px solid rgba(56, 189, 248, 0.35); border-radius:8px;">
-              <label>เลือกรายการ HOTLINE CLAMP</label>
-              <div style="display:flex; gap:6px;">
-                <select id="hotlineSelect_${role}" style="flex:1;">
-                  ${HOTLINE_CLAMP_OPTIONS.map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join("")}
-                </select>
-                <input type="number" id="hotlineQty_${role}" min="1" value="1" style="width:68px;" />
-                <button type="button" class="btn-blue btn-sm" data-action="addHotlineClamp" data-role="${role}">+ เพิ่ม</button>
-              </div>
-              <div class="chip-list">
-                ${(spec.hotlineClampList || []).map((c, i) => `
-                  <span class="chip" style="background:#0c4a6e; border-color:#38bdf8; color:#e0f2fe;">${escapeHtml(c.name)} × <strong>${c.qty} ชุด</strong>
-                    <button type="button" data-action="removeHotlineClamp" data-role="${role}" data-idx="${i}">✕</button>
-                  </span>
-                `).join("")}
-              </div>
-            </div>
-
-            <div style="padding:9px; background:#0f172a; border:1px solid rgba(56, 189, 248, 0.35); border-radius:8px;">
-              <label>เลือกรายการ BAIL CLAMP</label>
-              <div style="display:flex; gap:6px;">
-                <select id="bailSelect_${role}" style="flex:1;">
-                  ${BAIL_CLAMP_OPTIONS.map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join("")}
-                </select>
-                <input type="number" id="bailQty_${role}" min="1" value="1" style="width:68px;" />
-                <button type="button" class="btn-blue btn-sm" data-action="addBailClamp" data-role="${role}">+ เพิ่ม</button>
-              </div>
-              <div class="chip-list">
-                ${(spec.bailClampList || []).map((c, i) => `
-                  <span class="chip" style="background:#0c4a6e; border-color:#38bdf8; color:#e0f2fe;">${escapeHtml(c.name)} × <strong>${c.qty} ชุด</strong>
-                    <button type="button" data-action="removeBailClamp" data-role="${role}" data-idx="${i}">✕</button>
-                  </span>
-                `).join("")}
-              </div>
-            </div>
-          </div>` : ""}
-        </div>` : ""}
-        ` : ""}
-
-        <div style="margin-top:10px; padding:10px; background:#0f172a; border:1px solid var(--border); border-radius:8px;">
-          <label>อุปกรณ์จับยึดสายแรงต่ำ (กรองตามเสา คอร. ขนาด ${spec.poleSize === "8" || spec.poleSize === "9" ? "8/9" : spec.poleSize} ม. อัตโนมัติ)</label>
-          <div style="display:flex; gap:6px;">
-            <select id="rackSelect_${role}" style="flex:1;">
-              ${rackOptions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join("")}
-            </select>
-            <input type="number" id="rackQty_${role}" min="1" value="1" style="width:70px;" />
-            <button type="button" class="btn-green btn-sm" data-action="addRack" data-role="${role}">+ เพิ่ม</button>
-          </div>
-          <div class="chip-list">
-            ${(spec.rackList || []).map((r, i) => `
-              <span class="chip" style="background:#14532d; border-color:#22c55e; color:#dcfce7;">${escapeHtml(r.name)} × <strong>${r.qty} ชุด</strong>
-                <button type="button" data-action="removeRack" data-role="${role}" data-idx="${i}">✕</button>
-              </span>
-            `).join("")}
-          </div>
-        </div>
-
-        <div class="${isHV ? "grid-3" : "grid-2"}" style="margin-top:10px;">
-          ${isHV ? `
-          <div>
-            <label>ชุดยึดโยงแรงต่ำ (GY-02) จำนวนชุด</label>
-            <input type="number" min="0" value="${spec.gy02Qty || 0}" data-spec-input="gy02Qty" data-role="${role}" />
-          </div>` : ""}
-          <div>
-            <label>ล่อฟ้าแรงต่ำ จำนวนชุด</label>
-            <input type="number" min="0" value="${spec.lvArresterQty || 0}" data-spec-input="lvArresterQty" data-role="${role}" />
-          </div>
-          <div>
-            <label>กราวด์แรงต่ำ จำนวนชุด</label>
-            <input type="number" min="0" value="${spec.lvGroundQty || 0}" data-spec-input="lvGroundQty" data-role="${role}" />
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  function syncMeterModalUI(remCount, insCount) {
-    const rVal = Math.max(0, Math.min(8, parseInt(remCount, 10) || 0));
-    const iVal = Math.max(0, Math.min(8, parseInt(insCount, 10) || 0));
-
-    const hasRem = rVal > 0;
-    const hasIns = iVal > 0;
-
-    document.getElementById("hasMeterRemove").checked = hasRem;
-    document.getElementById("meterRemoveCountWrap").classList.toggle("hidden", !hasRem);
-    document.getElementById("meterRemoveCount").value = String(hasRem ? rVal : 1);
-
-    document.getElementById("hasMeterInstall").checked = hasIns;
-    document.getElementById("meterInstallCountWrap").classList.toggle("hidden", !hasIns);
-    document.getElementById("meterInstallCount").value = String(hasIns ? iVal : 1);
-  }
-
-  function exportCSV() {
-    const proj = getActiveProject();
-    if (!proj) return;
-    const bom = calculateBOM(proj);
-    const ls = proj.lineSummary || {};
-
-    const rows = [
-      ["โครงการ", proj.name],
-      ["เลขที่ใบสั่งงาน/WBS", proj.wbs || "-"],
-      ["พื้นที่/สายป้อน", proj.area || "-"],
-      ["ผู้สำรวจ", proj.surveyor || "-"],
-      [],
-      ["สรุประบบสายและระยะทาง", "ชนิดระบบ", "ระยะทาง", "หน่วย"],
-      ["ระบบแรงต่ำที่รื้อถอน", ls.lvRemSystem || "-", ls.lvRemDist || "0", ls.lvRemUnit || "เมตร"],
-      ["ระบบแรงต่ำที่ติดตั้งใหม่", ls.lvInsSystem || "-", ls.lvInsDist || "0", ls.lvInsUnit || "เมตร"],
-      ["ระบบแรงสูงที่รื้อถอน", ls.hvRemSystem || "-", ls.hvRemDist || "0", ls.hvRemUnit || "เมตร"],
-      ["ระบบแรงสูงที่ติดตั้งใหม่", ls.hvInsSystem || "-", ls.hvInsDist || "0", ls.hvInsUnit || "เมตร"],
-      [],
-      ["=== หมวดอุปกรณ์แรงสูง (HV) - ติดตั้งใหม่ ==="],
-      ["ประเภทบัญชี", "ระดับแรงดัน", "หมวดหมู่", "รายการวัสดุ/อุปกรณ์", "จำนวน", "หน่วย"]
-    ];
-
-    bom.installHV.forEach(it => rows.push(["ติดตั้งใหม่", "แรงสูง (HV)", it.category, it.name, it.qty, it.unit]));
-    if (!bom.installHV.length) rows.push(["ติดตั้งใหม่", "แรงสูง (HV)", "-", "ไม่มีรายการวัสดุแรงสูงติดตั้งใหม่", 0, "-"]);
-
-    rows.push([]);
-    rows.push(["=== หมวดอุปกรณ์แรงต่ำ (LV) - ติดตั้งใหม่ ==="]);
-    rows.push(["ประเภทบัญชี", "ระดับแรงดัน", "หมวดหมู่", "รายการวัสดุ/อุปกรณ์", "จำนวน", "หน่วย"]);
-    bom.installLV.forEach(it => rows.push(["ติดตั้งใหม่", "แรงต่ำ (LV)", it.category, it.name, it.qty, it.unit]));
-    if (!bom.installLV.length) rows.push(["ติดตั้งใหม่", "แรงต่ำ (LV)", "-", "ไม่มีรายการวัสดุแรงต่ำติดตั้งใหม่", 0, "-"]);
-
-    rows.push([]);
-    rows.push(["=== หมวดอุปกรณ์แรงสูง (HV) - รื้อถอนคืนคลัง ==="]);
-    rows.push(["ประเภทบัญชี", "ระดับแรงดัน", "หมวดหมู่", "รายการวัสดุ/อุปกรณ์", "จำนวน", "หน่วย"]);
-    bom.removeHV.forEach(it => rows.push(["รื้อถอนคืนคลัง", "แรงสูง (HV)", it.category, it.name, it.qty, it.unit]));
-    if (!bom.removeHV.length) rows.push(["รื้อถอนคืนคลัง", "แรงสูง (HV)", "-", "ไม่มีรายการวัสดุแรงสูงรื้อถอน", 0, "-"]);
-
-    rows.push([]);
-    rows.push(["=== หมวดอุปกรณ์แรงต่ำ (LV) - รื้อถอนคืนคลัง ==="]);
-    rows.push(["ประเภทบัญชี", "ระดับแรงดัน", "หมวดหมู่", "รายการวัสดุ/อุปกรณ์", "จำนวน", "หน่วย"]);
-    bom.removeLV.forEach(it => rows.push(["รื้อถอนคืนคลัง", "แรงต่ำ (LV)", it.category, it.name, it.qty, it.unit]));
-    if (!bom.removeLV.length) rows.push(["รื้อถอนคืนคลัง", "แรงต่ำ (LV)", "-", "ไม่มีรายการวัสดุแรงต่ำรื้อถอน", 0, "-"]);
-
-    const csvContent = "\uFEFF" + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `PEA_BOM_HV_LV_${(proj.wbs || proj.name).replace(/[^a-zA-Z0-9ก-๙_-]/g, "_")}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  function escapeHtml(str) {
-    return String(str || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
-  // 4. Event Delegation
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-action]");
-    if (!btn) return;
-    const action = btn.dataset.action;
-
-    if (action === "switchTab") {
-      const tab = btn.dataset.tab;
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-      document.getElementById("tab-poles").classList.toggle("hidden", tab !== "poles");
-      document.getElementById("tab-bom").classList.toggle("hidden", tab !== "bom");
-    }
-
-    else if (action === "selectWorkType") {
-      const workType = btn.dataset.work;
-      syncWorkIconUI(workType);
-      renderSpecForms(false);
-    }
-
-    else if (action === "selectSwapMode") {
-      const mode = btn.dataset.mode;
-      syncSwapIconUI(mode);
-      renderSpecForms(false);
-    }
-
-    else if (action === "cycleMapSource") {
-      mapSourceIndex = (mapSourceIndex + 1) % MAP_SOURCES.length;
-      const activeSrc = MAP_SOURCES[mapSourceIndex];
-      btn.textContent = `แหล่งภาพ: ${activeSrc.name}`;
-      updateSatStatusLabel(`ดาวเทียม: ${activeSrc.label}`);
-      drawMap();
-    }
-
-    else if (action === "toggleMapMode") {
-      isSatellite = !isSatellite;
-      btn.textContent = isSatellite ? "โหมด: ดาวเทียม" : "โหมด: ตารางเส้น";
-      drawMap();
-    }
-
-    else if (action === "resetMapView") {
-      mapCenter = { lat: selectedCoord.lat, lng: selectedCoord.lng };
-      zoomFloat = 18.0;
-      updateZoomBadge();
-      drawMap();
-    }
-
-    else if (action === "applyManualCoord") {
-      const latVal = parseFloat(document.getElementById("manualLat").value);
-      const lngVal = parseFloat(document.getElementById("manualLng").value);
-      if (Number.isNaN(latVal) || Number.isNaN(lngVal)) {
-        return alert("กรุณากรอกค่า Latitude และ Longitude ให้ถูกต้อง");
-      }
-      setSelectedCoord(latVal, lngVal, true);
-    }
-
-    else if (action === "getCurrentGPS") {
-      locateCurrentUser(true);
-    }
-
-    else if (action === "openNewProjectModal") {
-      document.getElementById("projectModalTitle").textContent = "เปิดโปรเจคงานสำรวจใหม่";
-      document.getElementById("editProjectId").value = "";
-      document.getElementById("projName").value = "";
-      document.getElementById("projWbs").value = "";
-      document.getElementById("projArea").value = "อ.ควนขนุน จ.พัทลุง";
-      document.getElementById("projSurveyor").value = "";
-      document.getElementById("projectModal").classList.remove("hidden");
-    }
-
-    else if (action === "openEditProjectModal") {
-      const proj = getActiveProject();
-      if (!proj) return;
-      document.getElementById("projectModalTitle").textContent = "แก้ไขข้อมูลโปรเจค";
-      document.getElementById("editProjectId").value = proj.id;
-      document.getElementById("projName").value = proj.name;
-      document.getElementById("projWbs").value = proj.wbs || "";
-      document.getElementById("projArea").value = proj.area || "";
-      document.getElementById("projSurveyor").value = proj.surveyor || "";
-      document.getElementById("projectModal").classList.remove("hidden");
-    }
-
-    else if (action === "closeProjectModal") {
-      document.getElementById("projectModal").classList.add("hidden");
-    }
-
-    else if (action === "saveProject") {
-      const name = document.getElementById("projName").value.trim();
-      if (!name) return alert("กรุณาระบุชื่อโปรเจค");
-      const editId = document.getElementById("editProjectId").value;
-      if (editId) {
-        const proj = appState.projects.find(p => p.id === editId);
-        if (proj) {
-          proj.name = name;
-          proj.wbs = document.getElementById("projWbs").value.trim();
-          proj.area = document.getElementById("projArea").value.trim();
-          proj.surveyor = document.getElementById("projSurveyor").value.trim();
-        }
-      } else {
-        const newId = "proj-" + Date.now();
-        appState.projects.push({
-          id: newId,
-          name,
-          wbs: document.getElementById("projWbs").value.trim(),
-          area: document.getElementById("projArea").value.trim(),
-          surveyor: document.getElementById("projSurveyor").value.trim(),
-          lineSummary: {
-            lvRemSystem: "", lvRemDist: "", lvRemUnit: "เมตร",
-            lvInsSystem: "", lvInsDist: "", lvInsUnit: "เมตร",
-            hvRemSystem: "", hvRemDist: "", hvRemUnit: "เมตร",
-            hvInsSystem: "", hvInsDist: "", hvInsUnit: "เมตร"
-          },
-          poles: []
-        });
-        appState.activeProjectId = newId;
-      }
-      saveData(appState);
-      document.getElementById("projectModal").classList.add("hidden");
-      renderProjectUI();
-    }
-
-    else if (action === "deleteCurrentProject") {
-      if (appState.projects.length <= 1) return alert("ต้องมีโปรเจคอย่างน้อย 1 โปรเจคในระบบ");
-      const proj = getActiveProject();
-      if (!confirm(`ยืนยันการลบโปรเจค "${proj.name}" ?`)) return;
-      appState.projects = appState.projects.filter(p => p.id !== proj.id);
-      appState.activeProjectId = appState.projects[0].id;
-      saveData(appState);
-      renderProjectUI();
-    }
-
-    else if (action === "openAddPoleModal") {
-      const proj = getActiveProject();
-      if (!proj) return;
-      document.getElementById("poleModalTitle").textContent = "บันทึกข้อมูลจุดสำรวจใหม่";
-      document.getElementById("editPoleId").value = "";
-      document.getElementById("poleCode").value = `P-${String(proj.poles.length + 1).padStart(2, "0")}`;
-      document.getElementById("poleLat").value = selectedCoord.lat.toFixed(6);
-      document.getElementById("poleLng").value = selectedCoord.lng.toFixed(6);
-      document.getElementById("singleSystem").value = "LV";
-      syncWorkIconUI("NEW");
-      syncSwapIconUI("LV_TO_LV");
-      syncMeterModalUI(0, 0);
-      document.getElementById("poleNote").value = "";
-      draftSpecs = { install: createDefaultSpec("LV"), remove: null };
-      renderSpecForms(true);
-      document.getElementById("poleModal").classList.remove("hidden");
-    }
-
-    else if (action === "editPole") {
-      const proj = getActiveProject();
-      const pole = proj.poles.find(p => p.id === btn.dataset.id);
-      if (!pole) return;
-      document.getElementById("poleModalTitle").textContent = `แก้ไขจุดสำรวจ (${pole.code})`;
-      document.getElementById("editPoleId").value = pole.id;
-      document.getElementById("poleCode").value = pole.code;
-      document.getElementById("poleLat").value = Number(pole.lat).toFixed(6);
-      document.getElementById("poleLng").value = Number(pole.lng).toFixed(6);
-      document.getElementById("singleSystem").value = pole.singleSystem || "LV";
-      syncWorkIconUI(pole.workType || "NEW");
-      syncSwapIconUI(pole.swapMode || "LV_TO_LV");
-      syncMeterModalUI(pole.meterRemoveCount || 0, pole.meterInstallCount || 0);
-      document.getElementById("poleNote").value = pole.note || "";
-
-      draftSpecs = {
-        install: pole.installSpec ? JSON.parse(JSON.stringify(pole.installSpec)) : null,
-        remove: pole.removeSpec ? JSON.parse(JSON.stringify(pole.removeSpec)) : null
-      };
-      ["install", "remove"].forEach(r => {
-        if (draftSpecs[r]) {
-          draftSpecs[r].hasHotlineBailClamp = Boolean(draftSpecs[r].hasHotlineBailClamp);
-          draftSpecs[r].hotlineClampList = draftSpecs[r].hotlineClampList || [];
-          draftSpecs[r].bailClampList = draftSpecs[r].bailClampList || [];
-        }
-      });
-      renderSpecForms(true);
-      document.getElementById("poleModal").classList.remove("hidden");
-    }
-
-    else if (action === "deletePole") {
-      const proj = getActiveProject();
-      if (!confirm("ยืนยันการลบจุดสำรวจนี้?")) return;
-      proj.poles = proj.poles.filter(p => p.id !== btn.dataset.id);
-      saveData(appState);
-      renderProjectUI();
-    }
-
-    else if (action === "closePoleModal") {
-      document.getElementById("poleModal").classList.add("hidden");
-    }
-
-    else if (action === "filterHvTop") {
-      const role = btn.dataset.role;
-      draftSpecs[role]._hvFilter = btn.dataset.filter;
-      renderSpecForms(true);
-    }
-
-    else if (action === "addHvTop") {
-      const role = btn.dataset.role;
-      const name = document.getElementById(`hvSelect_${role}`).value;
-      const qty = Math.max(1, parseInt(document.getElementById(`hvQty_${role}`).value, 10) || 1);
-      const list = draftSpecs[role].hvTopList;
-      const existing = list.find(i => i.name === name);
-      if (existing) existing.qty += qty;
-      else list.push({ name, qty });
-      renderSpecForms(true);
-    }
-
-    else if (action === "removeHvTop") {
-      const role = btn.dataset.role;
-      const idx = parseInt(btn.dataset.idx, 10);
-      draftSpecs[role].hvTopList.splice(idx, 1);
-      if (!hasBLHardware(draftSpecs[role])) {
-        draftSpecs[role].dropoutQty = 0;
-        draftSpecs[role].tr202Qty = 0;
-      }
-      if (!shouldAskHotlineBailClamp(draftSpecs[role], role === "install")) {
-        draftSpecs[role].hasHotlineBailClamp = false;
-        draftSpecs[role].hotlineClampList = [];
-        draftSpecs[role].bailClampList = [];
-      }
-      renderSpecForms(true);
-    }
-
-    else if (action === "addHotlineClamp") {
-      const role = btn.dataset.role;
-      const name = document.getElementById(`hotlineSelect_${role}`).value;
-      const qty = Math.max(1, parseInt(document.getElementById(`hotlineQty_${role}`).value, 10) || 1);
-      if (!draftSpecs[role].hotlineClampList) draftSpecs[role].hotlineClampList = [];
-      const list = draftSpecs[role].hotlineClampList;
-      const existing = list.find(i => i.name === name);
-      if (existing) existing.qty += qty;
-      else list.push({ name, qty });
-      renderSpecForms(true);
-    }
-
-    else if (action === "removeHotlineClamp") {
-      const role = btn.dataset.role;
-      const idx = parseInt(btn.dataset.idx, 10);
-      draftSpecs[role].hotlineClampList.splice(idx, 1);
-      renderSpecForms(true);
-    }
-
-    else if (action === "addBailClamp") {
-      const role = btn.dataset.role;
-      const name = document.getElementById(`bailSelect_${role}`).value;
-      const qty = Math.max(1, parseInt(document.getElementById(`bailQty_${role}`).value, 10) || 1);
-      if (!draftSpecs[role].bailClampList) draftSpecs[role].bailClampList = [];
-      const list = draftSpecs[role].bailClampList;
-      const existing = list.find(i => i.name === name);
-      if (existing) existing.qty += qty;
-      else list.push({ name, qty });
-      renderSpecForms(true);
-    }
-
-    else if (action === "removeBailClamp") {
-      const role = btn.dataset.role;
-      const idx = parseInt(btn.dataset.idx, 10);
-      draftSpecs[role].bailClampList.splice(idx, 1);
-      renderSpecForms(true);
-    }
-
-    else if (action === "addRack") {
-      const role = btn.dataset.role;
-      const name = document.getElementById(`rackSelect_${role}`).value;
-      const qty = Math.max(1, parseInt(document.getElementById(`rackQty_${role}`).value, 10) || 1);
-      const list = draftSpecs[role].rackList;
-      const existing = list.find(i => i.name === name);
-      if (existing) existing.qty += qty;
-      else list.push({ name, qty });
-      renderSpecForms(true);
-    }
-
-    else if (action === "removeRack") {
-      const role = btn.dataset.role;
-      const idx = parseInt(btn.dataset.idx, 10);
-      draftSpecs[role].rackList.splice(idx, 1);
-      renderSpecForms(true);
-    }
-
-    else if (action === "savePole") {
-      const proj = getActiveProject();
-      const code = document.getElementById("poleCode").value.trim();
-      if (!code) return alert("กรุณาระบุรหัสจุด / เบอร์เสา");
-
-      const latVal = parseFloat(document.getElementById("poleLat").value);
-      const lngVal = parseFloat(document.getElementById("poleLng").value);
-      const finalLat = Number.isNaN(latVal) ? selectedCoord.lat : latVal;
-      const finalLng = Number.isNaN(lngVal) ? selectedCoord.lng : lngVal;
-
-      const hasRemM = document.getElementById("hasMeterRemove").checked;
-      const hasInsM = document.getElementById("hasMeterInstall").checked;
-      const meterRemoveCount = hasRemM ? (parseInt(document.getElementById("meterRemoveCount").value, 10) || 1) : 0;
-      const meterInstallCount = hasInsM ? (parseInt(document.getElementById("meterInstallCount").value, 10) || 1) : 0;
-
-      const poleData = {
-        id: document.getElementById("editPoleId").value || ("pole-" + Date.now()),
-        code,
-        lat: finalLat,
-        lng: finalLng,
-        workType: document.getElementById("workType").value,
-        singleSystem: document.getElementById("singleSystem").value,
-        swapMode: document.getElementById("swapMode").value,
-        meterRemoveCount,
-        meterInstallCount,
-        note: document.getElementById("poleNote").value.trim(),
-        installSpec: draftSpecs.install ? JSON.parse(JSON.stringify(draftSpecs.install)) : null,
-        removeSpec: draftSpecs.remove ? JSON.parse(JSON.stringify(draftSpecs.remove)) : null
-      };
-
-      const existingIdx = proj.poles.findIndex(p => p.id === poleData.id);
-      if (existingIdx >= 0) proj.poles[existingIdx] = poleData;
-      else proj.poles.push(poleData);
-
-      setSelectedCoord(finalLat, finalLng, false);
-      saveData(appState);
-      document.getElementById("poleModal").classList.add("hidden");
-      renderProjectUI();
-    }
-
-    else if (action === "exportCSV") {
-      exportCSV();
-    }
-
-    else if (action === "printReport") {
-      window.print();
-    }
-  });
-
-  document.addEventListener("change", (e) => {
-    const el = e.target;
-
-    if (el.dataset.change === "switchProject") {
-      appState.activeProjectId = el.value;
-      saveData(appState);
-      renderProjectUI();
-    }
-
-    else if (el.dataset.change === "renderSpecForms") {
-      renderSpecForms(false);
-    }
-
-    else if (el.dataset.change === "onMeterToggle") {
-      const remChecked = document.getElementById("hasMeterRemove").checked;
-      const insChecked = document.getElementById("hasMeterInstall").checked;
-      document.getElementById("meterRemoveCountWrap").classList.toggle("hidden", !remChecked);
-      document.getElementById("meterInstallCountWrap").classList.toggle("hidden", !insChecked);
-    }
-
-    else if (el.dataset.specChange) {
-      const role = el.dataset.role;
-      const field = el.dataset.specChange;
-      if (field === "hasTransformer") {
-        draftSpecs[role].hasTransformer = el.checked;
-        if (!shouldAskHotlineBailClamp(draftSpecs[role], role === "install")) {
-          draftSpecs[role].hasHotlineBailClamp = false;
-          draftSpecs[role].hotlineClampList = [];
-          draftSpecs[role].bailClampList = [];
-        }
-        renderSpecForms(true);
-      } else if (field === "hasHotlineBailClamp") {
-        draftSpecs[role].hasHotlineBailClamp = el.checked;
-        if (!el.checked) {
-          draftSpecs[role].hotlineClampList = [];
-          draftSpecs[role].bailClampList = [];
-        }
-        renderSpecForms(true);
-      } else if (field === "concreteBase") {
-        draftSpecs[role].concreteBase = el.checked;
-      } else if (field === "poleSize") {
-        draftSpecs[role].poleSize = el.value;
-        draftSpecs[role].rackList = [];
-        if (document.getElementById("workType").value === "SWAP_HEAD") {
-          const otherRole = role === "remove" ? "install" : "remove";
-          if (draftSpecs[otherRole]) {
-            draftSpecs[otherRole].poleSize = el.value;
-            draftSpecs[otherRole].rackList = [];
-          }
-        }
-        renderSpecForms(true);
-      } else {
-        draftSpecs[role][field] = el.value;
-      }
-    }
-
-    else if (el.dataset.change === "updateLineSummary") {
-      saveLineSummaryFromUI();
-    }
-  });
-
-  document.addEventListener("input", (e) => {
-    const el = e.target;
-    if (el.dataset.specInput) {
-      const role = el.dataset.role;
-      const field = el.dataset.specInput;
-      draftSpecs[role][field] = Math.max(0, parseInt(el.value, 10) || 0);
-    } else if (el.dataset.input === "updateLineSummary") {
-      saveLineSummaryFromUI();
-    }
-  });
-
-  function saveLineSummaryFromUI() {
-    const proj = getActiveProject();
-    if (!proj) return;
-    proj.lineSummary = {
-      lvRemSystem: document.getElementById("lvRemSystem").value,
-      lvRemDist: document.getElementById("lvRemDist").value,
-      lvRemUnit: document.getElementById("lvRemUnit").value,
-      lvInsSystem: document.getElementById("lvInsSystem").value,
-      lvInsDist: document.getElementById("lvInsDist").value,
-      lvInsUnit: document.getElementById("lvInsUnit").value,
-      hvRemSystem: document.getElementById("hvRemSystem").value,
-      hvRemDist: document.getElementById("hvRemDist").value,
-      hvRemUnit: document.getElementById("hvRemUnit").value,
-      hvInsSystem: document.getElementById("hvInsSystem").value,
-      hvInsDist: document.getElementById("hvInsDist").value,
-      hvInsUnit: document.getElementById("hvInsUnit").value
-    };
-    document.getElementById("lvRemDistWrap").classList.toggle("hidden", !proj.lineSummary.lvRemSystem);
-    document.getElementById("lvInsDistWrap").classList.toggle("hidden", !proj.lineSummary.lvInsSystem);
-    document.getElementById("hvRemDistWrap").classList.toggle("hidden", !proj.lineSummary.hvRemSystem);
-    document.getElementById("hvInsDistWrap").classList.toggle("hidden", !proj.lineSummary.hvInsSystem);
-    saveData(appState);
-    renderBOM();
-  }
-
-  function boot() {
-    initCanvasPanZoomAndClick();
-    renderProjectUI();
-    locateCurrentUser(false);
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
-})();
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
