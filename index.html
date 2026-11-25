@@ -282,14 +282,20 @@
     .legend-item { display: flex; align-items: center; gap: 6px; }
     .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
 
-    /* Swap Mode Icon Grid */
+    /* Work Type & Swap Mode Icon Grid */
+    .work-icon-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 4px;
+    }
     .swap-icon-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 8px;
       margin-top: 4px;
     }
-    .swap-icon-card {
+    .icon-option-card {
       background: var(--bg-input);
       border: 1.5px solid var(--border);
       border-radius: 8px;
@@ -301,16 +307,16 @@
       color: var(--text-main);
       transition: 0.15s;
     }
-    .swap-icon-card:hover {
+    .icon-option-card:hover {
       border-color: var(--pea-purple);
       background: #172033;
     }
-    .swap-icon-card.active {
+    .icon-option-card.active {
       background: rgba(139, 47, 201, 0.24);
       border-color: var(--pea-gold);
       box-shadow: 0 0 0 1px var(--pea-gold);
     }
-    .swap-icon-badge {
+    .icon-option-badge {
       width: 34px;
       height: 34px;
       border-radius: 7px;
@@ -321,17 +327,17 @@
       justify-content: center;
       flex-shrink: 0;
     }
-    .swap-icon-card.active .swap-icon-badge {
+    .icon-option-card.active .icon-option-badge {
       background: rgba(251, 191, 36, 0.16);
       border-color: var(--pea-gold);
     }
-    .swap-icon-title {
+    .icon-option-title {
       font-size: 12.5px;
       font-weight: 700;
       color: #f8fafc;
       line-height: 1.25;
     }
-    .swap-icon-sub {
+    .icon-option-sub {
       font-size: 11px;
       color: #94a3b8;
       margin-top: 2px;
@@ -485,6 +491,9 @@
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    @media (max-width: 720px) {
+      .work-icon-grid { grid-template-columns: 1fr; }
+    }
     @media (max-width: 640px) {
       .grid-2, .grid-3, .swap-icon-grid { grid-template-columns: 1fr; }
     }
@@ -822,16 +831,53 @@
         </div>
       </div>
 
-      <div class="grid-2">
-        <div>
-          <label>รูปแบบงานที่จุดนี้ *</label>
-          <select id="workType" data-change="onWorkTypeChange">
-            <option value="NEW">1. งานปักเสาใหม่เพียงอย่างเดียว</option>
-            <option value="REMOVE">2. งานรื้อถอนเสาอย่างเดียว</option>
-            <option value="SWAP">3. งานสับเปลี่ยนเสาและอุปกรณ์ประกอบเสา</option>
-          </select>
-        </div>
+      <div>
+        <label>รูปแบบงานที่จุดนี้ *</label>
+        <input type="hidden" id="workType" value="NEW" />
+        <div class="work-icon-grid" id="workIconGrid">
+          <button type="button" class="icon-option-card active" data-action="selectWorkType" data-work="NEW">
+            <span class="icon-option-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14"/>
+                <path d="M5 12h14"/>
+                <circle cx="12" cy="12" r="9" stroke-dasharray="3 2"/>
+              </svg>
+            </span>
+            <span>
+              <div class="icon-option-title">1. ปักเสาใหม่</div>
+              <div class="icon-option-sub">งานปักเสาใหม่เพียงอย่างเดียว</div>
+            </span>
+          </button>
 
+          <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="REMOVE">
+            <span class="icon-option-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18"/>
+                <path d="m6 6 12 12"/>
+              </svg>
+            </span>
+            <span>
+              <div class="icon-option-title">2. รื้อถอนเสา</div>
+              <div class="icon-option-sub">งานรื้อถอนเสาอย่างเดียว</div>
+            </span>
+          </button>
+
+          <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="SWAP">
+            <span class="icon-option-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 16V4m0 0L3 8m4-4 4 4"/>
+                <path d="M17 8v12m0 0 4-4m-4 4-4-4"/>
+              </svg>
+            </span>
+            <span>
+              <div class="icon-option-title">3. สับเปลี่ยนเสา</div>
+              <div class="icon-option-sub">เสาและอุปกรณ์ประกอบเสา</div>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-2">
         <div id="singleSystemWrap">
           <label>ระบบจำหน่าย *</label>
           <select id="singleSystem" data-change="renderSpecForms">
@@ -845,54 +891,54 @@
           <label>รูปแบบการสับเปลี่ยนเสา *</label>
           <input type="hidden" id="swapMode" value="LV_TO_LV" />
           <div class="swap-icon-grid" id="swapIconGrid">
-            <button type="button" class="swap-icon-card active" data-action="selectSwapMode" data-mode="LV_TO_LV">
-              <span class="swap-icon-badge">
+            <button type="button" class="icon-option-card active" data-action="selectSwapMode" data-mode="LV_TO_LV">
+              <span class="icon-option-badge">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M5 12h14"/>
                   <path d="m13 6 6 6-6 6"/>
                 </svg>
               </span>
               <span>
-                <div class="swap-icon-title">เสาแรงต่ำ ➔ เสาแรงต่ำ</div>
-                <div class="swap-icon-sub">LV → LV (เปลี่ยนขนาด/ย้ายตำแหน่งแรงต่ำ)</div>
+                <div class="icon-option-title">เสาแรงต่ำ ➔ เสาแรงต่ำ</div>
+                <div class="icon-option-sub">LV → LV (เปลี่ยนขนาด/ย้ายตำแหน่งแรงต่ำ)</div>
               </span>
             </button>
 
-            <button type="button" class="swap-icon-card" data-action="selectSwapMode" data-mode="HV_TO_HV">
-              <span class="swap-icon-badge">
+            <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="HV_TO_HV">
+              <span class="icon-option-badge">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fde047" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
                 </svg>
               </span>
               <span>
-                <div class="swap-icon-title">เสาแรงสูง ➔ เสาแรงสูง</div>
-                <div class="swap-icon-sub">HV → HV (สับเปลี่ยนเสาแรงสูง)</div>
+                <div class="icon-option-title">เสาแรงสูง ➔ เสาแรงสูง</div>
+                <div class="icon-option-sub">HV → HV (สับเปลี่ยนเสาแรงสูง)</div>
               </span>
             </button>
 
-            <button type="button" class="swap-icon-card" data-action="selectSwapMode" data-mode="LV_TO_HV">
-              <span class="swap-icon-badge">
+            <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="LV_TO_HV">
+              <span class="icon-option-badge">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#86efac" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M4 17h7l3-10h6"/>
                   <path d="m17 4 3 3-3 3"/>
                 </svg>
               </span>
               <span>
-                <div class="swap-icon-title">เสาแรงต่ำ ➔ เสาแรงสูง</div>
-                <div class="swap-icon-sub">LV → HV (ยกระดับเสาแรงต่ำเป็นแรงสูง)</div>
+                <div class="icon-option-title">เสาแรงต่ำ ➔ เสาแรงสูง</div>
+                <div class="icon-option-sub">LV → HV (ยกระดับเสาแรงต่ำเป็นแรงสูง)</div>
               </span>
             </button>
 
-            <button type="button" class="swap-icon-card" data-action="selectSwapMode" data-mode="HV_TO_LV">
-              <span class="swap-icon-badge">
+            <button type="button" class="icon-option-card" data-action="selectSwapMode" data-mode="HV_TO_LV">
+              <span class="icon-option-badge">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fca5a5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M4 7h7l3 10h6"/>
                   <path d="m17 14 3 3-3 3"/>
                 </svg>
               </span>
               <span>
-                <div class="swap-icon-title">เสาแรงสูง ➔ เสาแรงต่ำ</div>
-                <div class="swap-icon-sub">HV → LV (ปรับลดเป็นเสาแรงต่ำ)</div>
+                <div class="icon-option-title">เสาแรงสูง ➔ เสาแรงต่ำ</div>
+                <div class="icon-option-sub">HV → LV (ปรับลดเป็นเสาแรงต่ำ)</div>
               </span>
             </button>
           </div>
@@ -1025,7 +1071,6 @@
     return list;
   }
 
-  // คำนวณระยะห่างระหว่างพิกัด GPS (Haversine formula) เป็นเมตร
   function calcDistanceMeters(lat1, lng1, lat2, lng2) {
     const R = 6371000;
     const toRad = deg => (deg * Math.PI) / 180;
@@ -1062,7 +1107,7 @@
   }
 
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V10";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V11";
   let memoryFallback = null;
 
   function loadData() {
@@ -1541,7 +1586,6 @@
     const proj = getActiveProject();
     const poles = proj ? proj.poles : [];
 
-    // เส้นเชื่อมและระยะห่างระหว่างเสาแต่ละจุด
     if (poles.length > 1) {
       ctx.strokeStyle = "#c084fc";
       ctx.lineWidth = 3;
@@ -1573,7 +1617,6 @@
 
     const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h, zoomFloat);
 
-    // เส้นประและระยะห่างจากจุดปักหมุดปัจจุบันไปยังเสาใกล้ที่สุด
     const ref = getReferencePoleForPin(poles, selectedCoord);
     if (ref) {
       const refPt = latLngToCanvas(ref.pole.lat, ref.pole.lng, w, h, zoomFloat);
@@ -1843,9 +1886,19 @@
     drawMap();
   }
 
+  function syncWorkIconUI(workType) {
+    document.getElementById("workType").value = workType;
+    document.querySelectorAll("#workIconGrid .icon-option-card").forEach(card => {
+      card.classList.toggle("active", card.dataset.work === workType);
+    });
+    const isSwap = workType === "SWAP";
+    document.getElementById("singleSystemWrap").classList.toggle("hidden", isSwap);
+    document.getElementById("swapSystemWrap").classList.toggle("hidden", !isSwap);
+  }
+
   function syncSwapIconUI(mode) {
     document.getElementById("swapMode").value = mode;
-    document.querySelectorAll("#swapIconGrid .swap-icon-card").forEach(card => {
+    document.querySelectorAll("#swapIconGrid .icon-option-card").forEach(card => {
       card.classList.toggle("active", card.dataset.mode === mode);
     });
   }
@@ -2324,6 +2377,12 @@
       document.getElementById("tab-bom").classList.toggle("hidden", tab !== "bom");
     }
 
+    else if (action === "selectWorkType") {
+      const workType = btn.dataset.work;
+      syncWorkIconUI(workType);
+      renderSpecForms(false);
+    }
+
     else if (action === "selectSwapMode") {
       const mode = btn.dataset.mode;
       syncSwapIconUI(mode);
@@ -2443,13 +2502,11 @@
       document.getElementById("poleCode").value = `P-${String(proj.poles.length + 1).padStart(2, "0")}`;
       document.getElementById("poleLat").value = selectedCoord.lat.toFixed(6);
       document.getElementById("poleLng").value = selectedCoord.lng.toFixed(6);
-      document.getElementById("workType").value = "NEW";
       document.getElementById("singleSystem").value = "LV";
+      syncWorkIconUI("NEW");
       syncSwapIconUI("LV_TO_LV");
       syncMeterModalUI(0, 0);
       document.getElementById("poleNote").value = "";
-      document.getElementById("singleSystemWrap").classList.remove("hidden");
-      document.getElementById("swapSystemWrap").classList.add("hidden");
       draftSpecs = { install: createDefaultSpec("LV"), remove: null };
       renderSpecForms(true);
       document.getElementById("poleModal").classList.remove("hidden");
@@ -2464,15 +2521,11 @@
       document.getElementById("poleCode").value = pole.code;
       document.getElementById("poleLat").value = Number(pole.lat).toFixed(6);
       document.getElementById("poleLng").value = Number(pole.lng).toFixed(6);
-      document.getElementById("workType").value = pole.workType;
       document.getElementById("singleSystem").value = pole.singleSystem || "LV";
+      syncWorkIconUI(pole.workType || "NEW");
       syncSwapIconUI(pole.swapMode || "LV_TO_LV");
       syncMeterModalUI(pole.meterRemoveCount || 0, pole.meterInstallCount || 0);
       document.getElementById("poleNote").value = pole.note || "";
-
-      const isSwap = pole.workType === "SWAP";
-      document.getElementById("singleSystemWrap").classList.toggle("hidden", isSwap);
-      document.getElementById("swapSystemWrap").classList.toggle("hidden", !isSwap);
 
       draftSpecs = {
         install: pole.installSpec ? JSON.parse(JSON.stringify(pole.installSpec)) : null,
@@ -2596,13 +2649,6 @@
       appState.activeProjectId = el.value;
       saveData(appState);
       renderProjectUI();
-    }
-
-    else if (el.dataset.change === "onWorkTypeChange") {
-      const isSwap = el.value === "SWAP";
-      document.getElementById("singleSystemWrap").classList.toggle("hidden", isSwap);
-      document.getElementById("swapSystemWrap").classList.toggle("hidden", !isSwap);
-      renderSpecForms(false);
     }
 
     else if (el.dataset.change === "renderSpecForms") {
