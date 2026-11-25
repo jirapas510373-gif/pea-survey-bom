@@ -27,6 +27,8 @@
       --red-bg: rgba(239, 68, 68, 0.16);
       --blue: #3b82f6;
       --blue-bg: rgba(59, 130, 246, 0.18);
+      --violet: #c084fc;
+      --violet-bg: rgba(192, 132, 252, 0.18);
     }
 
     * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
@@ -277,7 +279,7 @@
       border-top: 1px solid var(--border);
       display: flex;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 14px;
       font-size: 12.5px;
       font-weight: 500;
       color: var(--text-muted);
@@ -288,7 +290,7 @@
     /* Work Type & Swap Mode Icon Grid */
     .work-icon-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 8px;
       margin-top: 4px;
     }
@@ -394,6 +396,7 @@
     .badge-new { background: var(--green-bg); color: #86efac; border: 1px solid rgba(34,197,94,0.4); }
     .badge-rem { background: var(--red-bg); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
     .badge-swap { background: var(--blue-bg); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
+    .badge-head { background: var(--violet-bg); color: #e9d5ff; border: 1px solid rgba(192,132,252,0.5); }
     .badge-tr { background: var(--pea-gold-dim); color: #fde047; border: 1px solid var(--pea-gold); }
     .badge-mtr { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.45); }
     .badge-dist { background: rgba(251, 191, 36, 0.14); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.4); }
@@ -494,11 +497,8 @@
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    @media (max-width: 720px) {
-      .work-icon-grid { grid-template-columns: 1fr; }
-    }
     @media (max-width: 640px) {
-      .grid-2, .grid-3, .swap-icon-grid { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .work-icon-grid, .swap-icon-grid { grid-template-columns: 1fr; }
     }
 
     .spec-section {
@@ -517,6 +517,16 @@
       padding-bottom: 6px;
       border-bottom: 1px dashed var(--border);
       color: #f8fafc;
+    }
+
+    .head-only-banner {
+      background: rgba(192, 132, 252, 0.14);
+      border: 1px solid rgba(192, 132, 252, 0.45);
+      color: #f3e8ff;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      margin-bottom: 10px;
     }
 
     .concrete-check-row {
@@ -581,18 +591,12 @@
   <div class="brand">
     <div class="brand-badge" aria-label="โลโก้การออกแบบและปักเสาไฟ">
       <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- เส้นนำสายตาการออกแบบ -->
         <circle cx="16" cy="16" r="12.5" stroke="rgba(253, 224, 71, 0.35)" stroke-width="1.2" stroke-dasharray="2.5 2.5"/>
-        <!-- เสาไฟ คอร. แนวตั้ง -->
         <path d="M16 6V26" stroke="#fde047" stroke-width="2.6" stroke-linecap="round"/>
-        <!-- คานพาดสายด้านบน -->
         <path d="M8.5 11.5H23.5" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round"/>
-        <!-- ฉนวนซ้าย-ขวา -->
         <circle cx="10.5" cy="9.5" r="1.8" fill="#fbbf24"/>
         <circle cx="21.5" cy="9.5" r="1.8" fill="#fbbf24"/>
-        <!-- สายไฟฟ้าโค้ง -->
         <path d="M10.5 11.5C12.5 14 14.2 14 16 11.5C17.8 14 19.5 14 21.5 11.5" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round"/>
-        <!-- ฐานปักเสาและจุดพิกัด -->
         <path d="M11.5 26H20.5" stroke="#86efac" stroke-width="2.4" stroke-linecap="round"/>
         <circle cx="16" cy="26" r="2.3" fill="#22c55e" stroke="#ffffff" stroke-width="1.2"/>
       </svg>
@@ -664,6 +668,7 @@
       <div class="legend-item"><span class="dot" style="background:#22c55e;"></span> ปักเสาใหม่</div>
       <div class="legend-item"><span class="dot" style="background:#ef4444;"></span> รื้อถอนเสา</div>
       <div class="legend-item"><span class="dot" style="background:#3b82f6;"></span> สับเปลี่ยนเสา</div>
+      <div class="legend-item"><span class="dot" style="background:#c084fc;"></span> สับเปลี่ยนเฉพาะหัวเสา</div>
       <div class="legend-item"><span class="dot" style="background:#fbbf24;"></span> จุดติดตั้งหม้อแปลง (TR)</div>
     </div>
   </div>
@@ -891,7 +896,23 @@
             </span>
             <span>
               <div class="icon-option-title">3. สับเปลี่ยนเสา</div>
-              <div class="icon-option-sub">เสาและอุปกรณ์ประกอบเสา</div>
+              <div class="icon-option-sub">สับเปลี่ยนทั้งเสาและอุปกรณ์</div>
+            </span>
+          </button>
+
+          <button type="button" class="icon-option-card" data-action="selectWorkType" data-work="SWAP_HEAD">
+            <span class="icon-option-badge">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e9d5ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 10v11"/>
+                <path d="M5 10h14"/>
+                <path d="M8 6h8"/>
+                <path d="m16 4 2 2-2 2"/>
+                <path d="m8 4-2 2 2 2"/>
+              </svg>
+            </span>
+            <span>
+              <div class="icon-option-title">4. สับเปลี่ยนเฉพาะหัวเสา</div>
+              <div class="icon-option-sub">ใช้เสาเดิม เปลี่ยนเฉพาะอุปกรณ์ประกอบ</div>
             </span>
           </button>
         </div>
@@ -1127,7 +1148,7 @@
   }
 
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V12";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V13";
   let memoryFallback = null;
 
   function loadData() {
@@ -1668,6 +1689,7 @@
       let color = "#22c55e";
       if (p.workType === "REMOVE") color = "#ef4444";
       else if (p.workType === "SWAP") color = "#3b82f6";
+      else if (p.workType === "SWAP_HEAD") color = "#c084fc";
 
       const hasTr = p.installSpec && p.installSpec.hasTransformer;
 
@@ -1911,9 +1933,9 @@
     document.querySelectorAll("#workIconGrid .icon-option-card").forEach(card => {
       card.classList.toggle("active", card.dataset.work === workType);
     });
-    const isSwap = workType === "SWAP";
-    document.getElementById("singleSystemWrap").classList.toggle("hidden", isSwap);
-    document.getElementById("swapSystemWrap").classList.toggle("hidden", !isSwap);
+    const isSwapPole = workType === "SWAP";
+    document.getElementById("singleSystemWrap").classList.toggle("hidden", isSwapPole);
+    document.getElementById("swapSystemWrap").classList.toggle("hidden", !isSwapPole);
   }
 
   function syncSwapIconUI(mode) {
@@ -1936,10 +1958,12 @@
     }
 
     container.innerHTML = poles.map((p, idx) => {
+      const isHeadOnly = p.workType === "SWAP_HEAD";
       let badgeHtml = "";
       if (p.workType === "NEW") badgeHtml = `<span class="badge badge-new">ปักเสาใหม่ (${p.singleSystem})</span>`;
       else if (p.workType === "REMOVE") badgeHtml = `<span class="badge badge-rem">รื้อถอนเสา (${p.singleSystem})</span>`;
-      else badgeHtml = `<span class="badge badge-swap">สับเปลี่ยน (${p.swapMode.replace("_TO_", " → ")})</span>`;
+      else if (p.workType === "SWAP_HEAD") badgeHtml = `<span class="badge badge-head">สับเปลี่ยนเฉพาะหัวเสา (${p.singleSystem})</span>`;
+      else badgeHtml = `<span class="badge badge-swap">สับเปลี่ยนเสา (${p.swapMode.replace("_TO_", " → ")})</span>`;
 
       const hasTr = p.installSpec && p.installSpec.hasTransformer;
       const trBadge = hasTr ? `<span class="badge badge-tr">TR ${escapeHtml(p.installSpec.trSize)}</span>` : "";
@@ -1960,10 +1984,10 @@
 
       let summaryHtml = "";
       if (p.removeSpec) {
-        summaryHtml += `<div style="color:#fca5a5;"><strong>[รื้อถอน]</strong> ${formatSpecText(p.removeSpec, false)}</div>`;
+        summaryHtml += `<div style="color:#fca5a5;"><strong>[รื้อถอน]</strong> ${formatSpecText(p.removeSpec, false, isHeadOnly)}</div>`;
       }
       if (p.installSpec) {
-        summaryHtml += `<div style="color:#86efac;"><strong>[ติดตั้งใหม่]</strong> ${formatSpecText(p.installSpec, true)}</div>`;
+        summaryHtml += `<div style="color:#86efac;"><strong>[ติดตั้งใหม่]</strong> ${formatSpecText(p.installSpec, true, isHeadOnly)}</div>`;
       }
 
       return `
@@ -1987,9 +2011,13 @@
     }).join("");
   }
 
-  function formatSpecText(spec, isInstall = false) {
-    const parts = [`เสา คอร. ${spec.poleSize} ม. (${spec.system})`];
-    if (isInstall && spec.concreteBase) {
+  function formatSpecText(spec, isInstall = false, isHeadOnly = false) {
+    const poleLabel = isHeadOnly
+      ? `เสาเดิม คอร. ${spec.poleSize} ม. (${spec.system}) [ไม่เปลี่ยนเสา]`
+      : `เสา คอร. ${spec.poleSize} ม. (${spec.system})`;
+    const parts = [poleLabel];
+
+    if (!isHeadOnly && isInstall && spec.concreteBase) {
       parts.push("เทคอนกรีตหุ้มโคนเสา");
     }
     if (spec.hvTopList && spec.hvTopList.length) {
@@ -2019,11 +2047,13 @@
       targetMap[key].qty += Number(qty);
     }
 
-    function processSpec(spec, targetMap, isInstall) {
+    function processSpec(spec, targetMap, isInstall, includePole = true) {
       if (!spec) return;
-      addItem(targetMap, "1. เสาไฟฟ้า คอร.", `เสาไฟฟ้า คอร. ขนาด ${spec.poleSize} เมตร (${spec.system})`, "ต้น", 1);
-      if (isInstall && spec.concreteBase) {
-        addItem(targetMap, "1. เสาไฟฟ้า คอร.", `งานเทคอนกรีตหุ้มโคนเสา (${spec.system})`, "หลุม", 1);
+      if (includePole) {
+        addItem(targetMap, "1. เสาไฟฟ้า คอร.", `เสาไฟฟ้า คอร. ขนาด ${spec.poleSize} เมตร (${spec.system})`, "ต้น", 1);
+        if (isInstall && spec.concreteBase) {
+          addItem(targetMap, "1. เสาไฟฟ้า คอร.", `งานเทคอนกรีตหุ้มโคนเสา (${spec.system})`, "หลุม", 1);
+        }
       }
       (spec.hvTopList || []).forEach(h => {
         addItem(targetMap, "2. อุปกรณ์ประกอบหัวเสาแรงสูง", h.name, "ชุด", h.qty);
@@ -2047,8 +2077,9 @@
     }
 
     (proj.poles || []).forEach(p => {
-      processSpec(p.installSpec, installMap, true);
-      processSpec(p.removeSpec, removeMap, false);
+      const includePole = p.workType !== "SWAP_HEAD";
+      processSpec(p.installSpec, installMap, true, includePole);
+      processSpec(p.removeSpec, removeMap, false, includePole);
 
       const mIns = Number(p.meterInstallCount) || 0;
       const mRem = Number(p.meterRemoveCount) || 0;
@@ -2150,6 +2181,12 @@
       const sys = document.getElementById("singleSystem").value;
       if (!draftSpecs.remove || draftSpecs.remove.system !== sys) draftSpecs.remove = createDefaultSpec(sys);
       draftSpecs.install = null;
+    } else if (workType === "SWAP_HEAD") {
+      const sys = document.getElementById("singleSystem").value;
+      if (!draftSpecs.remove || draftSpecs.remove.system !== sys) draftSpecs.remove = createDefaultSpec(sys);
+      if (!draftSpecs.install || draftSpecs.install.system !== sys) draftSpecs.install = createDefaultSpec(sys);
+      draftSpecs.install.poleSize = draftSpecs.remove.poleSize;
+      draftSpecs.install.concreteBase = false;
     } else {
       const mode = document.getElementById("swapMode").value;
       syncSwapIconUI(mode);
@@ -2170,19 +2207,27 @@
 
   function renderSpecForms(keepDraft = false) {
     if (!keepDraft) syncDraftSpecsWithMode();
+    const workType = document.getElementById("workType").value;
+    const isHeadOnly = workType === "SWAP_HEAD";
     const container = document.getElementById("dynamicSpecsContainer");
     let html = "";
 
     if (draftSpecs.remove) {
-      html += buildSpecBlock("remove", "รายละเอียดเสาและอุปกรณ์เดิมที่รื้อถอน", draftSpecs.remove, false);
+      const remTitle = isHeadOnly
+        ? "รายละเอียดอุปกรณ์หัวเสาและอุปกรณ์ประกอบเดิมที่รื้อถอน"
+        : "รายละเอียดเสาและอุปกรณ์เดิมที่รื้อถอน";
+      html += buildSpecBlock("remove", remTitle, draftSpecs.remove, false, isHeadOnly);
     }
     if (draftSpecs.install) {
-      html += buildSpecBlock("install", "รายละเอียดเสาและอุปกรณ์ใหม่ที่ปักติดตั้ง", draftSpecs.install, true);
+      const insTitle = isHeadOnly
+        ? "รายละเอียดอุปกรณ์หัวเสาและอุปกรณ์ประกอบใหม่ที่ติดตั้ง"
+        : "รายละเอียดเสาและอุปกรณ์ใหม่ที่ปักติดตั้ง";
+      html += buildSpecBlock("install", insTitle, draftSpecs.install, true, isHeadOnly);
     }
     container.innerHTML = html;
   }
 
-  function buildSpecBlock(role, title, spec, isInstall) {
+  function buildSpecBlock(role, title, spec, isInstall, isHeadOnly = false) {
     const isHV = spec.system === "HV";
     const poleSizes = isHV ? POLE_SIZES_HV : POLE_SIZES_LV;
     const rackOptions = getRackOptionsForPole(spec.poleSize);
@@ -2196,13 +2241,21 @@
       return true;
     });
 
+    const poleSelectLabel = isHeadOnly
+      ? `ขนาดเสาเดิมที่ปฏิบัติงาน (ใช้อ้างอิงชนิด RACK - ไม่นับเสาในบัญชีวัสดุ)`
+      : `ขนาดเสา คอร. (${isHV ? "แรงสูง" : "แรงต่ำ"}) *`;
+
     return `
       <div class="spec-section ${isInstall ? "install-box" : "remove-box"}">
         <div class="spec-title">${title} [${isHV ? "ระบบแรงสูง HV" : "ระบบแรงต่ำ LV"}]</div>
+        ${isHeadOnly && !isInstall ? `
+        <div class="head-only-banner">
+          ℹ️ โหมดสับเปลี่ยนเฉพาะหัวเสา: ระบบจะคำนวณเฉพาะอุปกรณ์หัวเสา RACK ยึดโยง และอุปกรณ์ประกอบ (ไม่รวมเสา คอร. ในบัญชีวัสดุ)
+        </div>` : ""}
 
         <div class="grid-2">
           <div>
-            <label>ขนาดเสา คอร. (${isHV ? "แรงสูง" : "แรงต่ำ"}) *</label>
+            <label>${poleSelectLabel}</label>
             <select data-spec-change="poleSize" data-role="${role}">
               ${poleSizes.map(sz => `<option value="${sz}" ${spec.poleSize === sz ? "selected" : ""}>เสา คอร. ขนาด ${sz} เมตร</option>`).join("")}
             </select>
@@ -2218,7 +2271,7 @@
           </div>`}
         </div>
 
-        ${isInstall ? `
+        ${isInstall && !isHeadOnly ? `
         <div class="concrete-check-row">
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#fde68a;">
             <input type="checkbox" ${spec.concreteBase ? "checked" : ""} data-spec-change="concreteBase" data-role="${role}" style="width:16px; height:16px;" />
@@ -2693,6 +2746,13 @@
       } else if (field === "poleSize") {
         draftSpecs[role].poleSize = el.value;
         draftSpecs[role].rackList = [];
+        if (document.getElementById("workType").value === "SWAP_HEAD") {
+          const otherRole = role === "remove" ? "install" : "remove";
+          if (draftSpecs[otherRole]) {
+            draftSpecs[otherRole].poleSize = el.value;
+            draftSpecs[otherRole].rackList = [];
+          }
+        }
         renderSpecForms(true);
       } else {
         draftSpecs[role][field] = el.value;
