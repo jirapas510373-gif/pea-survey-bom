@@ -4,67 +4,81 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PEA Survey & BOM Estimator - กฟภ.สาขาควนขนุน</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --pea-purple: #6a1b9a;
+      --pea-purple: #8b2fc9;
       --pea-purple-dark: #4a148c;
-      --pea-purple-light: #f3e5f5;
-      --pea-gold: #f59e0b;
-      --pea-gold-light: #fef3c7;
-      --bg-page: #f4f6f9;
-      --bg-card: #ffffff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border: #cbd5e1;
-      --green: #16a34a;
-      --green-bg: #dcfce7;
-      --red: #dc2626;
-      --red-bg: #fee2e2;
-      --blue: #2563eb;
-      --blue-bg: #dbeafe;
+      --pea-purple-glow: rgba(139, 47, 201, 0.25);
+      --pea-gold: #fbbf24;
+      --pea-gold-dim: rgba(251, 191, 36, 0.16);
+      --bg-page: #0b0f19;
+      --bg-card: #111827;
+      --bg-elevated: #1e293b;
+      --bg-input: #0f172a;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --green: #22c55e;
+      --green-bg: rgba(34, 197, 94, 0.16);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.16);
+      --blue: #3b82f6;
+      --blue-bg: rgba(59, 130, 246, 0.18);
     }
 
-    * { box-sizing: border-box; font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif; }
-    body { margin: 0; background: var(--bg-page); color: var(--text-main); font-size: 14px; }
+    * { box-sizing: border-box; font-family: 'Sarabun', sans-serif; }
+    body {
+      margin: 0;
+      background: var(--bg-page);
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
 
     /* Top Header */
     header {
-      background: linear-gradient(135deg, var(--pea-purple-dark), var(--pea-purple));
+      background: linear-gradient(135deg, #2e0854 0%, #581c87 55%, #6b21a8 100%);
       color: #fff;
-      padding: 12px 20px;
+      padding: 13px 20px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.45);
     }
     .brand { display: flex; align-items: center; gap: 12px; }
     .brand-badge {
       background: var(--pea-gold);
-      color: #1e1b4b;
+      color: #0f172a;
       font-weight: 800;
-      padding: 6px 10px;
+      padding: 6px 11px;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 16px;
+      letter-spacing: 0.5px;
     }
-    .brand h1 { margin: 0; font-size: 17px; font-weight: 700; }
-    .brand p { margin: 2px 0 0; font-size: 12px; opacity: 0.9; }
+    .brand h1 { margin: 0; font-size: 18px; font-weight: 700; color: #fff; }
+    .brand p { margin: 2px 0 0; font-size: 13px; color: #e9d5ff; font-weight: 400; }
     .status-pill {
-      background: rgba(22, 163, 74, 0.25);
+      background: rgba(34, 197, 94, 0.18);
       border: 1px solid #4ade80;
-      color: #bbf7d0;
-      padding: 4px 10px;
+      color: #86efac;
+      padding: 5px 12px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 600;
     }
 
     /* Project Bar */
     .project-bar {
-      background: #fff;
+      background: var(--bg-card);
       border-bottom: 1px solid var(--border);
-      padding: 10px 20px;
+      padding: 11px 20px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
@@ -73,56 +87,61 @@
     }
     .project-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: 1; }
     .project-controls select {
-      min-width: 280px;
+      min-width: 290px;
       max-width: 100%;
-      padding: 7px 10px;
+      padding: 7px 11px;
       border: 1.5px solid var(--pea-purple);
       border-radius: 6px;
       font-weight: 600;
-      color: var(--pea-purple-dark);
-      background: var(--pea-purple-light);
+      font-size: 14px;
+      color: #f3e8ff;
+      background: #2e1065;
     }
     .project-meta {
-      font-size: 12.5px;
+      font-size: 13px;
       color: var(--text-muted);
       display: flex;
       flex-wrap: wrap;
       gap: 14px;
     }
-    .project-meta strong { color: var(--text-main); }
+    .project-meta strong { color: var(--text-main); font-weight: 600; }
 
     /* Buttons */
     button {
       cursor: pointer;
       border: none;
       border-radius: 6px;
-      padding: 7px 12px;
-      font-size: 13px;
+      padding: 7px 13px;
+      font-size: 13.5px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 5px;
       transition: 0.15s;
     }
-    button:hover { opacity: 0.9; }
+    button:hover { filter: brightness(1.08); }
     .btn-primary { background: var(--pea-purple); color: #fff; }
-    .btn-gold { background: var(--pea-gold); color: #1e1b4b; }
-    .btn-green { background: var(--green); color: #fff; }
-    .btn-blue { background: var(--blue); color: #fff; }
-    .btn-red { background: var(--red); color: #fff; }
-    .btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text-main); }
-    .btn-sm { padding: 4px 8px; font-size: 12px; }
+    .btn-gold { background: var(--pea-gold); color: #0f172a; }
+    .btn-green { background: #16a34a; color: #fff; }
+    .btn-blue { background: #2563eb; color: #fff; }
+    .btn-red { background: #dc2626; color: #fff; }
+    .btn-outline {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+    .btn-sm { padding: 5px 9px; font-size: 12.5px; }
 
     /* Main Workspace */
     .workspace {
       display: grid;
-      grid-template-columns: 1.15fr 1fr;
+      grid-template-columns: 1.18fr 1fr;
       gap: 14px;
       padding: 14px 20px;
-      max-width: 1560px;
+      max-width: 1580px;
       margin: 0 auto;
     }
-    @media (max-width: 1024px) {
+    @media (max-width: 1080px) {
       .workspace { grid-template-columns: 1fr; }
     }
 
@@ -130,26 +149,55 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
     .card-header {
-      background: #f8fafc;
+      background: #162032;
       border-bottom: 1px solid var(--border);
-      padding: 10px 14px;
+      padding: 11px 15px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
     }
-    .card-header h2 { margin: 0; font-size: 15px; color: var(--pea-purple-dark); }
+    .card-header h2 { margin: 0; font-size: 15.5px; font-weight: 700; color: #e9d5ff; }
+
+    /* Manual LatLng Bar above Map */
+    .manual-coord-bar {
+      background: #0f172a;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+    }
+    .manual-coord-bar label { margin: 0; color: var(--text-muted); font-size: 12.5px; }
+    .manual-coord-bar input[type="number"] {
+      width: 126px;
+      padding: 5px 8px;
+      font-size: 12.5px;
+      background: var(--bg-input);
+      color: #fde68a;
+      border: 1px solid #475569;
+    }
 
     /* Map Canvas */
-    .map-wrapper { position: relative; width: 100%; height: 470px; background: #e2e8f0; }
-    canvas#surveyMap { width: 100%; height: 100%; display: block; cursor: crosshair; }
+    .map-wrapper {
+      position: relative;
+      width: 100%;
+      height: 450px;
+      background: #090d16;
+      touch-action: none;
+      user-select: none;
+    }
+    canvas#surveyMap { width: 100%; height: 100%; display: block; cursor: grab; }
+    canvas#surveyMap.dragging { cursor: grabbing; }
     .map-overlay-top {
       position: absolute;
       top: 10px;
@@ -163,53 +211,68 @@
     }
     .map-overlay-top > * { pointer-events: auto; }
     .coord-badge {
-      background: rgba(15, 23, 42, 0.85);
-      color: #fff;
-      padding: 5px 10px;
+      background: rgba(9, 13, 22, 0.88);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: #f8fafc;
+      padding: 5px 11px;
       border-radius: 6px;
-      font-size: 12px;
-      font-family: monospace;
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+    .map-hint-bottom {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      background: rgba(9, 13, 22, 0.82);
+      color: #cbd5e1;
+      padding: 3px 9px;
+      border-radius: 5px;
+      font-size: 11.5px;
+      pointer-events: none;
     }
     .map-legend {
-      padding: 8px 14px;
-      background: #f8fafc;
+      padding: 9px 15px;
+      background: #162032;
       border-top: 1px solid var(--border);
       display: flex;
       flex-wrap: wrap;
-      gap: 14px;
-      font-size: 12px;
+      gap: 16px;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-muted);
     }
-    .legend-item { display: flex; align-items: center; gap: 5px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
     .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
 
     /* Tabs */
-    .tabs { display: flex; border-bottom: 1px solid var(--border); background: #f8fafc; }
+    .tabs { display: flex; border-bottom: 1px solid var(--border); background: #162032; }
     .tab-btn {
       flex: 1;
-      padding: 10px;
+      padding: 11px;
       border-radius: 0;
       background: transparent;
       color: var(--text-muted);
       border-bottom: 3px solid transparent;
       justify-content: center;
-      font-size: 13.5px;
+      font-size: 14px;
+      font-weight: 600;
     }
     .tab-btn.active {
-      color: var(--pea-purple);
-      border-bottom-color: var(--pea-purple);
-      background: #fff;
+      color: #fff;
+      border-bottom-color: var(--pea-gold);
+      background: var(--bg-card);
       font-weight: 700;
     }
-    .tab-content { padding: 14px; max-height: 470px; overflow-y: auto; }
+    .tab-content { padding: 14px; max-height: 492px; overflow-y: auto; }
     .hidden { display: none !important; }
 
     /* Pole List Items */
     .pole-item {
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 11px 13px;
       margin-bottom: 10px;
-      background: #fff;
+      background: #172033;
       transition: 0.15s;
     }
     .pole-item:hover { border-color: var(--pea-purple); }
@@ -221,30 +284,31 @@
       margin-bottom: 6px;
     }
     .badge {
-      padding: 2px 8px;
+      padding: 2px 9px;
       border-radius: 999px;
-      font-size: 11.5px;
+      font-size: 12px;
       font-weight: 700;
     }
-    .badge-new { background: var(--green-bg); color: var(--green); }
-    .badge-rem { background: var(--red-bg); color: var(--red); }
-    .badge-swap { background: var(--blue-bg); color: var(--blue); }
-    .badge-tr { background: var(--pea-gold-light); color: #92400e; border: 1px solid #f59e0b; }
-    .pole-details { font-size: 12.5px; color: #334155; line-height: 1.55; }
+    .badge-new { background: var(--green-bg); color: #86efac; border: 1px solid rgba(34,197,94,0.4); }
+    .badge-rem { background: var(--red-bg); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+    .badge-swap { background: var(--blue-bg); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
+    .badge-tr { background: var(--pea-gold-dim); color: #fde047; border: 1px solid var(--pea-gold); }
+    .pole-details { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
 
     /* BOM Tables */
-    table.bom-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+    table.bom-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13.5px; }
     table.bom-table th, table.bom-table td {
       border: 1px solid var(--border);
-      padding: 7px 9px;
+      padding: 7px 10px;
       text-align: left;
     }
-    table.bom-table th { background: #f1f5f9; font-weight: 700; }
+    table.bom-table th { background: #1e293b; color: #e2e8f0; font-weight: 700; }
+    table.bom-table td { background: #0f172a; color: #e2e8f0; }
     table.bom-table td.num, table.bom-table th.num { text-align: right; }
 
     /* Bottom Line Summary Section */
     .bottom-summary {
-      max-width: 1560px;
+      max-width: 1580px;
       margin: 0 auto 24px;
       padding: 0 20px;
     }
@@ -258,32 +322,33 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px;
-      background: #fafafa;
+      background: #172033;
     }
     .line-box.rem { border-left: 4px solid var(--red); }
     .line-box.ins { border-left: 4px solid var(--green); }
-    .line-box h4 { margin: 0 0 8px; font-size: 13.5px; }
+    .line-box h4 { margin: 0 0 8px; font-size: 14px; font-weight: 700; color: #f8fafc; }
     .dist-row { display: flex; gap: 6px; margin-top: 8px; }
     .dist-row input { flex: 1; }
     .dist-row select { width: 85px; }
 
     /* Form Controls */
-    label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 4px; color: #334155; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1; }
     input[type="text"], input[type="number"], select, textarea {
       width: 100%;
-      padding: 7px 9px;
+      padding: 7px 10px;
       border: 1px solid var(--border);
       border-radius: 6px;
-      font-size: 13px;
-      background: #fff;
+      font-size: 13.5px;
+      background: var(--bg-input);
+      color: var(--text-main);
     }
-    input:focus, select:focus { outline: none; border-color: var(--pea-purple); }
+    input:focus, select:focus { outline: none; border-color: var(--pea-gold); }
 
     /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(2, 6, 23, 0.78);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -291,25 +356,27 @@
       z-index: 1000;
     }
     .modal {
-      background: #fff;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       border-radius: 12px;
       width: 100%;
       max-width: 820px;
       max-height: 92vh;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.25);
+      box-shadow: 0 24px 38px rgba(0,0,0,0.65);
     }
     .modal-header {
       padding: 12px 16px;
-      background: var(--pea-purple);
+      background: linear-gradient(135deg, #3b0764, #6b21a8);
       color: #fff;
       border-radius: 12px 12px 0 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid rgba(251, 191, 36, 0.25);
     }
-    .modal-header h3 { margin: 0; font-size: 16px; }
+    .modal-header h3 { margin: 0; font-size: 16.5px; font-weight: 700; }
     .modal-body { padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
     .modal-footer {
       padding: 12px 16px;
@@ -317,41 +384,42 @@
       display: flex;
       justify-content: flex-end;
       gap: 8px;
-      background: #f8fafc;
+      background: #162032;
       border-radius: 0 0 12px 12px;
     }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     @media (max-width: 640px) {
-      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
     }
 
     .spec-section {
-      border: 1.5px solid #cbd5e1;
+      border: 1.5px solid var(--border);
       border-radius: 8px;
       padding: 12px;
-      background: #f8fafc;
+      background: #172033;
     }
-    .spec-section.install-box { border-color: #86efac; background: #f0fdf4; }
-    .spec-section.remove-box { border-color: #fca5a5; background: #fef2f2; }
+    .spec-section.install-box { border-color: rgba(34, 197, 94, 0.55); background: rgba(20, 83, 45, 0.16); }
+    .spec-section.remove-box { border-color: rgba(239, 68, 68, 0.55); background: rgba(127, 29, 29, 0.16); }
     .spec-title {
       font-weight: 700;
-      font-size: 14px;
+      font-size: 14.5px;
       margin: 0 0 10px;
       padding-bottom: 6px;
-      border-bottom: 1px dashed #cbd5e1;
+      border-bottom: 1px dashed var(--border);
+      color: #f8fafc;
     }
 
-    .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
     .chip {
-      background: #fff;
+      background: #2e1065;
       border: 1px solid var(--pea-purple);
-      color: var(--pea-purple-dark);
-      padding: 3px 8px;
+      color: #f3e8ff;
+      padding: 3px 9px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 12.5px;
+      font-weight: 500;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -365,26 +433,27 @@
     }
 
     .bl-alert-box {
-      margin-top: 8px;
+      margin-top: 10px;
       padding: 10px;
-      background: #fffbeb;
-      border: 1.5px solid #f59e0b;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1.5px solid var(--pea-gold);
       border-radius: 8px;
     }
-    .bl-alert-box h5 { margin: 0 0 8px; color: #92400e; font-size: 13px; }
+    .bl-alert-box h5 { margin: 0 0 8px; color: #fde047; font-size: 13.5px; font-weight: 700; }
 
     .tr-box {
-      margin-top: 8px;
+      margin-top: 10px;
       padding: 10px;
-      background: #f3e5f5;
+      background: rgba(139, 47, 201, 0.15);
       border: 1.5px solid var(--pea-purple);
       border-radius: 8px;
     }
 
     @media print {
       header, .project-bar, .map-card, .tabs, button, .no-print { display: none !important; }
+      body { background: #fff; color: #000; }
       .workspace { display: block; padding: 0; }
-      .card { border: none; box-shadow: none; }
+      .card { border: none; box-shadow: none; background: #fff; color: #000; }
       .tab-content { max-height: none; overflow: visible; }
       #tab-bom { display: block !important; }
     }
@@ -400,7 +469,7 @@
       <p>การไฟฟ้าส่วนภูมิภาค สาขาควนขนุน (PEA Khuan Khanun Survey & BOM Estimator)</p>
     </div>
   </div>
-  <div class="status-pill">● ระบบพร้อมใช้งาน (Interactive Ready)</div>
+  <div class="status-pill">● ระบบพร้อมใช้งาน (Dark Mode + Satellite & Pan)</div>
 </header>
 
 <!-- แถบจัดการแยกโปรเจค -->
@@ -420,25 +489,39 @@
   <!-- ฝั่งซ้าย: แผนที่พิกัด GPS -->
   <div class="card map-card">
     <div class="card-header">
-      <h2>แผนที่พิกัดจุดสำรวจ (แตะบนแผนที่เพื่อเลือกพิกัดปักเสา)</h2>
+      <h2>แผนที่พิกัดจุดสำรวจ (ลากเพื่อเลื่อนแผนที่ / คลิกเพื่อปักหมุด)</h2>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button class="btn-outline btn-sm" data-action="toggleMapMode" id="btnMapMode">โหมด: แผนที่ถนน</button>
-        <button class="btn-blue btn-sm" data-action="getCurrentGPS">📍 ดึง GPS ปัจจุบัน</button>
+        <button class="btn-outline btn-sm" data-action="toggleMapMode" id="btnMapMode">โหมด: แผนที่ถนน (เข้ม)</button>
+        <button class="btn-outline btn-sm" data-action="resetMapView">รีเซ็ตมุมมอง</button>
+        <button class="btn-blue btn-sm" data-action="getCurrentGPS">📍 GPS ปัจจุบัน</button>
         <button class="btn-gold btn-sm" data-action="openAddPoleModal">+ เพิ่มจุดสำรวจ</button>
       </div>
     </div>
+
+    <!-- ช่องระบุพิกัด Lat/Long ด้วยตนเอง -->
+    <div class="manual-coord-bar">
+      <label for="manualLat">Lat:</label>
+      <input type="number" id="manualLat" step="0.000001" value="7.735800" />
+      <label for="manualLng">Lng:</label>
+      <input type="number" id="manualLng" step="0.000001" value="100.009200" />
+      <button type="button" class="btn-primary btn-sm" data-action="applyManualCoord">ไปที่พิกัด & ปักหมุด</button>
+      <span id="satStatusLabel" style="margin-left:auto; font-size:11.5px; color:var(--text-muted);">ดาวเทียม: พร้อมใช้งาน</span>
+    </div>
+
     <div class="map-wrapper">
       <canvas id="surveyMap"></canvas>
       <div class="map-overlay-top">
-        <div class="coord-badge" id="cursorCoordBadge">พิกัดเลือก: 7.735800, 100.009200</div>
+        <div class="coord-badge" id="cursorCoordBadge">พิกัดปักหมุด: 7.735800, 100.009200</div>
         <div class="coord-badge" id="poleCountBadge">จำนวนจุดสำรวจ: 0 จุด</div>
       </div>
+      <div class="map-hint-bottom">ลากเมาส์หรือนิ้วเพื่อเลื่อนแผนที่ • คลิก (ไม่ลาก) เพื่อย้ายหมุดพิกัด</div>
     </div>
+
     <div class="map-legend">
-      <div class="legend-item"><span class="dot" style="background:#16a34a;"></span> ปักเสาใหม่</div>
-      <div class="legend-item"><span class="dot" style="background:#dc2626;"></span> รื้อถอนเสา</div>
-      <div class="legend-item"><span class="dot" style="background:#2563eb;"></span> สับเปลี่ยนเสา</div>
-      <div class="legend-item"><span class="dot" style="background:#f59e0b;"></span> จุดติดตั้งหม้อแปลง (TR)</div>
+      <div class="legend-item"><span class="dot" style="background:#22c55e;"></span> ปักเสาใหม่</div>
+      <div class="legend-item"><span class="dot" style="background:#ef4444;"></span> รื้อถอนเสา</div>
+      <div class="legend-item"><span class="dot" style="background:#3b82f6;"></span> สับเปลี่ยนเสา</div>
+      <div class="legend-item"><span class="dot" style="background:#fbbf24;"></span> จุดติดตั้งหม้อแปลง (TR)</div>
     </div>
   </div>
 
@@ -452,7 +535,7 @@
     <!-- แท็บ 1: รายการจุดสำรวจ -->
     <div id="tab-poles" class="tab-content">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <span style="font-size:12.5px; color:var(--text-muted);">เรียงตามลำดับจุดสำรวจในโปรเจค</span>
+        <span style="font-size:13px; color:var(--text-muted);">เรียงตามลำดับจุดสำรวจในโปรเจค</span>
         <button class="btn-primary btn-sm" data-action="openAddPoleModal">+ บันทึกจุดใหม่</button>
       </div>
       <div id="poleListContainer"></div>
@@ -461,7 +544,7 @@
     <!-- แท็บ 2: บัญชีวัสดุ -->
     <div id="tab-bom" class="tab-content hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
-        <strong style="color:var(--pea-purple-dark);">สรุปบัญชีวัสดุแยกตามประเภทงาน</strong>
+        <strong style="color:#e9d5ff;">สรุปบัญชีวัสดุแยกตามประเภทงาน</strong>
         <div style="display:flex; gap:6px;">
           <button class="btn-green btn-sm" data-action="exportCSV">ส่งออก CSV (Excel)</button>
           <button class="btn-outline btn-sm" data-action="printReport">พิมพ์รายงาน</button>
@@ -477,7 +560,7 @@
   <div class="card">
     <div class="card-header">
       <h2>สรุประบบสายไฟฟ้าและระยะทางของโครงการ (แยกตามโปรเจค)</h2>
-      <span style="font-size:12px; color:var(--green); font-weight:600;">✓ บันทึกข้อมูลอัตโนมัติ</span>
+      <span style="font-size:12.5px; color:#86efac; font-weight:600;">✓ บันทึกข้อมูลอัตโนมัติ</span>
     </div>
     <div class="line-grid">
       <!-- 1. แรงต่ำรื้อถอน -->
@@ -616,11 +699,11 @@
           <input type="text" id="poleCode" placeholder="เช่น P-01" />
         </div>
         <div>
-          <label>ละติจูด (Latitude)</label>
+          <label>ละติจูด (Latitude) *</label>
           <input type="number" id="poleLat" step="0.000001" />
         </div>
         <div>
-          <label>ลองจิจูด (Longitude)</label>
+          <label>ลองจิจูด (Longitude) *</label>
           <input type="number" id="poleLng" step="0.000001" />
         </div>
       </div>
@@ -635,7 +718,6 @@
           </select>
         </div>
 
-        <!-- กรณีงานปักใหม่ หรือ รื้อถอนอย่างเดียว -->
         <div id="singleSystemWrap">
           <label>ระบบจำหน่าย *</label>
           <select id="singleSystem" data-change="renderSpecForms">
@@ -644,7 +726,6 @@
           </select>
         </div>
 
-        <!-- กรณีงานสับเปลี่ยนเสา (ครบ 4 รูปแบบ) -->
         <div id="swapSystemWrap" class="hidden">
           <label>รูปแบบการสับเปลี่ยนเสา *</label>
           <select id="swapMode" data-change="renderSpecForms">
@@ -656,7 +737,6 @@
         </div>
       </div>
 
-      <!-- พื้นที่สร้างฟอร์มรายละเอียดเสาและอุปกรณ์แบบ Dynamic -->
       <div id="dynamicSpecsContainer" style="display:flex; flex-direction:column; gap:12px;"></div>
 
       <div>
@@ -675,7 +755,7 @@
 (function() {
   "use strict";
 
-  // 1. ฐานข้อมูลอุปกรณ์หัวเสาแรงสูง (ครบ 40 รายการตามมาตรฐาน)
+  // 1. ฐานข้อมูลอุปกรณ์หัวเสาแรงสูง (ครบ 40 รายการ)
   const HV_TOP_HARDWARE = [
     { type: "SP", system: "1 Phase" },
     { type: "SP", system: "3 Phase" },
@@ -719,7 +799,6 @@
     { type: "INSULATOR SUPPENSION", system: "" }
   ];
 
-  // 2. ฐานข้อมูล RACK ตามขนาดเสา คอร. (8/9, 12, 12.2, 14, 14.3)
   const POLE_SIZES_LV = ["8", "9"];
   const POLE_SIZES_HV = ["12", "12.2", "14", "14.3"];
   const TR_SIZES = ["30 kVA", "50 kVA", "100 kVA", "160 kVA", "250 kVA", "315 kVA", "400 kVA", "500 kVA", "800 kVA", "1000 kVA"];
@@ -738,8 +817,8 @@
     return list;
   }
 
-  // 3. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V3";
+  // 2. Safe Storage & State
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V4";
   let memoryFallback = null;
 
   function loadData() {
@@ -886,9 +965,303 @@
 
   let appState = loadData();
   let selectedCoord = { lat: 7.735800, lng: 100.009200 };
+  let mapCenter = { lat: 7.735800, lng: 100.009200 };
   let isSatellite = false;
   let draftSpecs = { install: null, remove: null };
 
+  // Satellite Tile Cache (Web Mercator z=16)
+  const TILE_ZOOM = 16;
+  const tileCache = new Map();
+  let tileLoadCount = 0;
+  let tileErrorCount = 0;
+
+  function lon2tile(lon, zoom) {
+    return ((lon + 180) / 360) * Math.pow(2, zoom);
+  }
+  function lat2tile(lat, zoom) {
+    const rad = (lat * Math.PI) / 180;
+    return ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * Math.pow(2, zoom);
+  }
+  function tile2lon(x, zoom) {
+    return (x / Math.pow(2, zoom)) * 360 - 180;
+  }
+  function tile2lat(y, zoom) {
+    const n = Math.PI - (2 * Math.PI * y) / Math.pow(2, zoom);
+    return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+  }
+
+  // Pixel per degree around lat ~7.73 at zoom 16 (~750,000 px/deg)
+  const PX_PER_DEG_LNG = 750000;
+  const PX_PER_DEG_LAT = 756000;
+
+  function latLngToCanvas(lat, lng, width, height) {
+    const x = width / 2 + (lng - mapCenter.lng) * PX_PER_DEG_LNG;
+    const y = height / 2 - (lat - mapCenter.lat) * PX_PER_DEG_LAT;
+    return { x, y };
+  }
+
+  function canvasToLatLng(x, y, width, height) {
+    const lng = mapCenter.lng + (x - width / 2) / PX_PER_DEG_LNG;
+    const lat = mapCenter.lat - (y - height / 2) / PX_PER_DEG_LAT;
+    return { lat, lng };
+  }
+
+  function getSatelliteTile(tx, ty) {
+    const key = `${TILE_ZOOM}/${tx}/${ty}`;
+    if (tileCache.has(key)) {
+      return tileCache.get(key);
+    }
+    const entry = { img: new Image(), loaded: false, failed: false };
+    entry.img.crossOrigin = "anonymous";
+    tileLoadCount++;
+    updateSatStatusLabel("กำลังโหลดภาพดาวเทียม...");
+
+    entry.img.onload = () => {
+      entry.loaded = true;
+      updateSatStatusLabel("ดาวเทียม: Esri World Imagery");
+      drawMap();
+    };
+    entry.img.onerror = () => {
+      entry.failed = true;
+      tileErrorCount++;
+      updateSatStatusLabel("ดาวเทียม: โหมดจำลองภูมิประเทศ (ออฟไลน์/บล็อก)");
+      drawMap();
+    };
+    // Esri World Imagery XYZ Tile
+    entry.img.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${TILE_ZOOM}/${ty}/${tx}`;
+    tileCache.set(key, entry);
+    return entry;
+  }
+
+  function updateSatStatusLabel(text) {
+    const el = document.getElementById("satStatusLabel");
+    if (el) el.textContent = text;
+  }
+
+  function setSelectedCoord(lat, lng, recenter = false) {
+    if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+    selectedCoord = { lat, lng };
+    if (recenter) {
+      mapCenter = { lat, lng };
+    }
+    document.getElementById("cursorCoordBadge").textContent =
+      `พิกัดปักหมุด: ${selectedCoord.lat.toFixed(6)}, ${selectedCoord.lng.toFixed(6)}`;
+    document.getElementById("manualLat").value = selectedCoord.lat.toFixed(6);
+    document.getElementById("manualLng").value = selectedCoord.lng.toFixed(6);
+    drawMap();
+  }
+
+  function drawMap() {
+    const canvas = document.getElementById("surveyMap");
+    if (!canvas) return;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width || 600;
+    canvas.height = rect.height || 450;
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width;
+    const h = canvas.height;
+
+    // Dark base fill
+    ctx.fillStyle = isSatellite ? "#0b1320" : "#0f172a";
+    ctx.fillRect(0, 0, w, h);
+
+    if (isSatellite) {
+      const topLeft = canvasToLatLng(0, 0, w, h);
+      const bottomRight = canvasToLatLng(w, h, w, h);
+
+      const minTx = Math.floor(lon2tile(topLeft.lng, TILE_ZOOM));
+      const maxTx = Math.floor(lon2tile(bottomRight.lng, TILE_ZOOM));
+      const minTy = Math.floor(lat2tile(topLeft.lat, TILE_ZOOM));
+      const maxTy = Math.floor(lat2tile(bottomRight.lat, TILE_ZOOM));
+
+      for (let tx = minTx; tx <= maxTx; tx++) {
+        for (let ty = minTy; ty <= maxTy; ty++) {
+          const tile = getSatelliteTile(tx, ty);
+          const tLat1 = tile2lat(ty, TILE_ZOOM);
+          const tLng1 = tile2lon(tx, TILE_ZOOM);
+          const tLat2 = tile2lat(ty + 1, TILE_ZOOM);
+          const tLng2 = tile2lon(tx + 1, TILE_ZOOM);
+
+          const p1 = latLngToCanvas(tLat1, tLng1, w, h);
+          const p2 = latLngToCanvas(tLat2, tLng2, w, h);
+          const tw = Math.ceil(p2.x - p1.x) + 1;
+          const th = Math.ceil(p2.y - p1.y) + 1;
+
+          if (tile.loaded) {
+            ctx.drawImage(tile.img, p1.x, p1.y, tw, th);
+          } else {
+            // Dark satellite fallback pattern while loading or if offline
+            ctx.fillStyle = ((tx + ty) % 2 === 0) ? "#131c2e" : "#172238";
+            ctx.fillRect(p1.x, p1.y, tw, th);
+            ctx.strokeStyle = "rgba(148,163,184,0.12)";
+            ctx.strokeRect(p1.x, p1.y, tw, th);
+          }
+        }
+      }
+      // Subtle dark tint so markers & labels pop clearly on satellite imagery
+      ctx.fillStyle = "rgba(2, 6, 23, 0.22)";
+      ctx.fillRect(0, 0, w, h);
+    } else {
+      // Dark street grid mode
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.14)";
+      ctx.lineWidth = 1;
+      const step = 48;
+      const offsetX = ((w / 2 - mapCenter.lng * PX_PER_DEG_LNG) % step + step) % step;
+      const offsetY = ((h / 2 + mapCenter.lat * PX_PER_DEG_LAT) % step + step) % step;
+
+      for (let x = offsetX; x < w; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let y = offsetY; y < h; y += step) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
+
+      // Simulated road line anchored in lat/lng so it pans smoothly
+      const rStart = latLngToCanvas(7.7354, 100.0055, w, h);
+      const rMid = latLngToCanvas(7.7360, 100.0090, w, h);
+      const rEnd = latLngToCanvas(7.7364, 100.0130, w, h);
+
+      ctx.strokeStyle = "#263349";
+      ctx.lineWidth = 14;
+      ctx.beginPath();
+      ctx.moveTo(rStart.x, rStart.y);
+      ctx.quadraticCurveTo(rMid.x, rMid.y, rEnd.x, rEnd.y);
+      ctx.stroke();
+
+      ctx.strokeStyle = "#64748b";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath();
+      ctx.moveTo(rStart.x, rStart.y);
+      ctx.quadraticCurveTo(rMid.x, rMid.y, rEnd.x, rEnd.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    const proj = getActiveProject();
+    const poles = proj ? proj.poles : [];
+
+    // Connecting line between poles
+    if (poles.length > 1) {
+      ctx.strokeStyle = "#c084fc";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      poles.forEach((p, i) => {
+        const pt = latLngToCanvas(p.lat, p.lng, w, h);
+        if (i === 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      });
+      ctx.stroke();
+    }
+
+    // Pole markers
+    poles.forEach(p => {
+      const pt = latLngToCanvas(p.lat, p.lng, w, h);
+      let color = "#22c55e";
+      if (p.workType === "REMOVE") color = "#ef4444";
+      else if (p.workType === "SWAP") color = "#3b82f6";
+
+      const hasTr = p.installSpec && p.installSpec.hasTransformer;
+
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, hasTr ? 11 : 8, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = hasTr ? "#fbbf24" : "#ffffff";
+      ctx.stroke();
+
+      ctx.font = "700 13px 'Sarabun', sans-serif";
+      const label = hasTr ? `${p.code} [TR ${p.installSpec.trSize}]` : p.code;
+      const textW = ctx.measureText(label).width;
+      ctx.fillStyle = "rgba(9, 13, 22, 0.78)";
+      ctx.fillRect(pt.x + 11, pt.y - 10, textW + 8, 18);
+      ctx.fillStyle = "#f8fafc";
+      ctx.fillText(label, pt.x + 15, pt.y + 4);
+    });
+
+    // Selected pin crosshair
+    const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h);
+    ctx.strokeStyle = "#fbbf24";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(selPt.x, selPt.y, 13, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(selPt.x - 18, selPt.y); ctx.lineTo(selPt.x + 18, selPt.y);
+    ctx.moveTo(selPt.x, selPt.y - 18); ctx.lineTo(selPt.x, selPt.y + 18);
+    ctx.stroke();
+  }
+
+  function initCanvasPanAndClick() {
+    const canvas = document.getElementById("surveyMap");
+    let isDragging = false;
+    let movedDistance = 0;
+    let lastX = 0;
+    let lastY = 0;
+
+    function onPointerDown(clientX, clientY) {
+      isDragging = true;
+      movedDistance = 0;
+      lastX = clientX;
+      lastY = clientY;
+      canvas.classList.add("dragging");
+    }
+
+    function onPointerMove(clientX, clientY) {
+      if (!isDragging) return;
+      const dx = clientX - lastX;
+      const dy = clientY - lastY;
+      movedDistance += Math.hypot(dx, dy);
+      lastX = clientX;
+      lastY = clientY;
+
+      mapCenter.lng -= dx / PX_PER_DEG_LNG;
+      mapCenter.lat += dy / PX_PER_DEG_LAT;
+      drawMap();
+    }
+
+    function onPointerUp(clientX, clientY) {
+      if (!isDragging) return;
+      isDragging = false;
+      canvas.classList.remove("dragging");
+
+      // Treat as click-to-pin if pointer barely moved
+      if (movedDistance < 6) {
+        const rect = canvas.getBoundingClientRect();
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+        const pt = canvasToLatLng(x, y, canvas.width, canvas.height);
+        setSelectedCoord(pt.lat, pt.lng, false);
+      }
+    }
+
+    canvas.addEventListener("mousedown", (e) => onPointerDown(e.clientX, e.clientY));
+    window.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
+    window.addEventListener("mouseup", (e) => onPointerUp(e.clientX, e.clientY));
+
+    canvas.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (e) => {
+      if (isDragging && e.touches.length === 1) {
+        onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    }, { passive: true });
+
+    window.addEventListener("touchend", (e) => {
+      if (isDragging && e.changedTouches.length > 0) {
+        onPointerUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      }
+    });
+
+    window.addEventListener("resize", drawMap);
+  }
+
+  // 3. Project, Pole, BOM & CSV Logic
   function getActiveProject() {
     let proj = appState.projects.find(p => p.id === appState.activeProjectId);
     if (!proj && appState.projects.length > 0) {
@@ -898,7 +1271,6 @@
     return proj;
   }
 
-  // 4. Render Project Bar & Line Summary
   function renderProjectUI() {
     const select = document.getElementById("projectSelect");
     select.innerHTML = appState.projects.map(p =>
@@ -918,7 +1290,6 @@
       <span>ผู้สำรวจ: <strong>${escapeHtml(proj.surveyor || "-")}</strong></span>
     `;
 
-    // Sync Line Summary
     const ls = proj.lineSummary || {
       lvRemSystem: "", lvRemDist: "", lvRemUnit: "เมตร",
       lvInsSystem: "", lvInsDist: "", lvInsUnit: "เมตร",
@@ -951,7 +1322,6 @@
     drawMap();
   }
 
-  // 5. Render Pole List
   function renderPoleList() {
     const proj = getActiveProject();
     const container = document.getElementById("poleListContainer");
@@ -975,10 +1345,10 @@
 
       let summaryHtml = "";
       if (p.removeSpec) {
-        summaryHtml += `<div style="color:#b91c1c;"><strong>[รื้อถอน]</strong> ${formatSpecText(p.removeSpec)}</div>`;
+        summaryHtml += `<div style="color:#fca5a5;"><strong>[รื้อถอน]</strong> ${formatSpecText(p.removeSpec)}</div>`;
       }
       if (p.installSpec) {
-        summaryHtml += `<div style="color:#15803d;"><strong>[ติดตั้งใหม่]</strong> ${formatSpecText(p.installSpec)}</div>`;
+        summaryHtml += `<div style="color:#86efac;"><strong>[ติดตั้งใหม่]</strong> ${formatSpecText(p.installSpec)}</div>`;
       }
 
       return `
@@ -986,7 +1356,7 @@
           <div class="pole-item-top">
             <div>
               <strong>#${idx + 1} ${escapeHtml(p.code)}</strong> ${badgeHtml} ${trBadge}
-              <div style="font-size:11.5px; color:var(--text-muted); font-family:monospace;">Lat: ${Number(p.lat).toFixed(6)}, Lng: ${Number(p.lng).toFixed(6)}</div>
+              <div style="font-size:12px; color:var(--text-muted);">Lat: ${Number(p.lat).toFixed(6)}, Lng: ${Number(p.lng).toFixed(6)}</div>
             </div>
             <div style="display:flex; gap:5px;">
               <button class="btn-outline btn-sm" data-action="editPole" data-id="${p.id}">แก้ไข</button>
@@ -995,7 +1365,7 @@
           </div>
           <div class="pole-details">
             ${summaryHtml}
-            ${p.note ? `<div style="color:#64748b; margin-top:3px;">หมายเหตุ: ${escapeHtml(p.note)}</div>` : ""}
+            ${p.note ? `<div style="color:#94a3b8; margin-top:3px;">หมายเหตุ: ${escapeHtml(p.note)}</div>` : ""}
           </div>
         </div>
       `;
@@ -1020,7 +1390,6 @@
     return parts.join(" | ");
   }
 
-  // 6. Auto BOM Calculation
   function calculateBOM(proj) {
     const installMap = {};
     const removeMap = {};
@@ -1079,7 +1448,7 @@
     const ls = proj.lineSummary || {};
 
     let html = `
-      <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:12px; font-size:12.5px;">
+      <div style="background:#172033; border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:12px; font-size:13px; color:#e2e8f0;">
         <strong>สรุประบบสายและระยะทาง:</strong><br>
         • แรงต่ำรื้อถอน: ${ls.lvRemSystem ? `${ls.lvRemSystem} (${ls.lvRemDist || 0} ${ls.lvRemUnit})` : "-"} |
         • แรงต่ำติดตั้งใหม่: ${ls.lvInsSystem ? `${ls.lvInsSystem} (${ls.lvInsDist || 0} ${ls.lvInsUnit})` : "-"}<br>
@@ -1088,10 +1457,10 @@
       </div>
     `;
 
-    html += `<h4 style="margin:0 0 6px; color:var(--green);">ก. บัญชีวัสดุติดตั้งใหม่ (New Installation)</h4>`;
+    html += `<h4 style="margin:0 0 6px; color:#86efac;">ก. บัญชีวัสดุติดตั้งใหม่ (New Installation)</h4>`;
     html += renderBomTable(installItems, "ไม่มีรายการวัสดุติดตั้งใหม่");
 
-    html += `<h4 style="margin:12px 0 6px; color:var(--red);">ข. บัญชีวัสดุรื้อถอนคืนคลัง (Dismantle / Return)</h4>`;
+    html += `<h4 style="margin:12px 0 6px; color:#fca5a5;">ข. บัญชีวัสดุรื้อถอนคืนคลัง (Dismantle / Return)</h4>`;
     html += renderBomTable(removeItems, "ไม่มีรายการวัสดุรื้อถอน");
 
     container.innerHTML = html;
@@ -1099,7 +1468,7 @@
 
   function renderBomTable(items, emptyText) {
     if (!items.length) {
-      return `<div style="padding:10px; border:1px dashed var(--border); border-radius:6px; color:var(--text-muted); font-size:12.5px; margin-bottom:10px;">${emptyText}</div>`;
+      return `<div style="padding:10px; border:1px dashed var(--border); border-radius:6px; color:var(--text-muted); font-size:13px; margin-bottom:10px;">${emptyText}</div>`;
     }
     return `
       <table class="bom-table">
@@ -1127,7 +1496,6 @@
     `;
   }
 
-  // 7. Dynamic Pole Spec Form Builder
   function createDefaultSpec(system) {
     return {
       system: system,
@@ -1192,7 +1560,6 @@
     const rackOptions = getRackOptionsForPole(spec.poleSize);
     const showBLQuestions = isHV && hasBLHardware(spec);
 
-    // Filter HV Top Hardware
     const hvFilter = spec._hvFilter || "ALL";
     const filteredHv = HV_TOP_HARDWARE.filter(item => {
       if (hvFilter === "1P") return item.system === "1 Phase";
@@ -1224,8 +1591,7 @@
         </div>
 
         ${isHV ? `
-        <!-- อุปกรณ์ประกอบหัวเสาแรงสูง -->
-        <div style="margin-top:10px; padding:10px; background:#fff; border:1px solid var(--border); border-radius:6px;">
+        <div style="margin-top:10px; padding:10px; background:#0f172a; border:1px solid var(--border); border-radius:6px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
             <label style="margin:0;">อุปกรณ์ประกอบหัวเสาแรงสูง (เลือกได้หลายรายการ)</label>
             <div style="display:flex; gap:4px;">
@@ -1253,7 +1619,6 @@
             `).join("")}
           </div>
 
-          <!-- เงื่อนไขพิเศษเมื่อเลือก BL / BL-AL (1 Phase / 3 Phase) -->
           ${showBLQuestions ? `
           <div class="bl-alert-box">
             <h5>⚡ พบหัวเสาชนิด BL / BL-AL — กรุณาระบุอุปกรณ์เพิ่มเติม:</h5>
@@ -1270,10 +1635,9 @@
           </div>` : ""}
         </div>
 
-        <!-- คำถามติดตั้งหม้อแปลง (เฉพาะฝั่งปักเสาแรงสูงใหม่) -->
         ${isInstall ? `
         <div class="tr-box">
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; font-size:13.5px; color:var(--pea-purple-dark);">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; font-size:13.5px; color:#f3e8ff;">
             <input type="checkbox" ${spec.hasTransformer ? "checked" : ""} data-spec-change="hasTransformer" data-role="${role}" style="width:16px; height:16px;" />
             ต้องการติดตั้งหม้อแปลงจำหน่ายบนเสาต้นนี้ด้วยหรือไม่?
           </label>
@@ -1287,8 +1651,7 @@
         </div>` : ""}
         ` : ""}
 
-        <!-- อุปกรณ์จับยึดสายแรงต่ำ (ถามทั้งเสาแรงต่ำและเสาแรงสูง) -->
-        <div style="margin-top:10px; padding:10px; background:#fff; border:1px solid var(--border); border-radius:6px;">
+        <div style="margin-top:10px; padding:10px; background:#0f172a; border:1px solid var(--border); border-radius:6px;">
           <label>อุปกรณ์จับยึดสายแรงต่ำ (กรองตามเสา คอร. ขนาด ${spec.poleSize === "8" || spec.poleSize === "9" ? "8/9" : spec.poleSize} ม. อัตโนมัติ)</label>
           <div style="display:flex; gap:6px;">
             <select id="rackSelect_${role}" style="flex:1;">
@@ -1299,14 +1662,13 @@
           </div>
           <div class="chip-list">
             ${(spec.rackList || []).map((r, i) => `
-              <span class="chip" style="border-color:var(--green); color:#14532d;">${escapeHtml(r.name)} × <strong>${r.qty} ชุด</strong>
+              <span class="chip" style="background:#14532d; border-color:#22c55e; color:#dcfce7;">${escapeHtml(r.name)} × <strong>${r.qty} ชุด</strong>
                 <button type="button" data-action="removeRack" data-role="${role}" data-idx="${i}">✕</button>
               </span>
             `).join("")}
           </div>
         </div>
 
-        <!-- จำนวนชุดยึดโยงแรงต่ำ ล่อฟ้าแรงต่ำ กราวด์แรงต่ำ -->
         <div class="${isHV ? "grid-3" : "grid-2"}" style="margin-top:10px;">
           ${isHV ? `
           <div>
@@ -1326,118 +1688,6 @@
     `;
   }
 
-  // 8. Interactive Canvas Map Engine (Self-Contained)
-  const MAP_CENTER = { lat: 7.7358, lng: 100.0092 };
-  const SCALE = 120000;
-
-  function latLngToCanvas(lat, lng, width, height) {
-    const x = width / 2 + (lng - MAP_CENTER.lng) * SCALE;
-    const y = height / 2 - (lat - MAP_CENTER.lat) * SCALE;
-    return { x, y };
-  }
-
-  function canvasToLatLng(x, y, width, height) {
-    const lng = MAP_CENTER.lng + (x - width / 2) / SCALE;
-    const lat = MAP_CENTER.lat - (y - height / 2) / SCALE;
-    return { lat, lng };
-  }
-
-  function drawMap() {
-    const canvas = document.getElementById("surveyMap");
-    if (!canvas) return;
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width || 600;
-    canvas.height = rect.height || 470;
-    const ctx = canvas.getContext("2d");
-    const w = canvas.width;
-    const h = canvas.height;
-
-    // Background
-    ctx.fillStyle = isSatellite ? "#1e293b" : "#eef2f6";
-    ctx.fillRect(0, 0, w, h);
-
-    // Grid lines
-    ctx.strokeStyle = isSatellite ? "rgba(255,255,255,0.08)" : "rgba(148,163,184,0.35)";
-    ctx.lineWidth = 1;
-    const step = 45;
-    for (let x = 0; x < w; x += step) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-    }
-    for (let y = 0; y < h; y += step) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-    }
-
-    // Simulated local road (อ.ควนขนุน)
-    ctx.strokeStyle = isSatellite ? "#64748b" : "#cbd5e1";
-    ctx.lineWidth = 14;
-    ctx.beginPath();
-    ctx.moveTo(0, h * 0.65);
-    ctx.quadraticCurveTo(w * 0.45, h * 0.45, w, h * 0.35);
-    ctx.stroke();
-
-    ctx.strokeStyle = isSatellite ? "#94a3b8" : "#ffffff";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 8]);
-    ctx.beginPath();
-    ctx.moveTo(0, h * 0.65);
-    ctx.quadraticCurveTo(w * 0.45, h * 0.45, w, h * 0.35);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    const proj = getActiveProject();
-    const poles = proj ? proj.poles : [];
-
-    // Draw line connecting poles
-    if (poles.length > 1) {
-      ctx.strokeStyle = "#6a1b9a";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      poles.forEach((p, i) => {
-        const pt = latLngToCanvas(p.lat, p.lng, w, h);
-        if (i === 0) ctx.moveTo(pt.x, pt.y);
-        else ctx.lineTo(pt.x, pt.y);
-      });
-      ctx.stroke();
-    }
-
-    // Draw poles
-    poles.forEach(p => {
-      const pt = latLngToCanvas(p.lat, p.lng, w, h);
-      let color = "#16a34a";
-      if (p.workType === "REMOVE") color = "#dc2626";
-      else if (p.workType === "SWAP") color = "#2563eb";
-
-      const hasTr = p.installSpec && p.installSpec.hasTransformer;
-
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, hasTr ? 11 : 8, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = hasTr ? "#f59e0b" : "#ffffff";
-      ctx.stroke();
-
-      // Label
-      ctx.font = "bold 12px Sarabun, sans-serif";
-      const label = hasTr ? `${p.code} [TR ${p.installSpec.trSize}]` : p.code;
-      ctx.fillStyle = isSatellite ? "#f8fafc" : "#0f172a";
-      ctx.fillText(label, pt.x + 12, pt.y + 4);
-    });
-
-    // Draw selected cursor pin
-    const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h);
-    ctx.strokeStyle = "#f59e0b";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(selPt.x, selPt.y, 12, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(selPt.x - 16, selPt.y); ctx.lineTo(selPt.x + 16, selPt.y);
-    ctx.moveTo(selPt.x, selPt.y - 16); ctx.lineTo(selPt.x, selPt.y + 16);
-    ctx.stroke();
-  }
-
-  // 9. CSV Export
   function exportCSV() {
     const proj = getActiveProject();
     if (!proj) return;
@@ -1482,7 +1732,7 @@
       .replace(/"/g, "&quot;");
   }
 
-  // 10. Event Delegation (100% CSP Safe)
+  // 4. Event Delegation
   document.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-action]");
     if (!btn) return;
@@ -1497,20 +1747,31 @@
 
     else if (action === "toggleMapMode") {
       isSatellite = !isSatellite;
-      btn.textContent = isSatellite ? "โหมด: ภาพถ่ายดาวเทียม" : "โหมด: แผนที่ถนน";
+      btn.textContent = isSatellite ? "โหมด: ภาพดาวเทียม" : "โหมด: แผนที่ถนน (เข้ม)";
       drawMap();
+    }
+
+    else if (action === "resetMapView") {
+      mapCenter = { lat: selectedCoord.lat, lng: selectedCoord.lng };
+      drawMap();
+    }
+
+    else if (action === "applyManualCoord") {
+      const latVal = parseFloat(document.getElementById("manualLat").value);
+      const lngVal = parseFloat(document.getElementById("manualLng").value);
+      if (Number.isNaN(latVal) || Number.isNaN(lngVal)) {
+        return alert("กรุณากรอกค่า Latitude และ Longitude ให้ถูกต้อง");
+      }
+      setSelectedCoord(latVal, lngVal, true);
     }
 
     else if (action === "getCurrentGPS") {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           pos => {
-            selectedCoord = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            document.getElementById("cursorCoordBadge").textContent =
-              `พิกัดเลือก: ${selectedCoord.lat.toFixed(6)}, ${selectedCoord.lng.toFixed(6)}`;
-            drawMap();
+            setSelectedCoord(pos.coords.latitude, pos.coords.longitude, true);
           },
-          () => alert("ไม่สามารถเข้าถึง GPS ของอุปกรณ์ได้ ระบบใช้พิกัดจำลองพื้นที่ อ.ควนขนุน")
+          () => alert("ไม่สามารถเข้าถึง GPS ของอุปกรณ์ได้ คุณสามารถระบุ Lat/Long เองหรือคลิกบนแผนที่ได้")
         );
       }
     }
@@ -1694,11 +1955,16 @@
       const code = document.getElementById("poleCode").value.trim();
       if (!code) return alert("กรุณาระบุรหัสจุด / เบอร์เสา");
 
+      const latVal = parseFloat(document.getElementById("poleLat").value);
+      const lngVal = parseFloat(document.getElementById("poleLng").value);
+      const finalLat = Number.isNaN(latVal) ? selectedCoord.lat : latVal;
+      const finalLng = Number.isNaN(lngVal) ? selectedCoord.lng : lngVal;
+
       const poleData = {
         id: document.getElementById("editPoleId").value || ("pole-" + Date.now()),
         code,
-        lat: parseFloat(document.getElementById("poleLat").value) || selectedCoord.lat,
-        lng: parseFloat(document.getElementById("poleLng").value) || selectedCoord.lng,
+        lat: finalLat,
+        lng: finalLng,
         workType: document.getElementById("workType").value,
         singleSystem: document.getElementById("singleSystem").value,
         swapMode: document.getElementById("swapMode").value,
@@ -1711,6 +1977,7 @@
       if (existingIdx >= 0) proj.poles[existingIdx] = poleData;
       else proj.poles.push(poleData);
 
+      setSelectedCoord(finalLat, finalLng, false);
       saveData(appState);
       document.getElementById("poleModal").classList.add("hidden");
       renderProjectUI();
@@ -1801,27 +2068,15 @@
     renderBOM();
   }
 
-  // Canvas Click to Pick Coordinates
-  function initCanvasEvents() {
-    const canvas = document.getElementById("surveyMap");
-    canvas.addEventListener("click", (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      selectedCoord = canvasToLatLng(x, y, canvas.width, canvas.height);
-      document.getElementById("cursorCoordBadge").textContent =
-        `พิกัดเลือก: ${selectedCoord.lat.toFixed(6)}, ${selectedCoord.lng.toFixed(6)}`;
-      drawMap();
-    });
-    window.addEventListener("resize", drawMap);
+  function boot() {
+    initCanvasPanAndClick();
+    renderProjectUI();
   }
 
-  // Boot
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => { initCanvasEvents(); renderProjectUI(); });
+    document.addEventListener("DOMContentLoaded", boot);
   } else {
-    initCanvasEvents();
-    renderProjectUI();
+    boot();
   }
 })();
 </script>
