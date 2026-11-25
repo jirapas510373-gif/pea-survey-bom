@@ -54,13 +54,16 @@
     }
     .brand { display: flex; align-items: center; gap: 12px; }
     .brand-badge {
-      background: var(--pea-gold);
-      color: #0f172a;
-      font-weight: 800;
-      padding: 6px 11px;
-      border-radius: 8px;
-      font-size: 16px;
-      letter-spacing: 0.5px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(160deg, rgba(251, 191, 36, 0.22), rgba(15, 23, 42, 0.72));
+      border: 1.5px solid var(--pea-gold);
+      box-shadow: 0 0 14px rgba(251, 191, 36, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
     .brand h1 { margin: 0; font-size: 18px; font-weight: 700; color: #fff; }
     .brand p { margin: 2px 0 0; font-size: 13px; color: #e9d5ff; font-weight: 400; }
@@ -576,7 +579,24 @@
 
 <header>
   <div class="brand">
-    <div class="brand-badge">PEA</div>
+    <div class="brand-badge" aria-label="โลโก้การออกแบบและปักเสาไฟ">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- เส้นนำสายตาการออกแบบ -->
+        <circle cx="16" cy="16" r="12.5" stroke="rgba(253, 224, 71, 0.35)" stroke-width="1.2" stroke-dasharray="2.5 2.5"/>
+        <!-- เสาไฟ คอร. แนวตั้ง -->
+        <path d="M16 6V26" stroke="#fde047" stroke-width="2.6" stroke-linecap="round"/>
+        <!-- คานพาดสายด้านบน -->
+        <path d="M8.5 11.5H23.5" stroke="#ffffff" stroke-width="2.3" stroke-linecap="round"/>
+        <!-- ฉนวนซ้าย-ขวา -->
+        <circle cx="10.5" cy="9.5" r="1.8" fill="#fbbf24"/>
+        <circle cx="21.5" cy="9.5" r="1.8" fill="#fbbf24"/>
+        <!-- สายไฟฟ้าโค้ง -->
+        <path d="M10.5 11.5C12.5 14 14.2 14 16 11.5C17.8 14 19.5 14 21.5 11.5" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- ฐานปักเสาและจุดพิกัด -->
+        <path d="M11.5 26H20.5" stroke="#86efac" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="16" cy="26" r="2.3" fill="#22c55e" stroke="#ffffff" stroke-width="1.2"/>
+      </svg>
+    </div>
     <div>
       <h1>ระบบสำรวจประมาณการงานก่อสร้างและปรับปรุงระบบจำหน่าย</h1>
       <p>การไฟฟ้าส่วนภูมิภาค สาขาควนขนุน (PEA Khuan Khanun Survey & BOM Estimator)</p>
@@ -1107,7 +1127,7 @@
   }
 
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V11";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V12";
   let memoryFallback = null;
 
   function loadData() {
