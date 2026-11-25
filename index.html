@@ -558,7 +558,7 @@
       <p>การไฟฟ้าส่วนภูมิภาค สาขาควนขนุน (PEA Khuan Khanun Survey & BOM Estimator)</p>
     </div>
   </div>
-  <div class="status-pill">● ระบบพร้อมใช้งาน (HD Satellite + Live GPS Pin)</div>
+  <div class="status-pill">● ระบบพร้อมใช้งาน (Multi-HD Satellite + Live GPS Pin)</div>
 </header>
 
 <!-- แถบจัดการแยกโปรเจค -->
@@ -580,7 +580,8 @@
     <div class="card-header">
       <h2>แผนที่พิกัดจุดสำรวจ (ลากเลื่อน / ซูมเข้า-ออก / คลิกปักหมุด)</h2>
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
-        <button class="btn-outline btn-sm" data-action="toggleMapMode" id="btnMapMode">โหมด: แผนที่ถนน (เข้ม)</button>
+        <button class="btn-outline btn-sm" data-action="cycleMapSource" id="btnMapSource">แหล่งภาพ: Google Sat</button>
+        <button class="btn-outline btn-sm" data-action="toggleMapMode" id="btnMapMode">โหมด: ดาวเทียม</button>
         <button class="btn-outline btn-sm" data-action="resetMapView">รีเซ็ตมุมมอง</button>
         <button class="btn-blue btn-sm" data-action="getCurrentGPS">📍 ตำแหน่งปัจจุบัน</button>
         <button class="btn-gold btn-sm" data-action="openAddPoleModal">+ เพิ่มจุดสำรวจ</button>
@@ -594,7 +595,7 @@
       <label for="manualLng">Lng:</label>
       <input type="number" id="manualLng" step="0.000001" value="100.009200" />
       <button type="button" class="btn-primary btn-sm" data-action="applyManualCoord">ไปที่พิกัด & ปักหมุด</button>
-      <span id="satStatusLabel" style="margin-left:auto; font-size:11.5px; color:var(--text-muted);">ดาวเทียม: พร้อมใช้งาน</span>
+      <span id="satStatusLabel" style="margin-left:auto; font-size:11.5px; color:var(--text-muted);">ดาวเทียม: Google Satellite</span>
     </div>
 
     <div class="map-wrapper" id="mapWrapper">
@@ -607,7 +608,7 @@
       <!-- ปุ่มซูมเข้า-ออก -->
       <div class="map-zoom-controls">
         <button type="button" class="zoom-btn" id="btnZoomIn" title="ซูมเข้า (+)">+</button>
-        <span class="zoom-level-text" id="zoomLevelLabel">Z16 (100%)</span>
+        <span class="zoom-level-text" id="zoomLevelLabel">Z18 (100%)</span>
         <button type="button" class="zoom-btn" id="btnZoomOut" title="ซูมออก (-)">−</button>
       </div>
 
@@ -964,7 +965,7 @@
   }
 
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V7";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V8";
   let memoryFallback = null;
 
   function loadData() {
@@ -1113,13 +1114,32 @@
   let selectedCoord = { lat: 7.735800, lng: 100.009200 };
   let mapCenter = { lat: 7.735800, lng: 100.009200 };
   let currentUserLocation = null; // { lat, lng, accuracy }
-  let zoomFloat = 17.0;
-  const MIN_ZOOM = 12.0;
-  const MAX_ZOOM = 19.0;
-  let isSatellite = true;
-  let draftSpecs = { install: null, remove: null };
 
-  // High-resolution Satellite Tile Cache with parent-tile fallback
+  // Calibrated Web Mercator scale so Z18 matches real 256px tile scale cleanly
+  const BASE_Z18_PX_PER_DEG_LNG = (256 * Math.pow(2, 18)) / 360;
+  function getPxPerDegLatForZoom(z) {
+    const latRad = (mapCenter.lat * Math.PI) / 180;
+    const pxPerDegLng = BASE_Z18_PX_PER_DEG_LNG * Math.pow(2, z - 18);
+    return {
+      pxPerDegLng,
+      pxPerDegLat: pxPerDegLng / Math.cos(latRad)
+    };
+  }
+
+  // Default to Z18.0 for crisp pole-level survey detail
+  let zoomFloat = 18.0;
+  const MIN_ZOOM = 13.0;
+  const MAX_ZOOM = 20.0;
+  let isSatellite = true;
+
+  const MAP_SOURCES = [
+    { id: "google_sat", name: "Google Sat", label: "Google Satellite" },
+    { id: "google_hybrid", name: "Google Hybrid", label: "Google Hybrid (ดาวเทียม+ถนน)" },
+    { id: "esri_hd", name: "Esri HD", label: "Esri World Imagery" }
+  ];
+  let mapSourceIndex = 0;
+
+  let draftSpecs = { install: null, remove: null };
   const tileCache = new Map();
 
   function lon2tile(lon, zoom) {
@@ -1137,23 +1157,15 @@
     return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
   }
 
-  function getScaleFactors(z = zoomFloat) {
-    const mult = Math.pow(2, z - 16);
-    return {
-      pxPerDegLng: 750000 * mult,
-      pxPerDegLat: 756000 * mult
-    };
-  }
-
   function latLngToCanvas(lat, lng, width, height, z = zoomFloat) {
-    const { pxPerDegLng, pxPerDegLat } = getScaleFactors(z);
+    const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(z);
     const x = width / 2 + (lng - mapCenter.lng) * pxPerDegLng;
     const y = height / 2 - (lat - mapCenter.lat) * pxPerDegLat;
     return { x, y };
   }
 
   function canvasToLatLng(x, y, width, height, z = zoomFloat) {
-    const { pxPerDegLng, pxPerDegLat } = getScaleFactors(z);
+    const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(z);
     const lng = mapCenter.lng + (x - width / 2) / pxPerDegLng;
     const lat = mapCenter.lat - (y - height / 2) / pxPerDegLat;
     return { lat, lng };
@@ -1167,7 +1179,7 @@
     if (anchorPixel && canvas) {
       const beforeCoord = canvasToLatLng(anchorPixel.x, anchorPixel.y, canvas.width, canvas.height, zoomFloat);
       zoomFloat = nextZoom;
-      const { pxPerDegLng, pxPerDegLat } = getScaleFactors(zoomFloat);
+      const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(zoomFloat);
       mapCenter.lng = beforeCoord.lng - (anchorPixel.x - canvas.width / 2) / pxPerDegLng;
       mapCenter.lat = beforeCoord.lat + (anchorPixel.y - canvas.height / 2) / pxPerDegLat;
     } else {
@@ -1186,13 +1198,25 @@
   function updateZoomBadge() {
     const label = document.getElementById("zoomLevelLabel");
     if (label) {
-      const pct = Math.round(Math.pow(2, zoomFloat - 16) * 100);
+      const pct = Math.round(Math.pow(2, zoomFloat - 18) * 100);
       label.textContent = `Z${Math.round(zoomFloat)} (${pct}%)`;
     }
   }
 
-  function requestSatelliteTile(tx, ty, z) {
-    const key = `${z}/${tx}/${ty}`;
+  function getTileUrl(sourceId, tx, ty, z) {
+    if (sourceId === "google_sat") {
+      const srv = (tx + ty) % 4;
+      return `https://mt${srv}.google.com/vt/lyrs=s&x=${tx}&y=${ty}&z=${z}`;
+    }
+    if (sourceId === "google_hybrid") {
+      const srv = (tx + ty) % 4;
+      return `https://mt${srv}.google.com/vt/lyrs=y&x=${tx}&y=${ty}&z=${z}`;
+    }
+    return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`;
+  }
+
+  function requestSatelliteTile(sourceId, tx, ty, z) {
+    const key = `${sourceId}/${z}/${tx}/${ty}`;
     if (tileCache.has(key)) {
       return tileCache.get(key);
     }
@@ -1201,35 +1225,44 @@
 
     entry.img.onload = () => {
       entry.loaded = true;
-      updateSatStatusLabel(`ดาวเทียม: Esri HD (Z${z})`);
+      const srcObj = MAP_SOURCES.find(s => s.id === sourceId);
+      updateSatStatusLabel(`ดาวเทียม: ${srcObj ? srcObj.label : sourceId} (Z${z})`);
       drawMap();
     };
     entry.img.onerror = () => {
       entry.failed = true;
-      updateSatStatusLabel("ดาวเทียม: บางไทล์ไม่พร้อมใช้งานที่ระดับซูมนี้");
-      drawMap();
+      // Fallback automatically to Esri if Google tile fails
+      if (sourceId !== "esri_hd") {
+        requestSatelliteTile("esri_hd", tx, ty, z);
+      }
     };
-    entry.img.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`;
+    entry.img.src = getTileUrl(sourceId, tx, ty, z);
     tileCache.set(key, entry);
     return entry;
   }
 
-  function drawTileWithFallback(ctx, tx, ty, tileZ, p1, p2, w, h) {
+  function drawTileWithFallback(ctx, sourceId, tx, ty, tileZ, p1, p2) {
     const tw = Math.ceil(p2.x - p1.x) + 1;
     const th = Math.ceil(p2.y - p1.y) + 1;
-    const tile = requestSatelliteTile(tx, ty, tileZ);
 
-    if (tile.loaded) {
-      ctx.drawImage(tile.img, p1.x, p1.y, tw, th);
+    const primary = requestSatelliteTile(sourceId, tx, ty, tileZ);
+    if (primary.loaded) {
+      ctx.drawImage(primary.img, p1.x, p1.y, tw, th);
       return;
     }
 
-    // Fallback to parent tile (z-1) slice while loading so zoomed satellite stays crisp/readable
-    if (tileZ > 12) {
+    const esriFallback = (sourceId !== "esri_hd") ? requestSatelliteTile("esri_hd", tx, ty, tileZ) : null;
+    if (esriFallback && esriFallback.loaded) {
+      ctx.drawImage(esriFallback.img, p1.x, p1.y, tw, th);
+      return;
+    }
+
+    // Parent tile crop while loading current zoom tile
+    if (tileZ > 13) {
       const parentZ = tileZ - 1;
       const ptx = Math.floor(tx / 2);
       const pty = Math.floor(ty / 2);
-      const parentEntry = tileCache.get(`${parentZ}/${ptx}/${pty}`);
+      const parentEntry = tileCache.get(`${sourceId}/${parentZ}/${ptx}/${pty}`) || tileCache.get(`esri_hd/${parentZ}/${ptx}/${pty}`);
       if (parentEntry && parentEntry.loaded) {
         const subX = (tx % 2) * 128;
         const subY = (ty % 2) * 128;
@@ -1240,8 +1273,6 @@
 
     ctx.fillStyle = ((tx + ty) % 2 === 0) ? "#131c2e" : "#172238";
     ctx.fillRect(p1.x, p1.y, tw, th);
-    ctx.strokeStyle = "rgba(148,163,184,0.12)";
-    ctx.strokeRect(p1.x, p1.y, tw, th);
   }
 
   function updateSatStatusLabel(text) {
@@ -1304,14 +1335,16 @@
 
     const w = canvas.width;
     const h = canvas.height;
-    const { pxPerDegLng, pxPerDegLat } = getScaleFactors(zoomFloat);
+    const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(zoomFloat);
 
-    ctx.fillStyle = isSatellite ? "#0b1320" : "#0f172a";
+    ctx.fillStyle = "#0b1320";
     ctx.fillRect(0, 0, w, h);
 
+    const activeSrc = MAP_SOURCES[mapSourceIndex] || MAP_SOURCES[0];
+
     if (isSatellite) {
-      // Request high-detail tiles up to Z19 when zoomed in closely
-      const tileZ = Math.max(12, Math.min(19, Math.ceil(zoomFloat)));
+      // Cap tile fetch at Z19 for wide satellite availability while supporting up to Z20 canvas zoom
+      const tileZ = Math.max(13, Math.min(19, Math.round(zoomFloat)));
       const topLeft = canvasToLatLng(0, 0, w, h, zoomFloat);
       const bottomRight = canvasToLatLng(w, h, w, h, zoomFloat);
 
@@ -1329,15 +1362,13 @@
 
           const p1 = latLngToCanvas(tLat1, tLng1, w, h, zoomFloat);
           const p2 = latLngToCanvas(tLat2, tLng2, w, h, zoomFloat);
-          drawTileWithFallback(ctx, tx, ty, tileZ, p1, p2, w, h);
+          drawTileWithFallback(ctx, activeSrc.id, tx, ty, tileZ, p1, p2);
         }
       }
-      ctx.fillStyle = "rgba(2, 6, 23, 0.14)";
-      ctx.fillRect(0, 0, w, h);
     } else {
       ctx.strokeStyle = "rgba(148, 163, 184, 0.16)";
       ctx.lineWidth = 1;
-      const step = Math.max(18, Math.min(120, 48 * Math.pow(2, zoomFloat - 16)));
+      const step = Math.max(24, Math.min(140, 64 * Math.pow(2, zoomFloat - 18)));
       const offsetX = ((w / 2 - mapCenter.lng * pxPerDegLng) % step + step) % step;
       const offsetY = ((h / 2 + mapCenter.lat * pxPerDegLat) % step + step) % step;
 
@@ -1351,7 +1382,7 @@
       const rStart = latLngToCanvas(7.7354, 100.0055, w, h, zoomFloat);
       const rMid = latLngToCanvas(7.7360, 100.0090, w, h, zoomFloat);
       const rEnd = latLngToCanvas(7.7364, 100.0130, w, h, zoomFloat);
-      const roadW = Math.max(4, 14 * Math.pow(2, zoomFloat - 16));
+      const roadW = Math.max(6, 18 * Math.pow(2, zoomFloat - 18));
 
       ctx.strokeStyle = "#263349";
       ctx.lineWidth = roadW;
@@ -1361,7 +1392,7 @@
       ctx.stroke();
 
       ctx.strokeStyle = "#64748b";
-      ctx.lineWidth = Math.max(1, 2 * Math.pow(2, (zoomFloat - 16) * 0.5));
+      ctx.lineWidth = Math.max(1.5, 2.5);
       ctx.setLineDash([10, 8]);
       ctx.beginPath();
       ctx.moveTo(rStart.x, rStart.y);
@@ -1404,7 +1435,7 @@
       ctx.font = "700 13px 'Sarabun', sans-serif";
       const label = hasTr ? `${p.code} [TR ${p.installSpec.trSize}]` : p.code;
       const textW = ctx.measureText(label).width;
-      ctx.fillStyle = "rgba(9, 13, 22, 0.78)";
+      ctx.fillStyle = "rgba(9, 13, 22, 0.82)";
       ctx.fillRect(pt.x + 11, pt.y - 10, textW + 8, 18);
       ctx.fillStyle = "#f8fafc";
       ctx.fillText(label, pt.x + 15, pt.y + 4);
@@ -1489,7 +1520,7 @@
       lastX = clientX;
       lastY = clientY;
 
-      const { pxPerDegLng, pxPerDegLat } = getScaleFactors(zoomFloat);
+      const { pxPerDegLng, pxPerDegLat } = getPxPerDegLatForZoom(zoomFloat);
       mapCenter.lng -= dx / pxPerDegLng;
       mapCenter.lat += dy / pxPerDegLat;
       drawMap();
@@ -1615,9 +1646,13 @@
     document.getElementById("hvInsUnit").value = ls.hvInsUnit || "เมตร";
     document.getElementById("hvInsDistWrap").classList.toggle("hidden", !ls.hvInsSystem);
 
+    const activeSrc = MAP_SOURCES[mapSourceIndex] || MAP_SOURCES[0];
+    const srcBtn = document.getElementById("btnMapSource");
+    if (srcBtn) srcBtn.textContent = `แหล่งภาพ: ${activeSrc.name}`;
+
     const mapModeBtn = document.getElementById("btnMapMode");
     if (mapModeBtn) {
-      mapModeBtn.textContent = isSatellite ? "โหมด: ภาพดาวเทียม HD" : "โหมด: แผนที่ถนน (เข้ม)";
+      mapModeBtn.textContent = isSatellite ? "โหมด: ดาวเทียม" : "โหมด: ตารางเส้น";
     }
 
     updateZoomBadge();
@@ -2063,15 +2098,23 @@
       renderSpecForms(false);
     }
 
+    else if (action === "cycleMapSource") {
+      mapSourceIndex = (mapSourceIndex + 1) % MAP_SOURCES.length;
+      const activeSrc = MAP_SOURCES[mapSourceIndex];
+      btn.textContent = `แหล่งภาพ: ${activeSrc.name}`;
+      updateSatStatusLabel(`ดาวเทียม: ${activeSrc.label}`);
+      drawMap();
+    }
+
     else if (action === "toggleMapMode") {
       isSatellite = !isSatellite;
-      btn.textContent = isSatellite ? "โหมด: ภาพดาวเทียม HD" : "โหมด: แผนที่ถนน (เข้ม)";
+      btn.textContent = isSatellite ? "โหมด: ดาวเทียม" : "โหมด: ตารางเส้น";
       drawMap();
     }
 
     else if (action === "resetMapView") {
       mapCenter = { lat: selectedCoord.lat, lng: selectedCoord.lng };
-      zoomFloat = 17.0;
+      zoomFloat = 18.0;
       updateZoomBadge();
       drawMap();
     }
