@@ -1264,24 +1264,6 @@
     );
   }
 
-  function hasBAHardware(spec) {
-    return (spec.hvTopList || []).some(h =>
-      h.name === "BA (1 Phase)" ||
-      h.name === "BA (3 Phase)" ||
-      h.name === "BA-AL (1 Phase)" ||
-      h.name === "BA-AL (3 Phase)"
-    );
-  }
-
-  function shouldAskHotlineBailClamp(spec, isInstall) {
-    if (!spec || spec.system !== "HV") return false;
-    return hasBAHardware(spec) || (isInstall && Boolean(spec.hasTransformer));
-  }
-
-  function hasRackSelected(spec) {
-    return Array.isArray(spec.rackList) && spec.rackList.length > 0;
-  }
-
   function renderSpecForms(keepDraft = false) {
     if (!keepDraft) syncDraftSpecsWithMode();
     const workType = document.getElementById("workType").value;
@@ -1309,8 +1291,8 @@
     const poleSizes = isHV ? POLE_SIZES_HV : POLE_SIZES_LV;
     const rackOptions = getRackOptionsForPole(spec.poleSize);
     const showBLQuestions = isHV && hasBLHardware(spec);
-    const showClampQuestions = shouldAskHotlineBailClamp(spec, isInstall);
-    const showConnectorBox = hasRackSelected(spec);
+    const showClampQuestions = isHV;
+    const showConnectorBox = isHV;
 
     const hvFilter = spec._hvFilter || "ALL";
     const filteredHv = HV_TOP_HARDWARE.filter(item => {
@@ -1816,11 +1798,6 @@
         draftSpecs[role].dropoutQty = 0;
         draftSpecs[role].tr202Qty = 0;
       }
-      if (!shouldAskHotlineBailClamp(draftSpecs[role], role === "install")) {
-        draftSpecs[role].hasHotlineBailClamp = false;
-        draftSpecs[role].hotlineClampList = [];
-        draftSpecs[role].bailClampList = [];
-      }
       renderSpecForms(true);
     }
 
@@ -1877,9 +1854,6 @@
       const role = btn.dataset.role;
       const idx = parseInt(btn.dataset.idx, 10);
       draftSpecs[role].rackList.splice(idx, 1);
-      if (!hasRackSelected(draftSpecs[role])) {
-        draftSpecs[role].connectorList = [];
-      }
       renderSpecForms(true);
     }
 
@@ -1976,11 +1950,6 @@
       const field = el.dataset.specChange;
       if (field === "hasTransformer") {
         draftSpecs[role].hasTransformer = el.checked;
-        if (!shouldAskHotlineBailClamp(draftSpecs[role], role === "install")) {
-          draftSpecs[role].hasHotlineBailClamp = false;
-          draftSpecs[role].hotlineClampList = [];
-          draftSpecs[role].bailClampList = [];
-        }
         renderSpecForms(true);
       } else if (field === "hasHotlineBailClamp") {
         draftSpecs[role].hasHotlineBailClamp = el.checked;
@@ -1994,13 +1963,11 @@
       } else if (field === "poleSize") {
         draftSpecs[role].poleSize = el.value;
         draftSpecs[role].rackList = [];
-        draftSpecs[role].connectorList = [];
         if (document.getElementById("workType").value === "SWAP_HEAD") {
           const otherRole = role === "remove" ? "install" : "remove";
           if (draftSpecs[otherRole]) {
             draftSpecs[otherRole].poleSize = el.value;
             draftSpecs[otherRole].rackList = [];
-            draftSpecs[otherRole].connectorList = [];
           }
         }
         renderSpecForms(true);
