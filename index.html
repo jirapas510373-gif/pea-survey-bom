@@ -657,6 +657,15 @@
     }
     .bl-alert-box h5 { margin: 0 0 8px; color: #fde047; font-size: 13.5px; font-weight: 700; }
 
+    .clamp-alert-box {
+      margin-top: 10px;
+      padding: 11px;
+      background: rgba(56, 189, 248, 0.11);
+      border: 1.5px solid #38bdf8;
+      border-radius: 8px;
+    }
+    .clamp-alert-box h5 { margin: 0 0 8px; color: #7dd3fc; font-size: 13.5px; font-weight: 700; }
+
     .tr-box {
       margin-top: 10px;
       padding: 11px;
@@ -1194,6 +1203,18 @@
     { type: "INSULATOR SUPPENSION", system: "" }
   ];
 
+  const HOTLINE_CLAMP_OPTIONS = [
+    "HOTLINE CLAMP 50 ต.มม.",
+    "HOTLINE CLAMP 95 ต.มม.",
+    "HOTLINE CLAMP 185 ต.มม."
+  ];
+
+  const BAIL_CLAMP_OPTIONS = [
+    "BAIL CLAMP 50 ต.มม.",
+    "BAIL CLAMP 95 ต.มม.",
+    "BAIL CLAMP 185 ต.มม."
+  ];
+
   const POLE_SIZES_LV = ["8", "9"];
   const POLE_SIZES_HV = ["12", "12.2", "14", "14.3"];
   const TR_SIZES = ["30 kVA", "50 kVA", "100 kVA", "160 kVA", "250 kVA", "315 kVA", "400 kVA", "500 kVA", "800 kVA", "1000 kVA"];
@@ -1248,7 +1269,7 @@
   }
 
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V14";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V16";
   let memoryFallback = null;
 
   function loadData() {
@@ -1300,6 +1321,9 @@
                 poleSize: "12.2",
                 concreteBase: true,
                 hvTopList: [{ name: "DE-AL (3 Phase)", qty: 1 }],
+                hasHotlineBailClamp: false,
+                hotlineClampList: [],
+                bailClampList: [],
                 dropoutQty: 0,
                 tr202Qty: 0,
                 hasTransformer: false,
@@ -1328,6 +1352,9 @@
                 poleSize: "12.2",
                 concreteBase: false,
                 hvTopList: [{ name: "BL-AL (3 Phase)", qty: 1 }],
+                hasHotlineBailClamp: true,
+                hotlineClampList: [{ name: "HOTLINE CLAMP 50 ต.มม.", qty: 3 }],
+                bailClampList: [{ name: "BAIL CLAMP 50 ต.มม.", qty: 3 }],
                 dropoutQty: 3,
                 tr202Qty: 3,
                 hasTransformer: true,
@@ -1371,6 +1398,9 @@
                 poleSize: "8",
                 concreteBase: false,
                 hvTopList: [],
+                hasHotlineBailClamp: false,
+                hotlineClampList: [],
+                bailClampList: [],
                 dropoutQty: 0,
                 tr202Qty: 0,
                 hasTransformer: false,
@@ -1386,6 +1416,9 @@
                 poleSize: "9",
                 concreteBase: false,
                 hvTopList: [],
+                hasHotlineBailClamp: false,
+                hotlineClampList: [],
+                bailClampList: [],
                 dropoutQty: 0,
                 tr202Qty: 0,
                 hasTransformer: false,
@@ -2117,11 +2150,19 @@
       : `เสา คอร. ${spec.poleSize} ม. (${spec.system})`;
     const parts = [poleLabel];
 
-    if (!isHeadOnly && isInstall && spec.concreteBase) {
+    if (isInstall && spec.concreteBase) {
       parts.push("เทคอนกรีตหุ้มโคนเสา");
     }
     if (spec.hvTopList && spec.hvTopList.length) {
       parts.push("หัวเสา: " + spec.hvTopList.map(h => `${h.name} x${h.qty}`).join(", "));
+    }
+    if (spec.hasHotlineBailClamp) {
+      if (spec.hotlineClampList && spec.hotlineClampList.length) {
+        parts.push("Hotline Clamp: " + spec.hotlineClampList.map(c => `${c.name} x${c.qty}`).join(", "));
+      }
+      if (spec.bailClampList && spec.bailClampList.length) {
+        parts.push("Bail Clamp: " + spec.bailClampList.map(c => `${c.name} x${c.qty}`).join(", "));
+      }
     }
     if (spec.dropoutQty > 0) parts.push(`Dropout Fuse x${spec.dropoutQty}`);
     if (spec.tr202Qty > 0) parts.push(`TR-202 x${spec.tr202Qty}`);
@@ -2153,14 +2194,22 @@
 
       if (includePole) {
         addItem(targetMap, vLevel, "1. เสาไฟฟ้า คอร.", `เสาไฟฟ้า คอร. ขนาด ${spec.poleSize} เมตร (${spec.system})`, "ต้น", 1);
-        if (isInstall && spec.concreteBase) {
-          addItem(targetMap, vLevel, "1. เสาไฟฟ้า คอร.", `งานเทคอนกรีตหุ้มโคนเสา (${spec.system})`, "หลุม", 1);
-        }
       }
-      // อุปกรณ์หัวเสาแรงสูง / Dropout / TR-202 / หม้อแปลง / GY-33 จัดเป็นหมวด HV
+      if (isInstall && spec.concreteBase) {
+        addItem(targetMap, vLevel, "1. เสาไฟฟ้า คอร.", `งานเทคอนกรีตหุ้มโคนเสา (${spec.system})`, "หลุม", 1);
+      }
+      // อุปกรณ์หัวเสาแรงสูง / HOTLINE & BAIL CLAMP / Dropout / TR-202 / หม้อแปลง / GY-33 จัดเป็นหมวด HV
       (spec.hvTopList || []).forEach(h => {
         addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", h.name, "ชุด", h.qty);
       });
+      if (spec.hasHotlineBailClamp) {
+        (spec.hotlineClampList || []).forEach(c => {
+          addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", c.name, "ชุด", c.qty);
+        });
+        (spec.bailClampList || []).forEach(c => {
+          addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", c.name, "ชุด", c.qty);
+        });
+      }
       if (spec.dropoutQty > 0) {
         addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", "ชุดฟิวส์ตัดตอนแรงสูง (Dropout Fuse)", "ชุด", spec.dropoutQty);
       }
@@ -2309,6 +2358,9 @@
       poleSize: system === "HV" ? "12.2" : "8",
       concreteBase: false,
       hvTopList: [],
+      hasHotlineBailClamp: false,
+      hotlineClampList: [],
+      bailClampList: [],
       dropoutQty: 0,
       tr202Qty: 0,
       hasTransformer: false,
@@ -2336,7 +2388,6 @@
       if (!draftSpecs.remove || draftSpecs.remove.system !== sys) draftSpecs.remove = createDefaultSpec(sys);
       if (!draftSpecs.install || draftSpecs.install.system !== sys) draftSpecs.install = createDefaultSpec(sys);
       draftSpecs.install.poleSize = draftSpecs.remove.poleSize;
-      draftSpecs.install.concreteBase = false;
     } else {
       const mode = document.getElementById("swapMode").value;
       syncSwapIconUI(mode);
@@ -2353,6 +2404,20 @@
       h.name === "BL-AL (1 Phase)" ||
       h.name === "BL-AL (3 Phase)"
     );
+  }
+
+  function hasBAHardware(spec) {
+    return (spec.hvTopList || []).some(h =>
+      h.name === "BA (1 Phase)" ||
+      h.name === "BA (3 Phase)" ||
+      h.name === "BA-AL (1 Phase)" ||
+      h.name === "BA-AL (3 Phase)"
+    );
+  }
+
+  function shouldAskHotlineBailClamp(spec, isInstall) {
+    if (!spec || spec.system !== "HV") return false;
+    return hasBAHardware(spec) || (isInstall && Boolean(spec.hasTransformer));
   }
 
   function renderSpecForms(keepDraft = false) {
@@ -2382,6 +2447,7 @@
     const poleSizes = isHV ? POLE_SIZES_HV : POLE_SIZES_LV;
     const rackOptions = getRackOptionsForPole(spec.poleSize);
     const showBLQuestions = isHV && hasBLHardware(spec);
+    const showClampQuestions = shouldAskHotlineBailClamp(spec, isInstall);
 
     const hvFilter = spec._hvFilter || "ALL";
     const filteredHv = HV_TOP_HARDWARE.filter(item => {
@@ -2421,7 +2487,7 @@
           </div>`}
         </div>
 
-        ${isInstall && !isHeadOnly ? `
+        ${isInstall ? `
         <div class="concrete-check-row">
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#fde68a;">
             <input type="checkbox" ${spec.concreteBase ? "checked" : ""} data-spec-change="concreteBase" data-role="${role}" style="width:16px; height:16px;" />
@@ -2486,6 +2552,52 @@
             <select data-spec-change="trSize" data-role="${role}">
               ${TR_SIZES.map(sz => `<option value="${sz}" ${spec.trSize === sz ? "selected" : ""}>${sz}</option>`).join("")}
             </select>
+          </div>` : ""}
+        </div>` : ""}
+
+        ${showClampQuestions ? `
+        <div class="clamp-alert-box">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; font-size:13.5px; color:#7dd3fc;">
+            <input type="checkbox" ${spec.hasHotlineBailClamp ? "checked" : ""} data-spec-change="hasHotlineBailClamp" data-role="${role}" style="width:16px; height:16px;" />
+            มีการติดตั้ง HOTLINE / BAIL CLAMP หรือไม่?
+          </label>
+          ${spec.hasHotlineBailClamp ? `
+          <div class="grid-2" style="margin-top:10px;">
+            <div style="padding:9px; background:#0f172a; border:1px solid rgba(56, 189, 248, 0.35); border-radius:8px;">
+              <label>เลือกรายการ HOTLINE CLAMP</label>
+              <div style="display:flex; gap:6px;">
+                <select id="hotlineSelect_${role}" style="flex:1;">
+                  ${HOTLINE_CLAMP_OPTIONS.map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join("")}
+                </select>
+                <input type="number" id="hotlineQty_${role}" min="1" value="1" style="width:68px;" />
+                <button type="button" class="btn-blue btn-sm" data-action="addHotlineClamp" data-role="${role}">+ เพิ่ม</button>
+              </div>
+              <div class="chip-list">
+                ${(spec.hotlineClampList || []).map((c, i) => `
+                  <span class="chip" style="background:#0c4a6e; border-color:#38bdf8; color:#e0f2fe;">${escapeHtml(c.name)} × <strong>${c.qty} ชุด</strong>
+                    <button type="button" data-action="removeHotlineClamp" data-role="${role}" data-idx="${i}">✕</button>
+                  </span>
+                `).join("")}
+              </div>
+            </div>
+
+            <div style="padding:9px; background:#0f172a; border:1px solid rgba(56, 189, 248, 0.35); border-radius:8px;">
+              <label>เลือกรายการ BAIL CLAMP</label>
+              <div style="display:flex; gap:6px;">
+                <select id="bailSelect_${role}" style="flex:1;">
+                  ${BAIL_CLAMP_OPTIONS.map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join("")}
+                </select>
+                <input type="number" id="bailQty_${role}" min="1" value="1" style="width:68px;" />
+                <button type="button" class="btn-blue btn-sm" data-action="addBailClamp" data-role="${role}">+ เพิ่ม</button>
+              </div>
+              <div class="chip-list">
+                ${(spec.bailClampList || []).map((c, i) => `
+                  <span class="chip" style="background:#0c4a6e; border-color:#38bdf8; color:#e0f2fe;">${escapeHtml(c.name)} × <strong>${c.qty} ชุด</strong>
+                    <button type="button" data-action="removeBailClamp" data-role="${role}" data-idx="${i}">✕</button>
+                  </span>
+                `).join("")}
+              </div>
+            </div>
           </div>` : ""}
         </div>` : ""}
         ` : ""}
@@ -2773,6 +2885,13 @@
         install: pole.installSpec ? JSON.parse(JSON.stringify(pole.installSpec)) : null,
         remove: pole.removeSpec ? JSON.parse(JSON.stringify(pole.removeSpec)) : null
       };
+      ["install", "remove"].forEach(r => {
+        if (draftSpecs[r]) {
+          draftSpecs[r].hasHotlineBailClamp = Boolean(draftSpecs[r].hasHotlineBailClamp);
+          draftSpecs[r].hotlineClampList = draftSpecs[r].hotlineClampList || [];
+          draftSpecs[r].bailClampList = draftSpecs[r].bailClampList || [];
+        }
+      });
       renderSpecForms(true);
       document.getElementById("poleModal").classList.remove("hidden");
     }
@@ -2814,6 +2933,49 @@
         draftSpecs[role].dropoutQty = 0;
         draftSpecs[role].tr202Qty = 0;
       }
+      if (!shouldAskHotlineBailClamp(draftSpecs[role], role === "install")) {
+        draftSpecs[role].hasHotlineBailClamp = false;
+        draftSpecs[role].hotlineClampList = [];
+        draftSpecs[role].bailClampList = [];
+      }
+      renderSpecForms(true);
+    }
+
+    else if (action === "addHotlineClamp") {
+      const role = btn.dataset.role;
+      const name = document.getElementById(`hotlineSelect_${role}`).value;
+      const qty = Math.max(1, parseInt(document.getElementById(`hotlineQty_${role}`).value, 10) || 1);
+      if (!draftSpecs[role].hotlineClampList) draftSpecs[role].hotlineClampList = [];
+      const list = draftSpecs[role].hotlineClampList;
+      const existing = list.find(i => i.name === name);
+      if (existing) existing.qty += qty;
+      else list.push({ name, qty });
+      renderSpecForms(true);
+    }
+
+    else if (action === "removeHotlineClamp") {
+      const role = btn.dataset.role;
+      const idx = parseInt(btn.dataset.idx, 10);
+      draftSpecs[role].hotlineClampList.splice(idx, 1);
+      renderSpecForms(true);
+    }
+
+    else if (action === "addBailClamp") {
+      const role = btn.dataset.role;
+      const name = document.getElementById(`bailSelect_${role}`).value;
+      const qty = Math.max(1, parseInt(document.getElementById(`bailQty_${role}`).value, 10) || 1);
+      if (!draftSpecs[role].bailClampList) draftSpecs[role].bailClampList = [];
+      const list = draftSpecs[role].bailClampList;
+      const existing = list.find(i => i.name === name);
+      if (existing) existing.qty += qty;
+      else list.push({ name, qty });
+      renderSpecForms(true);
+    }
+
+    else if (action === "removeBailClamp") {
+      const role = btn.dataset.role;
+      const idx = parseInt(btn.dataset.idx, 10);
+      draftSpecs[role].bailClampList.splice(idx, 1);
       renderSpecForms(true);
     }
 
@@ -2909,6 +3071,18 @@
       const field = el.dataset.specChange;
       if (field === "hasTransformer") {
         draftSpecs[role].hasTransformer = el.checked;
+        if (!shouldAskHotlineBailClamp(draftSpecs[role], role === "install")) {
+          draftSpecs[role].hasHotlineBailClamp = false;
+          draftSpecs[role].hotlineClampList = [];
+          draftSpecs[role].bailClampList = [];
+        }
+        renderSpecForms(true);
+      } else if (field === "hasHotlineBailClamp") {
+        draftSpecs[role].hasHotlineBailClamp = el.checked;
+        if (!el.checked) {
+          draftSpecs[role].hotlineClampList = [];
+          draftSpecs[role].bailClampList = [];
+        }
         renderSpecForms(true);
       } else if (field === "concreteBase") {
         draftSpecs[role].concreteBase = el.checked;
