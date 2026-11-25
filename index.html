@@ -558,7 +558,7 @@
       <p>การไฟฟ้าส่วนภูมิภาค สาขาควนขนุน (PEA Khuan Khanun Survey & BOM Estimator)</p>
     </div>
   </div>
-  <div class="status-pill">● ระบบพร้อมใช้งาน (Dark Mode + Smooth Zoom & Icons)</div>
+  <div class="status-pill">● ระบบพร้อมใช้งาน (HD Satellite + Live GPS Pin)</div>
 </header>
 
 <!-- แถบจัดการแยกโปรเจค -->
@@ -582,7 +582,7 @@
       <div style="display:flex; gap:6px; flex-wrap:wrap;">
         <button class="btn-outline btn-sm" data-action="toggleMapMode" id="btnMapMode">โหมด: แผนที่ถนน (เข้ม)</button>
         <button class="btn-outline btn-sm" data-action="resetMapView">รีเซ็ตมุมมอง</button>
-        <button class="btn-blue btn-sm" data-action="getCurrentGPS">📍 GPS ปัจจุบัน</button>
+        <button class="btn-blue btn-sm" data-action="getCurrentGPS">📍 ตำแหน่งปัจจุบัน</button>
         <button class="btn-gold btn-sm" data-action="openAddPoleModal">+ เพิ่มจุดสำรวจ</button>
       </div>
     </div>
@@ -607,7 +607,7 @@
       <!-- ปุ่มซูมเข้า-ออก -->
       <div class="map-zoom-controls">
         <button type="button" class="zoom-btn" id="btnZoomIn" title="ซูมเข้า (+)">+</button>
-        <span class="zoom-level-text" id="zoomLevelLabel">Z16</span>
+        <span class="zoom-level-text" id="zoomLevelLabel">Z16 (100%)</span>
         <button type="button" class="zoom-btn" id="btnZoomOut" title="ซูมออก (-)">−</button>
       </div>
 
@@ -615,6 +615,7 @@
     </div>
 
     <div class="map-legend">
+      <div class="legend-item"><span class="dot" style="background:#38bdf8; box-shadow:0 0 0 3px rgba(56,189,248,0.3);"></span> ตำแหน่งปัจจุบัน</div>
       <div class="legend-item"><span class="dot" style="background:#22c55e;"></span> ปักเสาใหม่</div>
       <div class="legend-item"><span class="dot" style="background:#ef4444;"></span> รื้อถอนเสา</div>
       <div class="legend-item"><span class="dot" style="background:#3b82f6;"></span> สับเปลี่ยนเสา</div>
@@ -963,7 +964,7 @@
   }
 
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V6";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V7";
   let memoryFallback = null;
 
   function loadData() {
@@ -1111,13 +1112,14 @@
   let appState = loadData();
   let selectedCoord = { lat: 7.735800, lng: 100.009200 };
   let mapCenter = { lat: 7.735800, lng: 100.009200 };
-  let zoomFloat = 16.0;
+  let currentUserLocation = null; // { lat, lng, accuracy }
+  let zoomFloat = 17.0;
   const MIN_ZOOM = 12.0;
   const MAX_ZOOM = 19.0;
-  let isSatellite = false;
+  let isSatellite = true;
   let draftSpecs = { install: null, remove: null };
 
-  // Continuous Zoom Web Mercator Projection
+  // High-resolution Satellite Tile Cache with parent-tile fallback
   const tileCache = new Map();
 
   function lon2tile(lon, zoom) {
@@ -1189,28 +1191,57 @@
     }
   }
 
-  function getSatelliteTile(tx, ty, z) {
+  function requestSatelliteTile(tx, ty, z) {
     const key = `${z}/${tx}/${ty}`;
     if (tileCache.has(key)) {
       return tileCache.get(key);
     }
     const entry = { img: new Image(), loaded: false, failed: false };
     entry.img.crossOrigin = "anonymous";
-    updateSatStatusLabel(`กำลังโหลดดาวเทียม (Z${z})...`);
 
     entry.img.onload = () => {
       entry.loaded = true;
-      updateSatStatusLabel(`ดาวเทียม: Esri World Imagery (Z${z})`);
+      updateSatStatusLabel(`ดาวเทียม: Esri HD (Z${z})`);
       drawMap();
     };
     entry.img.onerror = () => {
       entry.failed = true;
-      updateSatStatusLabel("ดาวเทียม: โหมดจำลองภูมิประเทศ (ออฟไลน์/บล็อก)");
+      updateSatStatusLabel("ดาวเทียม: บางไทล์ไม่พร้อมใช้งานที่ระดับซูมนี้");
       drawMap();
     };
     entry.img.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`;
     tileCache.set(key, entry);
     return entry;
+  }
+
+  function drawTileWithFallback(ctx, tx, ty, tileZ, p1, p2, w, h) {
+    const tw = Math.ceil(p2.x - p1.x) + 1;
+    const th = Math.ceil(p2.y - p1.y) + 1;
+    const tile = requestSatelliteTile(tx, ty, tileZ);
+
+    if (tile.loaded) {
+      ctx.drawImage(tile.img, p1.x, p1.y, tw, th);
+      return;
+    }
+
+    // Fallback to parent tile (z-1) slice while loading so zoomed satellite stays crisp/readable
+    if (tileZ > 12) {
+      const parentZ = tileZ - 1;
+      const ptx = Math.floor(tx / 2);
+      const pty = Math.floor(ty / 2);
+      const parentEntry = tileCache.get(`${parentZ}/${ptx}/${pty}`);
+      if (parentEntry && parentEntry.loaded) {
+        const subX = (tx % 2) * 128;
+        const subY = (ty % 2) * 128;
+        ctx.drawImage(parentEntry.img, subX, subY, 128, 128, p1.x, p1.y, tw, th);
+        return;
+      }
+    }
+
+    ctx.fillStyle = ((tx + ty) % 2 === 0) ? "#131c2e" : "#172238";
+    ctx.fillRect(p1.x, p1.y, tw, th);
+    ctx.strokeStyle = "rgba(148,163,184,0.12)";
+    ctx.strokeRect(p1.x, p1.y, tw, th);
   }
 
   function updateSatStatusLabel(text) {
@@ -1231,6 +1262,36 @@
     drawMap();
   }
 
+  function locateCurrentUser(centerOnFound = true) {
+    if (!navigator.geolocation) {
+      alert("อุปกรณ์นี้ไม่รองรับ GPS");
+      return;
+    }
+    updateSatStatusLabel("กำลังค้นหาตำแหน่งปัจจุบัน...");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        currentUserLocation = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy || 15
+        };
+        if (centerOnFound) {
+          setSelectedCoord(currentUserLocation.lat, currentUserLocation.lng, true);
+        } else {
+          drawMap();
+        }
+        updateSatStatusLabel(`GPS แม่นยำ ±${Math.round(currentUserLocation.accuracy)} ม.`);
+      },
+      () => {
+        updateSatStatusLabel("ไม่ได้รับสิทธิ์ GPS • คลิกหรือกรอกพิกัดได้เอง");
+        if (centerOnFound) {
+          alert("ไม่สามารถเข้าถึง GPS ปัจจุบันได้ กรุณาอนุญาต Location หรือคลิกปักหมุดบนแผนที่ได้เลยครับ");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
+    );
+  }
+
   function drawMap() {
     const canvas = document.getElementById("surveyMap");
     if (!canvas) return;
@@ -1238,6 +1299,9 @@
     canvas.width = rect.width || 600;
     canvas.height = rect.height || 450;
     const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
     const w = canvas.width;
     const h = canvas.height;
     const { pxPerDegLng, pxPerDegLat } = getScaleFactors(zoomFloat);
@@ -1246,7 +1310,8 @@
     ctx.fillRect(0, 0, w, h);
 
     if (isSatellite) {
-      const tileZ = Math.max(12, Math.min(18, Math.round(zoomFloat)));
+      // Request high-detail tiles up to Z19 when zoomed in closely
+      const tileZ = Math.max(12, Math.min(19, Math.ceil(zoomFloat)));
       const topLeft = canvasToLatLng(0, 0, w, h, zoomFloat);
       const bottomRight = canvasToLatLng(w, h, w, h, zoomFloat);
 
@@ -1257,7 +1322,6 @@
 
       for (let tx = minTx; tx <= maxTx; tx++) {
         for (let ty = minTy; ty <= maxTy; ty++) {
-          const tile = getSatelliteTile(tx, ty, tileZ);
           const tLat1 = tile2lat(ty, tileZ);
           const tLng1 = tile2lon(tx, tileZ);
           const tLat2 = tile2lat(ty + 1, tileZ);
@@ -1265,20 +1329,10 @@
 
           const p1 = latLngToCanvas(tLat1, tLng1, w, h, zoomFloat);
           const p2 = latLngToCanvas(tLat2, tLng2, w, h, zoomFloat);
-          const tw = Math.ceil(p2.x - p1.x) + 1;
-          const th = Math.ceil(p2.y - p1.y) + 1;
-
-          if (tile.loaded) {
-            ctx.drawImage(tile.img, p1.x, p1.y, tw, th);
-          } else {
-            ctx.fillStyle = ((tx + ty) % 2 === 0) ? "#131c2e" : "#172238";
-            ctx.fillRect(p1.x, p1.y, tw, th);
-            ctx.strokeStyle = "rgba(148,163,184,0.12)";
-            ctx.strokeRect(p1.x, p1.y, tw, th);
-          }
+          drawTileWithFallback(ctx, tx, ty, tileZ, p1, p2, w, h);
         }
       }
-      ctx.fillStyle = "rgba(2, 6, 23, 0.2)";
+      ctx.fillStyle = "rgba(2, 6, 23, 0.14)";
       ctx.fillRect(0, 0, w, h);
     } else {
       ctx.strokeStyle = "rgba(148, 163, 184, 0.16)";
@@ -1356,6 +1410,34 @@
       ctx.fillText(label, pt.x + 15, pt.y + 4);
     });
 
+    // Google Maps style Current Location Blue Dot + Halo
+    if (currentUserLocation) {
+      const uPt = latLngToCanvas(currentUserLocation.lat, currentUserLocation.lng, w, h, zoomFloat);
+      const degPerMeterLat = 1 / 111320;
+      const haloRadiusPx = Math.max(16, Math.min(75, (currentUserLocation.accuracy || 15) * degPerMeterLat * pxPerDegLat));
+
+      ctx.beginPath();
+      ctx.arc(uPt.x, uPt.y, haloRadiusPx, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(56, 189, 248, 0.22)";
+      ctx.fill();
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = "rgba(56, 189, 248, 0.55)";
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(uPt.x, uPt.y, 7.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#2563eb";
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
+
+      ctx.font = "700 12px 'Sarabun', sans-serif";
+      ctx.fillStyle = "#bae6fd";
+      ctx.fillText("ตำแหน่งปัจจุบัน", uPt.x + 12, uPt.y + 4);
+    }
+
+    // Selected pin crosshair
     const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h, zoomFloat);
     ctx.strokeStyle = "#fbbf24";
     ctx.lineWidth = 2;
@@ -1532,6 +1614,11 @@
     document.getElementById("hvInsDist").value = ls.hvInsDist || "";
     document.getElementById("hvInsUnit").value = ls.hvInsUnit || "เมตร";
     document.getElementById("hvInsDistWrap").classList.toggle("hidden", !ls.hvInsSystem);
+
+    const mapModeBtn = document.getElementById("btnMapMode");
+    if (mapModeBtn) {
+      mapModeBtn.textContent = isSatellite ? "โหมด: ภาพดาวเทียม HD" : "โหมด: แผนที่ถนน (เข้ม)";
+    }
 
     updateZoomBadge();
     renderPoleList();
@@ -1978,13 +2065,13 @@
 
     else if (action === "toggleMapMode") {
       isSatellite = !isSatellite;
-      btn.textContent = isSatellite ? "โหมด: ภาพดาวเทียม" : "โหมด: แผนที่ถนน (เข้ม)";
+      btn.textContent = isSatellite ? "โหมด: ภาพดาวเทียม HD" : "โหมด: แผนที่ถนน (เข้ม)";
       drawMap();
     }
 
     else if (action === "resetMapView") {
       mapCenter = { lat: selectedCoord.lat, lng: selectedCoord.lng };
-      zoomFloat = 16.0;
+      zoomFloat = 17.0;
       updateZoomBadge();
       drawMap();
     }
@@ -1999,14 +2086,7 @@
     }
 
     else if (action === "getCurrentGPS") {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            setSelectedCoord(pos.coords.latitude, pos.coords.longitude, true);
-          },
-          () => alert("ไม่สามารถเข้าถึง GPS ของอุปกรณ์ได้ คุณสามารถระบุ Lat/Long เองหรือคลิกบนแผนที่ได้")
-        );
-      }
+      locateCurrentUser(true);
     }
 
     else if (action === "openNewProjectModal") {
@@ -2304,6 +2384,7 @@
   function boot() {
     initCanvasPanZoomAndClick();
     renderProjectUI();
+    locateCurrentUser(false);
   }
 
   if (document.readyState === "loading") {
