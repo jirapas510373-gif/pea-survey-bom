@@ -219,6 +219,10 @@
       font-size: 12.5px;
       font-weight: 500;
     }
+    .dist-highlight {
+      color: #fde047;
+      font-weight: 700;
+    }
     .map-zoom-controls {
       position: absolute;
       bottom: 14px;
@@ -383,6 +387,7 @@
     .badge-swap { background: var(--blue-bg); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
     .badge-tr { background: var(--pea-gold-dim); color: #fde047; border: 1px solid var(--pea-gold); }
     .badge-mtr { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.45); }
+    .badge-dist { background: rgba(251, 191, 36, 0.14); color: #fde68a; border: 1px solid rgba(251, 191, 36, 0.4); }
     .pole-details { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
 
     /* BOM Tables */
@@ -1020,8 +1025,44 @@
     return list;
   }
 
+  // คำนวณระยะห่างระหว่างพิกัด GPS (Haversine formula) เป็นเมตร
+  function calcDistanceMeters(lat1, lng1, lat2, lng2) {
+    const R = 6371000;
+    const toRad = deg => (deg * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function formatDistance(meters) {
+    if (!Number.isFinite(meters) || meters < 0) return "-";
+    if (meters >= 1000) {
+      return `${(meters / 1000).toFixed(2)} กม. (${meters.toFixed(1)} ม.)`;
+    }
+    return `${meters.toFixed(1)} ม.`;
+  }
+
+  function getReferencePoleForPin(poles, coord) {
+    if (!poles || !poles.length) return null;
+    let nearest = poles[0];
+    let minDist = calcDistanceMeters(coord.lat, coord.lng, nearest.lat, nearest.lng);
+    for (let i = 1; i < poles.length; i++) {
+      const d = calcDistanceMeters(coord.lat, coord.lng, poles[i].lat, poles[i].lng);
+      if (d < minDist) {
+        minDist = d;
+        nearest = poles[i];
+      }
+    }
+    return { pole: nearest, distanceMeters: minDist };
+  }
+
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V9";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V10";
   let memoryFallback = null;
 
   function loadData() {
@@ -1342,14 +1383,24 @@
     if (el) el.textContent = text;
   }
 
+  function updateCursorCoordBadge() {
+    const proj = getActiveProject();
+    const poles = proj ? proj.poles : [];
+    const ref = getReferencePoleForPin(poles, selectedCoord);
+    const distPart = ref
+      ? ` • <span class="dist-highlight">ห่างจาก ${escapeHtml(ref.pole.code)}: ${formatDistance(ref.distanceMeters)}</span>`
+      : "";
+    document.getElementById("cursorCoordBadge").innerHTML =
+      `พิกัดปักหมุด: ${selectedCoord.lat.toFixed(6)}, ${selectedCoord.lng.toFixed(6)}${distPart}`;
+  }
+
   function setSelectedCoord(lat, lng, recenter = false) {
     if (Number.isNaN(lat) || Number.isNaN(lng)) return;
     selectedCoord = { lat, lng };
     if (recenter) {
       mapCenter = { lat, lng };
     }
-    document.getElementById("cursorCoordBadge").textContent =
-      `พิกัดปักหมุด: ${selectedCoord.lat.toFixed(6)}, ${selectedCoord.lng.toFixed(6)}`;
+    updateCursorCoordBadge();
     document.getElementById("manualLat").value = selectedCoord.lat.toFixed(6);
     document.getElementById("manualLng").value = selectedCoord.lng.toFixed(6);
     drawMap();
@@ -1383,6 +1434,31 @@
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
     );
+  }
+
+  function drawDistanceLabelOnCanvas(ctx, midX, midY, text, bgColor = "rgba(15, 23, 42, 0.9)", borderColor = "#fbbf24", textColor = "#fde047") {
+    ctx.save();
+    ctx.font = "700 12px 'Sarabun', sans-serif";
+    const padX = 7;
+    const textW = ctx.measureText(text).width;
+    const boxW = textW + padX * 2;
+    const boxH = 20;
+    const x = midX - boxW / 2;
+    const y = midY - boxH / 2;
+
+    ctx.fillStyle = bgColor;
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.roundRect(x, y, boxW, boxH, 5);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, midX, midY + 0.5);
+    ctx.restore();
   }
 
   function drawMap() {
@@ -1465,6 +1541,7 @@
     const proj = getActiveProject();
     const poles = proj ? proj.poles : [];
 
+    // เส้นเชื่อมและระยะห่างระหว่างเสาแต่ละจุด
     if (poles.length > 1) {
       ctx.strokeStyle = "#c084fc";
       ctx.lineWidth = 3;
@@ -1475,6 +1552,52 @@
         else ctx.lineTo(pt.x, pt.y);
       });
       ctx.stroke();
+
+      for (let i = 1; i < poles.length; i++) {
+        const prev = poles[i - 1];
+        const curr = poles[i];
+        const p1 = latLngToCanvas(prev.lat, prev.lng, w, h, zoomFloat);
+        const p2 = latLngToCanvas(curr.lat, curr.lng, w, h, zoomFloat);
+        const dMeters = calcDistanceMeters(prev.lat, prev.lng, curr.lat, curr.lng);
+        drawDistanceLabelOnCanvas(
+          ctx,
+          (p1.x + p2.x) / 2,
+          (p1.y + p2.y) / 2,
+          `${dMeters.toFixed(1)} ม.`,
+          "rgba(46, 16, 101, 0.92)",
+          "#c084fc",
+          "#f3e8ff"
+        );
+      }
+    }
+
+    const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h, zoomFloat);
+
+    // เส้นประและระยะห่างจากจุดปักหมุดปัจจุบันไปยังเสาใกล้ที่สุด
+    const ref = getReferencePoleForPin(poles, selectedCoord);
+    if (ref) {
+      const refPt = latLngToCanvas(ref.pole.lat, ref.pole.lng, w, h, zoomFloat);
+      ctx.save();
+      ctx.strokeStyle = "#fbbf24";
+      ctx.lineWidth = 2.2;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(refPt.x, refPt.y);
+      ctx.lineTo(selPt.x, selPt.y);
+      ctx.stroke();
+      ctx.restore();
+
+      const midX = (refPt.x + selPt.x) / 2;
+      const midY = (refPt.y + selPt.y) / 2 - 14;
+      drawDistanceLabelOnCanvas(
+        ctx,
+        midX,
+        midY,
+        `${ref.pole.code} → หมุด: ${formatDistance(ref.distanceMeters)}`,
+        "rgba(9, 13, 22, 0.94)",
+        "#fbbf24",
+        "#fde047"
+      );
     }
 
     poles.forEach(p => {
@@ -1528,7 +1651,6 @@
       ctx.fillText("ตำแหน่งปัจจุบัน", uPt.x + 12, uPt.y + 4);
     }
 
-    const selPt = latLngToCanvas(selectedCoord.lat, selectedCoord.lng, w, h, zoomFloat);
     ctx.strokeStyle = "#fbbf24";
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -1715,6 +1837,7 @@
     }
 
     updateZoomBadge();
+    updateCursorCoordBadge();
     renderPoleList();
     renderBOM();
     drawMap();
@@ -1755,6 +1878,13 @@
         mIns > 0 ? `<span class="badge badge-mtr">ติดมิเตอร์ ${mIns} เครื่อง</span>` : ""
       ].filter(Boolean).join(" ");
 
+      let distBadge = "";
+      if (idx > 0) {
+        const prev = poles[idx - 1];
+        const dMeters = calcDistanceMeters(prev.lat, prev.lng, p.lat, p.lng);
+        distBadge = `<span class="badge badge-dist">ระยะห่างจาก ${escapeHtml(prev.code)}: ${formatDistance(dMeters)}</span>`;
+      }
+
       let summaryHtml = "";
       if (p.removeSpec) {
         summaryHtml += `<div style="color:#fca5a5;"><strong>[รื้อถอน]</strong> ${formatSpecText(p.removeSpec, false)}</div>`;
@@ -1767,7 +1897,7 @@
         <div class="pole-item">
           <div class="pole-item-top">
             <div>
-              <strong>#${idx + 1} ${escapeHtml(p.code)}</strong> ${badgeHtml} ${trBadge} ${meterBadges}
+              <strong>#${idx + 1} ${escapeHtml(p.code)}</strong> ${badgeHtml} ${trBadge} ${meterBadges} ${distBadge}
               <div style="font-size:12px; color:var(--text-muted);">Lat: ${Number(p.lat).toFixed(6)}, Lng: ${Number(p.lng).toFixed(6)}</div>
             </div>
             <div style="display:flex; gap:5px;">
