@@ -21,7 +21,7 @@
     });
   }
 
-  // 1. ฐานข้อมูลอุปกรณ์หัวเสาแรงสูง (ครบ 40 รายการ)
+  // 1. ฐานข้อมูลอุปกรณ์หัวเสาแรงสูง (ครบ 41 รายการ)
   const HV_TOP_HARDWARE = [
     { type: "SP", system: "1 Phase" },
     { type: "SP", system: "3 Phase" },
@@ -36,6 +36,7 @@
     { type: "DP 1.5 M", system: "1 Phase" },
     { type: "DP 1.5 M", system: "3 Phase" },
     { type: "CCB(ทางตรง)", system: "1 Phase" },
+    { type: "CCB(ทางโค้ง)", system: "1 Phase" },
     { type: "CCB(ทางโค้ง)", system: "3 Phase" },
     { type: "CCB(ทางตรง) 2 CIRCUIT", system: "1 Phase" },
     { type: "CCB(ทางโค้ง) 2 CIRCUIT", system: "3 Phase" },
@@ -138,7 +139,7 @@
   }
 
   // 2. Safe Storage & State
-  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V17";
+  const STORAGE_KEY = "PEA_KWN_SURVEY_PROJECTS_V18";
   let memoryFallback = null;
 
   function loadData() {
@@ -189,6 +190,7 @@
                 system: "HV",
                 poleSize: "12.2",
                 concreteBase: true,
+                hasStub: false,
                 hvTopList: [{ name: "DE-AL (3 Phase)", qty: 1 }],
                 hasHotlineBailClamp: false,
                 hotlineClampList: [],
@@ -201,6 +203,8 @@
                 connectorList: [{ name: "CONNECTOR 95 ต.มม.", qty: 4 }],
                 gy33Qty: 2,
                 gy02Qty: 1,
+                hvArresterQty: 0,
+                hvGroundQty: 1,
                 lvArresterQty: 0,
                 lvGroundQty: 1
               },
@@ -221,6 +225,7 @@
                 system: "HV",
                 poleSize: "12.2",
                 concreteBase: false,
+                hasStub: false,
                 hvTopList: [{ name: "BL-AL (3 Phase)", qty: 1 }],
                 hasHotlineBailClamp: true,
                 hotlineClampList: [{ name: "HOTLINE CLAMP 50 ต.มม.", qty: 3 }],
@@ -233,6 +238,8 @@
                 connectorList: [{ name: "CONNECTOR 95 ต.มม.", qty: 4 }],
                 gy33Qty: 1,
                 gy02Qty: 1,
+                hvArresterQty: 3,
+                hvGroundQty: 1,
                 lvArresterQty: 3,
                 lvGroundQty: 1
               },
@@ -248,7 +255,7 @@
           surveyor: "ทีมสำรวจ กฟภ.สาขาควนขนุน",
           lineSummary: {
             lvRemSystem: "1 เฟส 2 สาย", lvRemDist: "120", lvRemUnit: "เมตร",
-            lvInsSystem: "1 เฟส 3 สาย", lvInsDist: "120", lvRemUnit: "เมตร",
+            lvInsSystem: "1 เฟส 3 สาย", lvInsDist: "120", lvInsUnit: "เมตร",
             hvRemSystem: "", hvRemDist: "", hvRemUnit: "เมตร",
             hvInsSystem: "", hvInsDist: "", hvInsUnit: "เมตร"
           },
@@ -268,6 +275,7 @@
                 system: "LV",
                 poleSize: "8",
                 concreteBase: false,
+                hasStub: false,
                 hvTopList: [],
                 hasHotlineBailClamp: false,
                 hotlineClampList: [],
@@ -280,6 +288,8 @@
                 connectorList: [{ name: "CONNECTOR 25 ต.มม.", qty: 2 }],
                 gy33Qty: 0,
                 gy02Qty: 0,
+                hvArresterQty: 0,
+                hvGroundQty: 0,
                 lvArresterQty: 0,
                 lvGroundQty: 0
               },
@@ -287,6 +297,7 @@
                 system: "LV",
                 poleSize: "9",
                 concreteBase: false,
+                hasStub: false,
                 hvTopList: [],
                 hasHotlineBailClamp: false,
                 hotlineClampList: [],
@@ -299,6 +310,8 @@
                 connectorList: [{ name: "CONNECTOR 50 ต.มม.", qty: 3 }],
                 gy33Qty: 0,
                 gy02Qty: 1,
+                hvArresterQty: 0,
+                hvGroundQty: 0,
                 lvArresterQty: 1,
                 lvGroundQty: 1
               }
@@ -313,6 +326,7 @@
   let selectedCoord = { lat: 7.735800, lng: 100.009200 };
   let mapCenter = { lat: 7.735800, lng: 100.009200 };
   let currentUserLocation = null;
+  let activePopupPoleId = null;
 
   const BASE_Z18_PX_PER_DEG_LNG = (256 * Math.pow(2, 18)) / 360;
   function getPxPerDegLatForZoom(z) {
@@ -553,6 +567,83 @@
     ctx.restore();
   }
 
+  function findHitPoleAtPixel(x, y, width, height) {
+    const proj = getActiveProject();
+    const poles = proj ? proj.poles : [];
+    for (let i = poles.length - 1; i >= 0; i--) {
+      const p = poles[i];
+      const pt = latLngToCanvas(p.lat, p.lng, width, height, zoomFloat);
+      const hasTr = p.installSpec && p.installSpec.hasTransformer;
+      const hitRadius = (hasTr ? 11 : 8) + 10;
+      if (Math.hypot(x - pt.x, y - pt.y) <= hitRadius) {
+        return { pole: p, index: i };
+      }
+    }
+    return null;
+  }
+
+  function renderPolePopup() {
+    const popup = document.getElementById("poleMapPopup");
+    if (!popup) return;
+    const proj = getActiveProject();
+    if (!activePopupPoleId || !proj) {
+      popup.classList.add("hidden");
+      return;
+    }
+
+    const idx = proj.poles.findIndex(p => p.id === activePopupPoleId);
+    if (idx === -1) {
+      activePopupPoleId = null;
+      popup.classList.add("hidden");
+      return;
+    }
+
+    const p = proj.poles[idx];
+    const isHeadOnly = p.workType === "SWAP_HEAD";
+    let workLabel = "ปักเสาใหม่";
+    if (p.workType === "REMOVE") workLabel = "รื้อถอนเสา";
+    else if (p.workType === "SWAP") workLabel = `สับเปลี่ยนเสา (${p.swapMode.replace("_TO_", " → ")})`;
+    else if (p.workType === "SWAP_HEAD") workLabel = "สับเปลี่ยนเฉพาะหัวเสา";
+
+    const distText = idx > 0
+      ? formatDistance(calcDistanceMeters(proj.poles[idx - 1].lat, proj.poles[idx - 1].lng, p.lat, p.lng))
+      : "จุดเริ่มต้น";
+
+    const meterLines = [];
+    if (Number(p.meterRemoveCount) > 0) meterLines.push(`รื้อมิเตอร์ ${p.meterRemoveCount} เครื่อง`);
+    if (Number(p.meterInstallCount) > 0) meterLines.push(`ติดตั้งมิเตอร์ ${p.meterInstallCount} เครื่อง`);
+
+    popup.innerHTML = `
+      <div class="pole-popup-header">
+        <div>
+          <div class="pole-popup-title">#${idx + 1} ${escapeHtml(p.code)}</div>
+          <div class="pole-popup-sub">${escapeHtml(workLabel)} • ระบบ ${escapeHtml(p.singleSystem || (p.installSpec && p.installSpec.system) || "-")}</div>
+        </div>
+        <button type="button" class="pole-popup-close" data-action="closePolePopup" title="ปิด">✕</button>
+      </div>
+      <div class="pole-popup-body">
+        <div><strong>พิกัด:</strong> ${Number(p.lat).toFixed(6)}, ${Number(p.lng).toFixed(6)}</div>
+        <div><strong>ระยะห่างจากเสาก่อนหน้า:</strong> ${escapeHtml(distText)}</div>
+        ${p.removeSpec ? `<div style="color:#fca5a5; margin-top:4px;"><strong>รื้อถอน:</strong> ${escapeHtml(formatSpecText(p.removeSpec, false, isHeadOnly))}</div>` : ""}
+        ${p.installSpec ? `<div style="color:#86efac; margin-top:4px;"><strong>ติดตั้งใหม่:</strong> ${escapeHtml(formatSpecText(p.installSpec, true, isHeadOnly))}</div>` : ""}
+        ${meterLines.length ? `<div style="color:#7dd3fc; margin-top:4px;"><strong>มิเตอร์:</strong> ${escapeHtml(meterLines.join(" | "))}</div>` : ""}
+        ${p.note ? `<div style="color:#cbd5e1; margin-top:4px;"><strong>หมายเหตุ:</strong> ${escapeHtml(p.note)}</div>` : ""}
+      </div>
+      <div class="pole-popup-actions">
+        <button type="button" class="btn-outline btn-sm" data-action="focusPoleOnMap" data-id="${p.id}">จัดกึ่งกลาง</button>
+        <button type="button" class="btn-primary btn-sm" data-action="editPole" data-id="${p.id}">แก้ไขจุดนี้</button>
+      </div>
+    `;
+    popup.classList.remove("hidden");
+  }
+
+  function closePolePopup() {
+    activePopupPoleId = null;
+    const popup = document.getElementById("poleMapPopup");
+    if (popup) popup.classList.add("hidden");
+    drawMap();
+  }
+
   function drawMap() {
     const canvas = document.getElementById("surveyMap");
     if (!canvas) return;
@@ -698,6 +789,15 @@
       else if (p.workType === "SWAP_HEAD") color = "#c084fc";
 
       const hasTr = p.installSpec && p.installSpec.hasTransformer;
+      const isSelectedPopup = p.id === activePopupPoleId;
+
+      if (isSelectedPopup) {
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, (hasTr ? 16 : 13), 0, Math.PI * 2);
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
 
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, hasTr ? 11 : 8, 0, Math.PI * 2);
@@ -807,8 +907,16 @@
         const rect = canvas.getBoundingClientRect();
         const x = clientX - rect.left;
         const y = clientY - rect.top;
-        const pt = canvasToLatLng(x, y, canvas.width, canvas.height, zoomFloat);
-        setSelectedCoord(pt.lat, pt.lng, false);
+        const hit = findHitPoleAtPixel(x, y, canvas.width, canvas.height);
+        if (hit) {
+          activePopupPoleId = hit.pole.id;
+          renderPolePopup();
+          drawMap();
+        } else {
+          closePolePopup();
+          const pt = canvasToLatLng(x, y, canvas.width, canvas.height, zoomFloat);
+          setSelectedCoord(pt.lat, pt.lng, false);
+        }
       }
     }
 
@@ -931,6 +1039,7 @@
 
     updateZoomBadge();
     updateCursorCoordBadge();
+    renderPolePopup();
     renderPoleList();
     renderBOM();
     drawMap();
@@ -1028,6 +1137,9 @@
     if (isInstall && spec.concreteBase) {
       parts.push("เทคอนกรีตหุ้มโคนเสา");
     }
+    if (isInstall && spec.hasStub) {
+      parts.push("ติดตั้งเสาต่อม่อ (STUB)");
+    }
     if (spec.hvTopList && spec.hvTopList.length) {
       parts.push("หัวเสา: " + spec.hvTopList.map(h => `${h.name} x${h.qty}`).join(", "));
     }
@@ -1050,6 +1162,8 @@
     }
     if (spec.gy33Qty > 0) parts.push(`GY-33 x${spec.gy33Qty}`);
     if (spec.gy02Qty > 0) parts.push(`GY-02 x${spec.gy02Qty}`);
+    if (spec.hvArresterQty > 0) parts.push(`ล่อฟ้าแรงสูง x${spec.hvArresterQty}`);
+    if (spec.hvGroundQty > 0) parts.push(`กราวด์แรงสูง x${spec.hvGroundQty}`);
     if (spec.lvArresterQty > 0) parts.push(`ล่อฟ้าแรงต่ำ x${spec.lvArresterQty}`);
     if (spec.lvGroundQty > 0) parts.push(`กราวด์แรงต่ำ x${spec.lvGroundQty}`);
     return parts.join(" | ");
@@ -1076,6 +1190,9 @@
       if (isInstall && spec.concreteBase) {
         addItem(targetMap, vLevel, "1. เสาไฟฟ้า คอร.", `งานเทคอนกรีตหุ้มโคนเสา (${spec.system})`, "หลุม", 1);
       }
+      if (isInstall && spec.hasStub) {
+        addItem(targetMap, vLevel, "1. เสาไฟฟ้า คอร.", `ติดตั้งเสาต่อม่อ (STUB) (${spec.system})`, "ต้น", 1);
+      }
       (spec.hvTopList || []).forEach(h => {
         addItem(targetMap, "HV", "2. อุปกรณ์ประกอบหัวเสาแรงสูง", h.name, "ชุด", h.qty);
       });
@@ -1098,6 +1215,12 @@
       }
       if (spec.gy33Qty > 0) {
         addItem(targetMap, "HV", "4. ชุดยึดโยงและระบบป้องกัน (HV)", "ชุดยึดโยงแรงสูง (GY-33)", "ชุด", spec.gy33Qty);
+      }
+      if (spec.hvArresterQty > 0) {
+        addItem(targetMap, "HV", "4. ชุดยึดโยงและระบบป้องกัน (HV)", "ล่อฟ้าแรงสูง", "ชุด", spec.hvArresterQty);
+      }
+      if (spec.hvGroundQty > 0) {
+        addItem(targetMap, "HV", "4. ชุดยึดโยงและระบบป้องกัน (HV)", "กราวด์แรงสูง", "ชุด", spec.hvGroundQty);
       }
 
       (spec.rackList || []).forEach(r => {
@@ -1236,6 +1359,7 @@
       system: system,
       poleSize: system === "HV" ? "12.2" : "8",
       concreteBase: false,
+      hasStub: false,
       hvTopList: [],
       hasHotlineBailClamp: false,
       hotlineClampList: [],
@@ -1248,6 +1372,8 @@
       connectorList: [],
       gy33Qty: 0,
       gy02Qty: 0,
+      hvArresterQty: 0,
+      hvGroundQty: 0,
       lvArresterQty: 0,
       lvGroundQty: 0
     };
@@ -1355,10 +1481,14 @@
         </div>
 
         ${isInstall ? `
-        <div class="concrete-check-row">
+        <div class="concrete-check-row" style="display:flex; flex-direction:column; gap:8px;">
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#fde68a;">
             <input type="checkbox" ${spec.concreteBase ? "checked" : ""} data-spec-change="concreteBase" data-role="${role}" style="width:16px; height:16px;" />
             มีการเทคอนกรีตหุ้มโคนเสาหรือไม่ (ติ๊กหากมี / ปล่อยว่างหากไม่มี)
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; color:#fde68a;">
+            <input type="checkbox" ${spec.hasStub ? "checked" : ""} data-spec-change="hasStub" data-role="${role}" style="width:16px; height:16px;" />
+            ติดตั้งเสาต่อม่อ (STUB) หรือไม่ (ติ๊กหากมีการติดตั้ง / ปล่อยว่างหากไม่ติดตั้ง)
           </label>
         </div>` : ""}
 
@@ -1367,7 +1497,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
             <label style="margin:0;">${iconHtml("poleHead", 15, "icon-hv")} อุปกรณ์ประกอบหัวเสาแรงสูง (เลือกได้หลายรายการ)</label>
             <div style="display:flex; gap:4px;">
-              <button type="button" class="btn-sm ${hvFilter === "ALL" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="ALL">ทั้งหมด (40)</button>
+              <button type="button" class="btn-sm ${hvFilter === "ALL" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="ALL">ทั้งหมด (${HV_TOP_HARDWARE.length})</button>
               <button type="button" class="btn-sm ${hvFilter === "1P" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="1P">1 Phase</button>
               <button type="button" class="btn-sm ${hvFilter === "3P" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="3P">3 Phase</button>
               <button type="button" class="btn-sm ${hvFilter === "INS" ? "btn-primary" : "btn-outline"}" data-action="filterHvTop" data-role="${role}" data-filter="INS">Insulator</button>
@@ -1511,7 +1641,15 @@
           <div>
             <label>ชุดยึดโยงแรงต่ำ (GY-02) จำนวนชุด</label>
             <input type="number" min="0" value="${spec.gy02Qty || 0}" data-spec-input="gy02Qty" data-role="${role}" />
-          </div>` : ""}
+          </div>
+          <div>
+            <label>ติดตั้งล่อฟ้าแรงสูง จำนวนชุด</label>
+            <input type="number" min="0" value="${spec.hvArresterQty || 0}" data-spec-input="hvArresterQty" data-role="${role}" />
+          </div>
+          <div>
+            <label>ติดตั้งกราวด์แรงสูง จำนวนชุด</label>
+            <input type="number" min="0" value="${spec.hvGroundQty || 0}" data-spec-input="hvGroundQty" data-role="${role}" />
+          </div>` : `
           <div>
             <label>ล่อฟ้าแรงต่ำ จำนวนชุด</label>
             <input type="number" min="0" value="${spec.lvArresterQty || 0}" data-spec-input="lvArresterQty" data-role="${role}" />
@@ -1519,7 +1657,7 @@
           <div>
             <label>กราวด์แรงต่ำ จำนวนชุด</label>
             <input type="number" min="0" value="${spec.lvGroundQty || 0}" data-spec-input="lvGroundQty" data-role="${role}" />
-          </div>
+          </div>`}
         </div>
       </div>
     `;
@@ -1629,6 +1767,19 @@
       renderSpecForms(false);
     }
 
+    else if (action === "closePolePopup") {
+      closePolePopup();
+    }
+
+    else if (action === "focusPoleOnMap") {
+      const proj = getActiveProject();
+      const pole = proj && proj.poles.find(p => p.id === btn.dataset.id);
+      if (pole) {
+        mapCenter = { lat: Number(pole.lat), lng: Number(pole.lng) };
+        drawMap();
+      }
+    }
+
     else if (action === "cycleMapSource") {
       mapSourceIndex = (mapSourceIndex + 1) % MAP_SOURCES.length;
       const activeSrc = MAP_SOURCES[mapSourceIndex];
@@ -1732,6 +1883,9 @@
       if (!confirm(`ยืนยันการลบโปรเจค "${proj.name}" ?`)) return;
       appState.projects = appState.projects.filter(p => p.id !== proj.id);
       appState.activeProjectId = appState.projects[0].id;
+      if (activePopupPoleId && !getActiveProject().poles.some(p => p.id === activePopupPoleId)) {
+        activePopupPoleId = null;
+      }
       saveData(appState);
       renderProjectUI();
     }
@@ -1775,6 +1929,9 @@
       };
       ["install", "remove"].forEach(r => {
         if (draftSpecs[r]) {
+          draftSpecs[r].hasStub = Boolean(draftSpecs[r].hasStub);
+          draftSpecs[r].hvArresterQty = Number(draftSpecs[r].hvArresterQty) || 0;
+          draftSpecs[r].hvGroundQty = Number(draftSpecs[r].hvGroundQty) || 0;
           draftSpecs[r].hasHotlineBailClamp = Boolean(draftSpecs[r].hasHotlineBailClamp);
           draftSpecs[r].hotlineClampList = draftSpecs[r].hotlineClampList || [];
           draftSpecs[r].bailClampList = draftSpecs[r].bailClampList || [];
@@ -1789,6 +1946,9 @@
       const proj = getActiveProject();
       if (!confirm("ยืนยันการลบจุดสำรวจนี้?")) return;
       proj.poles = proj.poles.filter(p => p.id !== btn.dataset.id);
+      if (activePopupPoleId === btn.dataset.id) {
+        activePopupPoleId = null;
+      }
       saveData(appState);
       renderProjectUI();
     }
@@ -1934,6 +2094,9 @@
       if (existingIdx >= 0) proj.poles[existingIdx] = poleData;
       else proj.poles.push(poleData);
 
+      if (activePopupPoleId === poleData.id) {
+        renderPolePopup();
+      }
       setSelectedCoord(finalLat, finalLng, false);
       saveData(appState);
       document.getElementById("poleModal").classList.add("hidden");
@@ -1954,6 +2117,7 @@
 
     if (el.dataset.change === "switchProject") {
       appState.activeProjectId = el.value;
+      activePopupPoleId = null;
       saveData(appState);
       renderProjectUI();
     }
@@ -1984,6 +2148,8 @@
         renderSpecForms(true);
       } else if (field === "concreteBase") {
         draftSpecs[role].concreteBase = el.checked;
+      } else if (field === "hasStub") {
+        draftSpecs[role].hasStub = el.checked;
       } else if (field === "poleSize") {
         draftSpecs[role].poleSize = el.value;
         draftSpecs[role].rackList = [];
